@@ -17,9 +17,14 @@ npm run preview
 ## 内容如何组织
 
 - `content/catalog.json`：明确的公开目录。项目的 `articles` 列表控制发布篇目。
+- `content/reading.json`：按项目 slug、文章 slug 维护目录短摘要 `summary` 与 H2 显示标签 `headings`；导入器不会覆盖该文件。
 - `src/content/projects/<项目>/<编号>.md`：项目文章的可编辑源文件；记录来源仓库、commit 和阅读日期。
 - `public/courses/rust/`：已导出的 Rust 课程、练习和示例下载。
 - `src/layouts/`、`src/styles/`：共享页面与教材式样式。
+
+项目阅读只有两层：从 `/projects/` 的纵向篇目进入 `/projects/:slug/:article/`。项目名称直接打开首篇，旧 `/projects/:slug/` 静态重定向到首篇，不再展示独立落地页。文章目录以紧凑树形呈现，仅展开当前篇的 H2；移动端使用可折叠目录。
+
+编辑 `content/reading.json` 时，`headings` 的键必须与正文原始 H2 文本一致，值是目录中显示的短标签；正文标题与原有锚点保持不变。没有配置 `summary` 时回退到文章的 `description`，没有配置 H2 标签时显示原始标题。导入更新文章后，如 H2 有变化，应同步检查这些显示标签。
 
 ## 添加项目文章
 

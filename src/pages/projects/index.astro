@@ -1,5 +1,6 @@
 ---
 import Site from '../../layouts/Site.astro';
-import {catalog,projectArticles} from '../../lib/content';
+import {catalog} from '../../lib/content';
+import ProjectEntry from '../../components/ProjectEntry.astro';
 ---
-<Site title="项目解读"><div class="listing" data-pagefind-ignore><h1>项目解读</h1><p class="lead">先了解用途，再动手使用，最后追踪工作原理。</p>{catalog.projects.map(p=><section class="project-entry"><a class="entry-title" href={`/projects/${p.slug}/`}><h2>{p.name}</h2></a><p>{p.description}</p><ol class="article-links">{projectArticles(p.slug).map(a=><li><a href={`/projects/${p.slug}/${a.frontmatter.articleSlug}/`}>{a.frontmatter.title.replace(p.name+' ','')}</a></li>)}</ol><p class="entry-meta">更新于 {p.updated}</p></section>)}</div></Site>
+<Site title="项目解读"><div class="project-library" data-pagefind-ignore><header class="library-header"><h1>项目解读</h1><p>从一篇概览开始，逐步读懂一个项目。</p></header>{catalog.projects.map(project=><ProjectEntry project={project}/>)}</div></Site>

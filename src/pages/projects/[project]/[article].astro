@@ -1,18 +1,42 @@
 ---
 import SourceMeta from '../../../components/SourceMeta.astro';
+import ReadingTree from '../../../components/ReadingTree.astro';
 import Site from '../../../layouts/Site.astro';
-import {articles,catalog,projectArticles} from '../../../lib/content';
+import {articles,catalog,projectArticles,articleTitle,articleHeadings} from '../../../lib/content';
 export function getStaticPaths(){return articles.map(article=>({params:{project:article.frontmatter.project,article:article.frontmatter.articleSlug},props:{article}}));}
 const {article}=Astro.props;
 const {frontmatter:data,Content}=article;
 const project=catalog.projects.find(p=>p.slug===data.project)!;
 const siblings=projectArticles(data.project);
 const index=siblings.findIndex(a=>a.frontmatter.articleSlug===data.articleSlug);
-const headings=article.getHeadings().filter(h=>h.depth===2);
+const headings=articleHeadings(article);
+const title=articleTitle(article,project.name);
 ---
 <Site title={data.title} description={data.description}>
-<div class="article-layout">
-<aside class="article-sidebar" aria-label="项目文章"><a class="back" href={`/projects/${data.project}/`}>返回 {project.name}</a><p>阅读顺序</p><nav>{siblings.map(a=><a href={`/projects/${data.project}/${a.frontmatter.articleSlug}/`} aria-current={a===article?'page':undefined}>{a.frontmatter.title.replace(project.name+' ','')}</a>)}</nav><p>本文目录</p><nav>{headings.map(h=><a href={`#${h.slug}`}>{h.text}</a>)}</nav></aside>
-<article class="article" data-pagefind-body><header class="article-header"><h1 data-pagefind-meta="title">{data.title}</h1><p class="entry-meta" data-pagefind-ignore><time datetime={data.updated}>{data.updated}</time> · <SourceMeta {...data}/></p></header><div class="prose"><Content/></div><nav class="article-pagination" aria-label="文章顺序" data-pagefind-ignore>{index>0?<a href={`/projects/${data.project}/${siblings[index-1].frontmatter.articleSlug}/`}>上一篇：{siblings[index-1].frontmatter.title.replace(project.name+' ','')}</a>:<a href={`/projects/${data.project}/`}>返回项目目录</a>}{index<siblings.length-1&&<a href={`/projects/${data.project}/${siblings[index+1].frontmatter.articleSlug}/`}>下一篇：{siblings[index+1].frontmatter.title.replace(project.name+' ','')}</a>}</nav></article>
+<div class="reader-layout">
+<aside class="reader-sidebar" aria-label="项目导航"><a class="reader-project" href={`/projects/${project.slug}/${siblings[0].frontmatter.articleSlug}/`}>{project.name}</a><ReadingTree project={project} siblings={siblings} article={article} headings={headings}/><a class="reader-back" href="/projects/">全部项目</a></aside>
+<article class="reader-article" data-pagefind-body>
+ <details class="reader-mobile-navigation" data-pagefind-ignore><summary><span>{project.name}</span><span class="reader-menu-label">目录<svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></span></summary><ReadingTree project={project} siblings={siblings} article={article} headings={headings}/><a class="reader-back" href="/projects/">全部项目</a></details>
+ <header class="reader-header"><h1>{title}</h1><span hidden data-pagefind-meta="title">{data.title}</span><p class="entry-meta" data-pagefind-ignore><time datetime={data.updated}>{data.updated}</time> · <SourceMeta {...data}/></p></header>
+ <div class="prose"><Content/></div>
+ <nav class="article-pagination" aria-label="文章顺序" data-pagefind-ignore>{index>0?<a href={`/projects/${data.project}/${siblings[index-1].frontmatter.articleSlug}/`}>上一篇：{articleTitle(siblings[index-1],project.name)}</a>:<a href="/projects/">全部项目</a>}{index<siblings.length-1&&<a href={`/projects/${data.project}/${siblings[index+1].frontmatter.articleSlug}/`}>下一篇：{articleTitle(siblings[index+1],project.name)}</a>}</nav>
+</article>
 </div>
+<script>
+const headings=[...document.querySelectorAll<HTMLElement>('.reader-article .prose h2')];
+const links=[...document.querySelectorAll<HTMLAnchorElement>('[data-reading-anchor]')];
+let scheduled=false;
+function update(){
+ let active=headings[0];for(const h of headings){if(h.getBoundingClientRect().top<=150)active=h;}
+ if(active)for(const a of links){if(decodeURIComponent(a.hash.slice(1))===active.id)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');}
+ scheduled=false;
+}
+window.addEventListener('scroll',()=>{if(!scheduled){scheduled=true;requestAnimationFrame(update);}},{passive:true});
+update();
+for(const a of links)a.addEventListener('click',()=>{
+ const details=a.closest('details');if(details)details.open=false;
+ const target=document.getElementById(decodeURIComponent(a.hash.slice(1)));
+ if(target){target.tabIndex=-1;requestAnimationFrame(()=>{target.focus({preventScroll:true});target.scrollIntoView({block:'start'});});}
+});
+</script>
 </Site>

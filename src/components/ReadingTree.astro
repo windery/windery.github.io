@@ -1,0 +1,7 @@
+---
+import {articleTitle} from '../lib/content';
+const {project,siblings,article,headings}=Astro.props;
+---
+<nav class="reading-tree" aria-label="项目篇目与章节">
+{siblings.map((a:any)=><div class="reading-tree-article"><a class="reading-tree-title" href={`/projects/${project.slug}/${a.frontmatter.articleSlug}/`} aria-current={a===article?'page':undefined}>{articleTitle(a,project.name)}</a>{a===article&&<ul class="reading-tree-sections">{headings.map((h:any)=><li><a data-reading-anchor href={`#${h.slug}`} title={h.text}>{h.label}</a></li>)}</ul>}</div>)}
+</nav>

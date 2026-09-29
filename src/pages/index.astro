@@ -1,11 +1,12 @@
 ---
 import Site from '../layouts/Site.astro';
-import {catalog,projectArticles} from '../lib/content';
+import {catalog} from '../lib/content';
+import ProjectEntry from '../components/ProjectEntry.astro';
 ---
 <Site title="学习笔记">
 <div class="home" data-pagefind-ignore>
 <header class="home-intro"><h1>学过的，<br/>留在这里。</h1><p>沿着课程建立理解，<br/>在真实项目里追踪代码与设计。</p></header>
 <section class="shelf"><div class="shelf-heading"><h2>课程</h2><p>顺着章节，一步步读懂。</p></div><div class="shelf-items">{catalog.courses.map(c=><a class="course-entry" href={c.href}><div><h3>{c.name}</h3><p>{c.description}</p><span class="entry-meta">{c.detail}</span></div><svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>)}</div></section>
-<section class="shelf"><div class="shelf-heading"><h2>项目解读</h2><p>从用途，到使用，再到原理。</p></div><div class="shelf-items">{catalog.projects.map(p=><div class="project-entry"><a class="entry-title" href={`/projects/${p.slug}/`}><h3>{p.name}</h3><svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a><p>{p.description}</p><ol class="article-links">{projectArticles(p.slug).map(a=><li><a href={`/projects/${p.slug}/${a.frontmatter.articleSlug}/`}>{a.frontmatter.title.replace(p.name+' ','')}</a></li>)}</ol><span class="entry-meta">更新于 {p.updated} · {p.sourceVisibility==='private'?'私有源码 · 文档公开':'基于公开源码'}</span></div>)}</div></section>
+<section class="shelf"><div class="shelf-heading"><h2>项目解读</h2><p>从用途，到使用，再到原理。</p></div><div class="shelf-items">{catalog.projects.map(project=><ProjectEntry project={project} compact/>)}</div></section>
 </div>
 </Site>

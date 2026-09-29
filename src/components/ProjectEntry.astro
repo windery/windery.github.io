@@ -1,0 +1,14 @@
+---
+import {projectArticles} from '../lib/content';
+import ArticleList from './ArticleList.astro';
+const {project,compact=false}=Astro.props;
+const split=project.name.lastIndexOf('/');
+const owner=split>=0?project.name.slice(0,split):'';
+const name=split>=0?project.name.slice(split+1):project.name;
+const posts=projectArticles(project.slug);
+const Heading=compact?'h3':'h2';
+---
+<section class:list={['project-group',{'project-group-compact':compact}]}>
+ <header class="project-group-info"><Heading><a href={`/projects/${project.slug}/${posts[0].frontmatter.articleSlug}/`}>{owner&&<span class="project-owner">{owner}/</span>}<span>{name}</span></a></Heading><p>{project.description}</p><div class="project-group-meta"><span>{project.articles.length} 篇</span><time datetime={project.updated}>{project.updated}</time></div></header>
+ <ArticleList posts={posts} project={project}/>
+</section>

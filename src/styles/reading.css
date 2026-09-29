@@ -1,0 +1,53 @@
+/* Project discovery: project context beside an ordered, vertical reading list. */
+.project-library{max-width:1136px;margin:auto;padding:48px 0}
+.library-header{margin-bottom:40px}
+.library-header h1{margin-bottom:12px}
+.library-header p{color:var(--muted);margin:0;font-size:16px}
+.project-group{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:64px;border-top:1px solid var(--line);padding:32px 0}
+.project-group-info h2,.project-group-info h3{font:600 28px/1.35 var(--serif);margin:0 0 16px;text-wrap:initial;overflow-wrap:anywhere}
+.project-group-info h2 a,.project-group-info h3 a{color:var(--ink);text-decoration:none}
+.project-group-info a:hover{color:var(--accent)}
+.project-owner{font:400 13px/1.6 var(--sans);color:var(--muted);display:block;margin-bottom:6px}
+.project-group-info>p{font-size:14px;line-height:1.8;color:var(--muted);margin-bottom:20px;max-width:36em}
+.project-group-meta{display:flex;gap:16px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.reading-list{list-style:none;padding:0;margin:0;min-width:0}
+.reading-list>li+li{border-top:1px solid var(--line)}
+.reading-list a{display:grid;grid-template-columns:24px minmax(0,1fr) 20px;gap:16px;align-items:center;min-height:88px;padding:16px 12px;text-decoration:none;color:var(--ink);border-radius:3px;transition:background-color .15s}
+.reading-list a:hover,.reading-list a:focus-visible{background:var(--surface)}
+.reading-number{font-size:12px;font-variant-numeric:tabular-nums;color:var(--muted);align-self:start;padding-top:3px}
+.reading-copy{display:grid;gap:4px;min-width:0}
+.reading-title{font-size:16px;font-weight:550;line-height:1.5}
+.reading-description{font-size:13px;line-height:1.7;color:var(--muted);overflow-wrap:anywhere}
+.reading-arrow{width:18px;height:18px;fill:none;stroke:var(--muted);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.reading-list a:hover .reading-title,.reading-list a:hover .reading-arrow{color:var(--accent);stroke:var(--accent)}
+.project-group-compact{display:block;padding:0;border:0}
+.project-group-compact+.project-group-compact{border-top:1px solid var(--line);padding-top:32px;margin-top:32px}
+.project-group-compact .project-group-info h3{font-size:26px}
+.project-group-compact .project-group-info>p{max-width:none;margin-bottom:12px}
+.project-group-compact .project-group-meta{margin-bottom:16px}
+.project-group-compact .reading-list a{min-height:76px}
+.listing>.reading-list{margin-top:32px;border-top:1px solid var(--line)}
+/* Article reading: one tree, with only the current article expanded. */
+.reader-layout{display:grid;grid-template-columns:228px minmax(0,740px);gap:72px;max-width:1136px;margin:auto;padding:48px 0}
+.reader-sidebar{position:sticky;top:32px;align-self:start;max-height:calc(100dvh - 64px);overflow-y:auto;padding-right:24px;border-right:1px solid var(--line);scrollbar-width:thin}
+.reader-project{display:block;font-size:15px;font-weight:600;line-height:1.6;color:var(--ink);text-decoration:none;overflow-wrap:anywhere;margin-bottom:24px}
+.reading-tree-title{display:block;color:var(--muted);text-decoration:none;font-size:14px;line-height:1.5;padding:11px 12px;border-radius:3px;min-height:44px}
+.reading-tree-title[aria-current=page]{background:var(--surface);color:var(--ink);font-weight:600}
+.reading-tree-title:hover{color:var(--accent)}
+.reading-tree-sections{list-style:none;padding:0;margin:10px 0 14px 13px;border-left:1px solid var(--line)}
+.reading-tree-sections a{display:block;font-size:13px;line-height:1.6;padding:8px 12px;color:var(--muted);text-decoration:none;border-left:1px solid transparent;margin-left:-1px;overflow-wrap:anywhere}
+.reading-tree-sections a[aria-current=location]{color:var(--accent);border-left-color:var(--accent);font-weight:550}
+.reader-back{display:block;color:var(--muted);font-size:12px;margin:20px 12px 0;text-decoration:none;padding:8px 0}
+.reader-article{min-width:0}
+.reader-header{margin-bottom:36px}
+.reader-header h1{font-size:44px;line-height:1.3;margin:0 0 16px}
+.reader-header .entry-meta{margin:0}
+.reader-article .prose>p:first-child{font-size:17px;border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:36px}
+.reader-article .prose h2{scroll-margin-top:32px}
+.reader-article .prose h2:focus-visible{outline:1px solid var(--accent);outline-offset:8px}
+.reader-mobile-navigation{display:none}
+@media(max-width:1200px){.project-library,.reader-layout{margin-left:32px;margin-right:32px}.project-group{grid-template-columns:minmax(0,280px) minmax(0,1fr);gap:48px}.reader-layout{grid-template-columns:204px minmax(0,740px);gap:48px}}
+@media(max-width:850px){.project-group{grid-template-columns:minmax(0,230px) minmax(0,1fr);gap:24px}.reader-layout{display:block;max-width:740px;margin:0 auto;padding:24px}.reader-sidebar{display:none}.reader-mobile-navigation{display:block;border-bottom:1px solid var(--line);margin-bottom:32px}.reader-mobile-navigation summary{display:flex;justify-content:space-between;align-items:center;gap:20px;min-height:48px;padding-bottom:16px;cursor:pointer;font-size:13px;color:var(--muted);list-style:none}.reader-mobile-navigation summary::-webkit-details-marker{display:none}.reader-mobile-navigation summary>span:first-child{overflow-wrap:anywhere}.reader-menu-label{display:flex;align-items:center;gap:8px;flex-shrink:0;color:var(--ink)}.reader-menu-label svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.5}.reader-mobile-navigation[open] svg{transform:rotate(180deg)}.reader-mobile-navigation .reading-tree{padding:0 0 12px}.reader-mobile-navigation .reader-back{margin:0 12px 16px}.reader-mobile-navigation .reading-tree-sections a{min-height:44px;padding:11px 12px}.reader-header h1{font-size:36px}.reader-header{margin-bottom:28px}.reader-mobile-navigation summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}}
+@media(max-width:640px){.project-library{margin:0;padding:32px 24px}.library-header{margin-bottom:28px}.project-group{display:block;padding:28px 0}.project-group-info h2{font-size:28px;margin-bottom:12px}.project-group-info>p{margin-bottom:12px}.project-group-meta{margin-bottom:20px}.reading-list a{padding:16px 4px;gap:12px;min-height:88px}.project-group-compact{padding:0}.project-group-compact .reading-list a{min-height:80px}.reader-article .prose>p:first-child{font-size:16px}.reader-layout .article-pagination{font-size:13px;gap:16px}}
+@media(prefers-reduced-motion:reduce){.reading-list a{transition:none}}
+@media print{.reader-sidebar,.reader-mobile-navigation{display:none}.reader-layout{display:block;margin:0;padding:0}.reader-header h1{font-size:24pt}}
