@@ -11,3 +11,9 @@ const presentation=reading as Record<string,Record<string,{summary:string;headin
 export const articleTitle=(a:MarkdownInstance<Article>,name:string)=>a.frontmatter.title.replace(name+' ','');
 export const readingSummary=(a:MarkdownInstance<Article>)=>presentation[a.frontmatter.project]?.[a.frontmatter.articleSlug]?.summary || a.frontmatter.description;
 export const articleHeadings=(a:MarkdownInstance<Article>)=>a.getHeadings().filter(h=>h.depth===2).map(h=>({...h,label:presentation[a.frontmatter.project]?.[a.frontmatter.articleSlug]?.headings[h.text] || h.text}));
+
+// Reverse insertion order breaks ties for entries first recorded in the same commit.
+export const libraryEntries=[
+ ...catalog.courses.map(content=>({kind:'course' as const,content})),
+ ...catalog.projects.map(content=>({kind:'project' as const,content})),
+].reverse().sort((a,b)=>Date.parse(b.content.createdAt)-Date.parse(a.content.createdAt));

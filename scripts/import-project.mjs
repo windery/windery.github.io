@@ -49,7 +49,7 @@ if(existing && existing.source!==source) throw new Error('Project slug belongs t
 const dest=join(root,'src/content/projects',values.slug);
 await mkdir(dest,{recursive:true});
 for(const file of staged) await writeFile(join(dest,file.name),file.content);
-const project={slug:values.slug,name:values.name,description:values.description,source,sourceVisibility,commit:values.commit,updated:values.date,articles:staged.map(x=>basename(x.name,'.md'))};
+const project={slug:values.slug,name:values.name,description:values.description,source,sourceVisibility,commit:values.commit,updated:values.date,createdAt:existing?.createdAt || new Date().toISOString(),articles:staged.map(x=>basename(x.name,'.md'))};
 const index=catalog.projects.findIndex(p=>p.slug===values.slug);
 if(index<0) catalog.projects.push(project); else catalog.projects[index]=project;
 await writeFile(catalogPath,JSON.stringify(catalog,null,2)+'\n');

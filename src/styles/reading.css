@@ -22,7 +22,7 @@
 .reading-list a:hover .reading-title,.reading-list a:hover .reading-arrow{color:var(--accent);stroke:var(--accent)}
 .project-group-compact{display:block;padding:0;border:0}
 .project-group-compact+.project-group-compact{border-top:1px solid var(--line);padding-top:32px;margin-top:32px}
-.project-group-compact .project-group-info h3{font-size:26px}
+.project-group-compact .project-group-info h2{font-size:26px}
 .project-group-compact .project-group-info>p{max-width:none;margin-bottom:12px}
 .project-group-compact .project-group-meta{margin-bottom:16px}
 .project-group-compact .reading-list a{min-height:76px}
@@ -54,3 +54,12 @@
 @media(max-width:640px){.project-library{margin:0;padding:32px 24px}.library-header{margin-bottom:28px}.project-group{display:block;padding:28px 0}.project-group-info h2{font-size:28px;margin-bottom:12px}.project-group-info>p{margin-bottom:12px}.project-group-meta{margin-bottom:20px}.reading-list a{padding:16px 4px;gap:12px;min-height:88px}.project-group-compact{padding:0}.project-group-compact .reading-list a{min-height:80px}.reader-article .prose>p:first-child{font-size:16px}.reader-layout .article-pagination{font-size:13px;gap:16px}}
 @media(prefers-reduced-motion:reduce){.reading-list a{transition:none}}
 @media print{.reader-sidebar,.reader-mobile-navigation,.reader-back{display:none}.reader-layout{display:block;margin:0;padding:0}.reader-header h1{font-size:24pt}}
+
+/* One chronological library on the home page, with no category columns. */
+.home-feed{max-width:936px;margin:0 auto}
+.home-feed .project-group-compact,.home-course{border-top:1px solid var(--line);padding:32px 0;margin:0}
+.home-feed .project-group-info>p{max-width:none}
+.home-course .course-entry{padding:0 0 12px}
+.home-course .course-entry h2{font:600 26px/1.35 var(--serif);margin:0 0 16px}
+.home-course .course-entry p{font-size:14px;line-height:1.8}
+@media(max-width:640px){.home-feed .project-group-compact,.home-course{padding:28px 0}}
