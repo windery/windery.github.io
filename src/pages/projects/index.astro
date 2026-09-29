@@ -4,3 +4,26 @@ import {catalog} from '../../lib/content';
 import ProjectEntry from '../../components/ProjectEntry.astro';
 ---
 <Site title="项目解读"><div class="project-library" data-pagefind-ignore><header class="library-header"><h1>项目解读</h1><p>从一篇概览开始，逐步读懂一个项目。</p></header>{catalog.projects.map(project=><ProjectEntry project={project}/>)}</div></Site>
+
+<script>
+const key='project-library-position';
+const library=document.querySelector('.project-library');
+library?.addEventListener('click',(event)=>{
+ const link=(event.target as Element).closest<HTMLAnchorElement>('a');
+ const group=link?.closest<HTMLElement>('[data-project]');
+ if(!link||!group)return;
+ try{sessionStorage.setItem(key,JSON.stringify({project:group.dataset.project,href:link.getAttribute('href'),y:window.scrollY,width:window.innerWidth}));}catch{}
+});
+const from=new URLSearchParams(location.search).get('from');
+if(from)window.addEventListener('pageshow',()=>requestAnimationFrame(()=>{
+ const group=document.getElementById(from);
+ if(!group)return;
+ let position;try{position=JSON.parse(sessionStorage.getItem(key)||'null');}catch{}
+ const sameProject=position?.project===from;
+ const link=sameProject?[...group.querySelectorAll<HTMLAnchorElement>('a')].find(a=>a.getAttribute('href')===position.href):undefined;
+ if(sameProject&&position.width===innerWidth&&Number.isFinite(position.y))window.scrollTo({top:position.y,behavior:'instant'});
+ else group.scrollIntoView({block:'start',behavior:'instant'});
+ link?.focus({preventScroll:true});
+ history.replaceState(history.state,'',location.pathname+location.hash);
+}),{once:true});
+</script>

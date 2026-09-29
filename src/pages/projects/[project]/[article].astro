@@ -1,6 +1,6 @@
 ---
 import SourceMeta from '../../../components/SourceMeta.astro';
-import ReadingTree from '../../../components/ReadingTree.astro';
+import ArticleToc from '../../../components/ArticleToc.astro';
 import Site from '../../../layouts/Site.astro';
 import {articles,catalog,projectArticles,articleTitle,articleHeadings} from '../../../lib/content';
 export function getStaticPaths(){return articles.map(article=>({params:{project:article.frontmatter.project,article:article.frontmatter.articleSlug},props:{article}}));}
@@ -14,12 +14,13 @@ const title=articleTitle(article,project.name);
 ---
 <Site title={data.title} description={data.description}>
 <div class="reader-layout">
-<aside class="reader-sidebar" aria-label="项目导航"><a class="reader-project" href={`/projects/${project.slug}/${siblings[0].frontmatter.articleSlug}/`}>{project.name}</a><ReadingTree project={project} siblings={siblings} article={article} headings={headings}/><a class="reader-back" href="/projects/">全部项目</a></aside>
+<aside class="reader-sidebar" aria-label="文章导航"><p class="reader-toc-label">本文目录</p><ArticleToc headings={headings}/></aside>
 <article class="reader-article" data-pagefind-body>
- <details class="reader-mobile-navigation" data-pagefind-ignore><summary><span>{project.name}</span><span class="reader-menu-label">目录<svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></span></summary><ReadingTree project={project} siblings={siblings} article={article} headings={headings}/><a class="reader-back" href="/projects/">全部项目</a></details>
- <header class="reader-header"><h1>{title}</h1><span hidden data-pagefind-meta="title">{data.title}</span><p class="entry-meta" data-pagefind-ignore><time datetime={data.updated}>{data.updated}</time> · <SourceMeta {...data}/></p></header>
+ <a class="reader-back" href={`/projects/?from=${project.slug}#${project.slug}`} aria-label="返回项目目录" data-pagefind-ignore><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10H4m5-5-5 5 5 5"/></svg>返回</a>
+ <header class="reader-header"><h1>{title}</h1><span hidden data-pagefind-meta="title">{data.title}</span><p class="reader-source-name" data-pagefind-ignore>{project.name}</p><p class="entry-meta" data-pagefind-ignore><time datetime={data.updated}>{data.updated}</time> · <SourceMeta {...data}/></p></header>
+ <details class="reader-mobile-navigation" data-pagefind-ignore><summary><span>本文目录</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></summary><ArticleToc headings={headings}/></details>
  <div class="prose"><Content/></div>
- <nav class="article-pagination" aria-label="文章顺序" data-pagefind-ignore>{index>0?<a href={`/projects/${data.project}/${siblings[index-1].frontmatter.articleSlug}/`}>上一篇：{articleTitle(siblings[index-1],project.name)}</a>:<a href="/projects/">全部项目</a>}{index<siblings.length-1&&<a href={`/projects/${data.project}/${siblings[index+1].frontmatter.articleSlug}/`}>下一篇：{articleTitle(siblings[index+1],project.name)}</a>}</nav>
+ <nav class="article-pagination" aria-label="文章顺序" data-pagefind-ignore>{index>0&&<a rel="prev" href={`/projects/${data.project}/${siblings[index-1].frontmatter.articleSlug}/`}>上一篇：{articleTitle(siblings[index-1],project.name)}</a>}{index<siblings.length-1&&<a rel="next" href={`/projects/${data.project}/${siblings[index+1].frontmatter.articleSlug}/`}>下一篇：{articleTitle(siblings[index+1],project.name)}</a>}</nav>
 </article>
 </div>
 <script>
