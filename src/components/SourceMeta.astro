@@ -1,0 +1,5 @@
+---
+interface Props { source:string; commit:string; sourceVisibility?:string; }
+const {source,commit,sourceVisibility='public'}=Astro.props;
+---
+{sourceVisibility==='public' ? <><a href={source}>公开源码</a> · <a href={`${source}/tree/${commit}`}>版本 {commit.slice(0,12)}</a></> : <>私有源码 · 文档公开 · 版本 {commit.slice(0,12)}</>}

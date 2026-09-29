@@ -1,4 +1,5 @@
 ---
+import SourceMeta from '../../../components/SourceMeta.astro';
 import Site from '../../../layouts/Site.astro';
 import {articles,catalog,projectArticles} from '../../../lib/content';
 export function getStaticPaths(){return articles.map(article=>({params:{project:article.frontmatter.project,article:article.frontmatter.articleSlug},props:{article}}));}
@@ -12,6 +13,6 @@ const headings=article.getHeadings().filter(h=>h.depth===2);
 <Site title={data.title} description={data.description}>
 <div class="article-layout">
 <aside class="article-sidebar" aria-label="项目文章"><a class="back" href={`/projects/${data.project}/`}>返回 {project.name}</a><p>阅读顺序</p><nav>{siblings.map(a=><a href={`/projects/${data.project}/${a.frontmatter.articleSlug}/`} aria-current={a===article?'page':undefined}>{a.frontmatter.title.replace(project.name+' ','')}</a>)}</nav><p>本文目录</p><nav>{headings.map(h=><a href={`#${h.slug}`}>{h.text}</a>)}</nav></aside>
-<article class="article" data-pagefind-body><header class="article-header"><h1 data-pagefind-meta="title">{data.title}</h1><p class="entry-meta" data-pagefind-ignore><time datetime={data.updated}>{data.updated}</time> · <a href={data.source}>公开源码</a> · <a href={`${data.source}/tree/${data.commit}`}>版本 {data.commit.slice(0,12)}</a></p></header><div class="prose"><Content/></div><nav class="article-pagination" aria-label="文章顺序" data-pagefind-ignore>{index>0?<a href={`/projects/${data.project}/${siblings[index-1].frontmatter.articleSlug}/`}>上一篇：{siblings[index-1].frontmatter.title.replace(project.name+' ','')}</a>:<a href={`/projects/${data.project}/`}>返回项目目录</a>}{index<siblings.length-1&&<a href={`/projects/${data.project}/${siblings[index+1].frontmatter.articleSlug}/`}>下一篇：{siblings[index+1].frontmatter.title.replace(project.name+' ','')}</a>}</nav></article>
+<article class="article" data-pagefind-body><header class="article-header"><h1 data-pagefind-meta="title">{data.title}</h1><p class="entry-meta" data-pagefind-ignore><time datetime={data.updated}>{data.updated}</time> · <SourceMeta {...data}/></p></header><div class="prose"><Content/></div><nav class="article-pagination" aria-label="文章顺序" data-pagefind-ignore>{index>0?<a href={`/projects/${data.project}/${siblings[index-1].frontmatter.articleSlug}/`}>上一篇：{siblings[index-1].frontmatter.title.replace(project.name+' ','')}</a>:<a href={`/projects/${data.project}/`}>返回项目目录</a>}{index<siblings.length-1&&<a href={`/projects/${data.project}/${siblings[index+1].frontmatter.articleSlug}/`}>下一篇：{siblings[index+1].frontmatter.title.replace(project.name+' ','')}</a>}</nav></article>
 </div>
 </Site>

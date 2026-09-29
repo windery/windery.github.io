@@ -1,6 +1,6 @@
 # Windery 学习笔记
 
-公开学习站，包含系统课程与公开项目解读。网页以 Astro 生成静态 HTML，全文搜索使用 Pagefind，GitHub Actions 发布到 GitHub Pages。
+公开学习站，包含系统课程与获授权公开的项目解读。网页以 Astro 生成静态 HTML，全文搜索使用 Pagefind，GitHub Actions 发布到 GitHub Pages。
 
 ## 本地阅读与预览
 
@@ -21,24 +21,26 @@ npm run preview
 - `public/courses/rust/`：已导出的 Rust 课程、练习和示例下载。
 - `src/layouts/`、`src/styles/`：共享页面与教材式样式。
 
-## 添加 project-to-feishu 生成的文章
+## 添加项目文章
 
-优先使用该技能生成的本地 Markdown 草稿作为同一份内容来源。飞书和本站是两个发布落点；不要先把整座知识库抓取并公开。
+使用独立的 `project-to-pages` 技能从源码生成文章，也可导入 `project-to-feishu` 的已有 Markdown。飞书和本站各自发布。GitHub 项目默认以 `owner/repository` 展示，新项目路径采用 `owner-repository`；更新已有项目保留网址。发布前应用本地配置中用户指定的排除项。
 
-1. 明确要公开的项目和篇目。源项目必须公开，并检查草稿不含本机路径、密钥、内部链接或私人笔记。
+1. 明确要公开的项目和篇目。文档须获公开授权，并检查草稿不含本机路径、密钥、内部链接或私人笔记。
 2. 把选中的编号 Markdown 文件放入一个独立目录，如 `01-项目概览.md`、`02-使用指南.md`。
 3. 使用已登录的 GitHub CLI 导入。命令会核实源仓库公开、commit 存在，并拦截部分明显敏感信息；仍需人工审阅。
 
 ```sh
 npm run import:project -- \
   --dir /path/to/reviewed-public-drafts \
-  --slug example-project \
-  --name 'Example Project' \
+  --slug owner-repository \
+  --name 'owner/repository' \
   --repo owner/repository \
   --commit FULL_40_CHARACTER_COMMIT_SHA \
   --date 2026-09-29 \
   --description '这个项目解决什么问题。'
 ```
+
+私有仓库的文档已获公开授权时，在上述命令增加 `--allow-private-source`；页面标注「私有源码 · 文档公开」，不生成不可访问的源码按钮，也不改变源仓库权限。导入器会拒绝用另一来源覆盖已有项目路径。
 
 4. 运行 build 与 preview，核对文章、来源、代码块和链接；检查 Git diff。
 5. 确认内容后提交并推送到 main，网站自动重新发布。

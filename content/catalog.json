@@ -12,10 +12,38 @@
   "projects": [
     {
       "slug": "impeccable",
-      "name": "Impeccable",
+      "name": "pbakaus/impeccable",
       "description": "为 AI 编程助手提供设计方法、界面检测和浏览器迭代工具。",
       "source": "https://github.com/pbakaus/impeccable",
       "commit": "114ea1d3838fca73b253af45f873b9c4f5f213c8",
+      "updated": "2026-09-29",
+      "articles": [
+        "01",
+        "02",
+        "03"
+      ]
+    },
+    {
+      "slug": "windery-agent-to-feishu",
+      "name": "windery/agent-to-feishu",
+      "description": "三个独立技能，将会话与项目知识整理为飞书文档或公开学习站文章。",
+      "source": "https://github.com/windery/agent-to-feishu",
+      "sourceVisibility": "private",
+      "commit": "71c0bc48b30d4b4faf0e2a6994e38f06918910fe",
+      "updated": "2026-09-29",
+      "articles": [
+        "01",
+        "02",
+        "03"
+      ]
+    },
+    {
+      "slug": "mattpocock-skills",
+      "name": "mattpocock/skills",
+      "description": "把需求澄清、领域建模、拆票、测试和审查组织成可组合的 Agent 技能。",
+      "source": "https://github.com/mattpocock/skills",
+      "sourceVisibility": "public",
+      "commit": "d81f3a183412e71a5b1e84ca21bc1a35eea03a60",
       "updated": "2026-09-29",
       "articles": [
         "01",

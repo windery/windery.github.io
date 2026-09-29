@@ -4,7 +4,8 @@ import { resolve, join, basename } from 'node:path';
 import { execFileSync } from 'node:child_process';
 const { values } = parseArgs({ options: {
   dir: { type:'string' }, slug: { type:'string' }, name: { type:'string' },
-  repo: { type:'string' }, commit: { type:'string' }, date: { type:'string' }, description: { type:'string' }
+  repo: { type:'string' }, commit: { type:'string' }, date: { type:'string' }, description: { type:'string' },
+  'allow-private-source': { type:'boolean', default:false }
 }});
 for (const key of ['dir','slug','name','repo','commit','date','description']) {
   if (!values[key]) throw new Error(`Missing --${key}. See README.md for usage.`);
@@ -13,9 +14,12 @@ if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(values.slug)) throw new Error('Project sl
 if (!/^[\w.-]+\/[\w.-]+$/.test(values.repo)) throw new Error('Use owner/repo for --repo.');
 if (!/^[a-f0-9]{40}$/.test(values.commit)) throw new Error('Use the full source commit SHA.');
 if (!/^\d{4}-\d{2}-\d{2}$/.test(values.date)) throw new Error('Use YYYY-MM-DD for --date.');
-const visibility = execFileSync('gh',['api',`repos/${values.repo}`,'--jq','.private'],{encoding:'utf8'}).trim();
-if (visibility !== 'false') throw new Error('Only verified public source repositories may be imported.');
+const visibility=execFileSync('gh',['api',`repos/${values.repo}`,'--jq','.private'],{encoding:'utf8'}).trim();
+if (!['true','false'].includes(visibility)) throw new Error('Unable to verify source visibility.');
+if (visibility==='true' && !values['allow-private-source']) throw new Error('Private source: explicit document-publication authorization and --allow-private-source required.');
 execFileSync('gh',['api',`repos/${values.repo}/commits/${values.commit}`,'--jq','.sha'],{encoding:'utf8'});
+const source=`https://github.com/${values.repo}`;
+const sourceVisibility=visibility==='true'?'private':'public';
 const root=resolve(import.meta.dirname,'..');
 const input=resolve(values.dir);
 const files=(await readdir(input)).filter(x=>/^\d+.*\.md$/.test(x)).sort();
@@ -34,16 +38,18 @@ for(const file of files) {
   slugs.add(articleSlug);
   const body=raw.replace(/^#\s+.+\r?\n+/,'');
   const description=body.split('\n').find(x=>x.startsWith('TL;DR'))?.replace(/^TL;DR[：:]\s*/,'') || values.description;
-  const fields={title,description,project:values.slug,articleSlug,order:Number(articleSlug),source:`https://github.com/${values.repo}`,commit:values.commit,updated:values.date,published:true};
+  const fields={title,description,project:values.slug,articleSlug,order:Number(articleSlug),source,sourceVisibility,commit:values.commit,updated:values.date,published:true};
   const frontmatter=Object.entries(fields).map(([k,v])=>`${k}: ${JSON.stringify(v)}`).join('\n');
   staged.push({name:`${articleSlug}.md`,content:`---\n${frontmatter}\n---\n\n${body}`});
 }
+const catalogPath=join(root,'content/catalog.json');
+const catalog=JSON.parse(await readFile(catalogPath,'utf8'));
+const existing=catalog.projects.find(p=>p.slug===values.slug);
+if(existing && existing.source!==source) throw new Error('Project slug belongs to a different source; choose another slug.');
 const dest=join(root,'src/content/projects',values.slug);
 await mkdir(dest,{recursive:true});
 for(const file of staged) await writeFile(join(dest,file.name),file.content);
-const catalogPath=join(root,'content/catalog.json');
-const catalog=JSON.parse(await readFile(catalogPath,'utf8'));
-const project={slug:values.slug,name:values.name,description:values.description,source:`https://github.com/${values.repo}`,commit:values.commit,updated:values.date,articles:staged.map(x=>basename(x.name,'.md'))};
+const project={slug:values.slug,name:values.name,description:values.description,source,sourceVisibility,commit:values.commit,updated:values.date,articles:staged.map(x=>basename(x.name,'.md'))};
 const index=catalog.projects.findIndex(p=>p.slug===values.slug);
 if(index<0) catalog.projects.push(project); else catalog.projects[index]=project;
 await writeFile(catalogPath,JSON.stringify(catalog,null,2)+'\n');
