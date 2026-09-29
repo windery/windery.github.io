@@ -1,0 +1,27 @@
+{
+  "courses": [
+    {
+      "slug": "rust",
+      "name": "Rust 阅读课",
+      "description": "沿着类型、所有权与控制流，读懂代码为什么这样写。",
+      "detail": "35 节课程 · 5 份速查 · 练习与解析",
+      "href": "/courses/rust/",
+      "updated": "2026-09-29"
+    }
+  ],
+  "projects": [
+    {
+      "slug": "impeccable",
+      "name": "Impeccable",
+      "description": "为 AI 编程助手提供设计方法、界面检测和浏览器迭代工具。",
+      "source": "https://github.com/pbakaus/impeccable",
+      "commit": "114ea1d3838fca73b253af45f873b9c4f5f213c8",
+      "updated": "2026-09-29",
+      "articles": [
+        "01",
+        "02",
+        "03"
+      ]
+    }
+  ]
+}

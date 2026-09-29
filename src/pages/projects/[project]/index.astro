@@ -1,0 +1,8 @@
+---
+import Site from '../../../layouts/Site.astro';
+import {catalog,projectArticles} from '../../../lib/content';
+export function getStaticPaths(){return catalog.projects.map(project=>({params:{project:project.slug},props:{project}}));}
+const {project}=Astro.props;
+const posts=projectArticles(project.slug);
+---
+<Site title={project.name} description={project.description}><div class="listing" data-pagefind-ignore><a class="back" href="/projects/">返回项目解读</a><h1>{project.name}</h1><p class="lead">{project.description}</p><p class="entry-meta">更新于 {project.updated} · <a href={project.source}>来源仓库</a> · <a href={`${project.source}/tree/${project.commit}`}>{project.commit.slice(0,12)}</a></p><ol class="project-reading">{posts.map((a,i)=><li><span class="order">{String(i+1).padStart(2,'0')}</span><div><h2><a href={`/projects/${project.slug}/${a.frontmatter.articleSlug}/`}>{a.frontmatter.title.replace(project.name+' ','')}</a></h2><p>{a.frontmatter.description}</p></div></li>)}</ol></div></Site>

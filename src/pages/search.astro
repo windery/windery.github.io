@@ -1,0 +1,4 @@
+---
+import Site from '../layouts/Site.astro';
+---
+<Site title="搜索"><div class="listing" data-pagefind-ignore><h1>搜索笔记</h1><p class="lead">在课程、项目解读和速查资料中查找。</p><link href="/pagefind/pagefind-ui.css" rel="stylesheet"/><script is:inline src="/pagefind/pagefind-ui.js" defer></script><div id="search"></div><noscript>搜索需要启用 JavaScript。你也可以通过课程目录和项目目录浏览。</noscript><script is:inline>window.addEventListener('DOMContentLoaded',()=>{if(window.PagefindUI){new PagefindUI({element:'#search',showSubResults:true,translations:{placeholder:'搜索借用、Live、检测规则…',zero_results:'没有找到“[SEARCH_TERM]”，试试其他关键词。',search_label:'搜索全部内容'}});}else{document.querySelector('#search').textContent='搜索暂不可用，请从课程或项目目录浏览。';}});</script></div></Site>

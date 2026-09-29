@@ -1,0 +1,14 @@
+{
+  "name": "windery-learning-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --host 127.0.0.1",
+    "build": "astro build && pagefind --site dist && node scripts/check-site.mjs",
+    "preview": "astro preview --host 127.0.0.1",
+    "import:project": "node scripts/import-project.mjs"
+  },
+  "dependencies": { "astro": "7.3.5" },
+  "devDependencies": { "pagefind": "^1.4.0" }
+}

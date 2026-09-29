@@ -1,0 +1,5 @@
+---
+import Site from '../../layouts/Site.astro';
+import {catalog} from '../../lib/content';
+---
+<Site title="课程"><div class="listing" data-pagefind-ignore><h1>课程</h1><p class="lead">以读懂代码为目标，按自己的节奏学习。</p>{catalog.courses.map(c=><a class="course-entry" href={c.href}><div><h2>{c.name}</h2><p>{c.description}</p><span class="entry-meta">{c.detail}</span></div><svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>)}</div></Site>
