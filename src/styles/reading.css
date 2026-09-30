@@ -38,7 +38,7 @@
 .reader-back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;margin:0 0 20px;min-height:44px;text-decoration:none}
 .reader-back-mobile{display:none}
 .reader-back svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.reader-source-name{font-size:14px;color:var(--muted);margin:0 0 6px}
+.reader-source-name{font-size:14px;color:var(--muted);margin:0 0 6px;display:flex;flex-wrap:wrap;gap:0 10px}.reader-source-name span+span::before{content:"·";margin-right:10px;color:var(--line)}
 .reader-article .article-pagination a{min-height:44px;text-align:left;display:flex;align-items:center}
 .reader-article .article-pagination a[rel=next]{margin-left:auto;text-align:right}
 .reader-article{min-width:0}
@@ -51,7 +51,7 @@
 .reader-mobile-navigation{display:none}
 @media(max-width:1200px){.project-library,.reader-layout{margin-left:32px;margin-right:32px}.project-group{grid-template-columns:minmax(0,280px) minmax(0,1fr);gap:48px}.reader-layout{grid-template-columns:204px minmax(0,740px);gap:48px}}
 @media(max-width:850px){.project-group{grid-template-columns:minmax(0,230px) minmax(0,1fr);gap:24px}.reader-layout{display:block;max-width:740px;margin:0 auto;padding:24px}.reader-sidebar{display:none}.reader-back-mobile{display:inline-flex}.reader-mobile-navigation{display:block;border-bottom:1px solid var(--line);margin-bottom:32px}.reader-mobile-navigation summary{display:flex;justify-content:space-between;align-items:center;gap:20px;min-height:48px;padding:12px 0;cursor:pointer;font-size:13px;color:var(--muted);list-style:none}.reader-mobile-navigation summary::-webkit-details-marker{display:none}.reader-mobile-navigation summary>span:first-child{overflow-wrap:anywhere}.reader-mobile-navigation summary svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.5}.reader-mobile-navigation[open] svg{transform:rotate(180deg)}.reader-mobile-navigation .article-toc{padding:0 0 16px}.reader-mobile-navigation .article-toc-list a{min-height:44px;padding:11px 12px}.reader-header h1{font-size:36px}.reader-header{margin-bottom:28px}.reader-mobile-navigation summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}}
-@media(max-width:640px){.project-library{margin:0;padding:32px 24px}.library-header{margin-bottom:28px}.project-group{display:block;padding:28px 0}.project-group-info h2{font-size:28px;margin-bottom:12px}.project-group-info>p{margin-bottom:12px}.project-group-meta{margin-bottom:20px}.reading-list a{padding:16px 4px;gap:12px;min-height:88px}.project-group-compact{padding:0}.project-group-compact .reading-list a{min-height:80px}.reader-article .prose>p:first-child{font-size:16px}.reader-layout .article-pagination{font-size:13px;gap:16px}}
+@media(max-width:640px){.reader-article .prose table{margin-left:-24px;margin-right:-24px;width:calc(100% + 48px);padding:0 24px;scroll-padding:0 24px}.reader-article .prose th,.reader-article .prose td{min-width:150px;padding:10px 12px}.reader-article .prose th:first-child,.reader-article .prose td:first-child{min-width:120px}.project-library{margin:0;padding:32px 24px}.library-header{margin-bottom:28px}.project-group{display:block;padding:28px 0}.project-group-info h2{font-size:28px;margin-bottom:12px}.project-group-info>p{margin-bottom:12px}.project-group-meta{margin-bottom:20px}.reading-list a{padding:16px 4px;gap:12px;min-height:88px}.project-group-compact{padding:0}.project-group-compact .reading-list a{min-height:80px}.reader-article .prose>p:first-child{font-size:16px}.reader-layout .article-pagination{font-size:13px;gap:16px}}
 @media(prefers-reduced-motion:reduce){.reading-list a{transition:none}}
 @media print{.reader-sidebar,.reader-mobile-navigation,.reader-back{display:none}.reader-layout{display:block;margin:0;padding:0}.reader-header h1{font-size:24pt}}
 
@@ -59,7 +59,7 @@
 .home-feed{max-width:936px;margin:0 auto}
 .home-feed .project-group-compact,.home-course{border-top:1px solid var(--line);padding:32px 0;margin:0}
 .home-feed .project-group-info>p{max-width:none}
-.home-course .course-entry{padding:0 0 12px}
+.home-course .course-entry{padding:0 0 4px}.home-course .course-entry p{margin-bottom:12px}.home-course .project-group-meta{margin:0}
 .home-course .course-entry h2{font:600 26px/1.35 var(--serif);margin:0 0 16px}
 .home-course .course-entry p{font-size:14px;line-height:1.8}
 @media(max-width:640px){.home-feed .project-group-compact,.home-course{padding:28px 0}}

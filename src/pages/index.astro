@@ -7,7 +7,7 @@ import ProjectEntry from '../components/ProjectEntry.astro';
 <div class="home" data-pagefind-ignore>
 <header class="home-intro"><h1>学过的，<br/>留在这里。</h1><p>沿着课程建立理解，<br/>在真实项目里追踪代码与设计。</p></header>
 <div class="home-feed" aria-label="按创建时间从新到旧排列">
-{libraryEntries.map(({kind,content})=>kind==='project'?<ProjectEntry project={content} compact date={content.createdAt} dateLabel="创建于 "/>:<section class="home-course" id={content.slug}><a class="course-entry" href={content.href}><div><h2>{content.name}</h2><p>{content.description}</p><span class="entry-meta">{content.detail}</span></div><svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a><time class="entry-meta" datetime={content.createdAt}>创建于 {content.createdAt.slice(0,10)}</time></section>)}
+{libraryEntries.map(({kind,content})=>kind==='project'?<ProjectEntry project={content} compact date={content.createdAt} dateLabel="创建于 "/>:<section class="home-course" id={content.slug}><a class="course-entry" href={content.href}><div><h2>{content.name}</h2><p>{content.description}</p></div><svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a><div class="project-group-meta"><span>{content.detail}</span><time datetime={content.createdAt}>创建于 {content.createdAt.slice(0,10)}</time></div></section>)}
 </div>
 </div>
 </Site>
