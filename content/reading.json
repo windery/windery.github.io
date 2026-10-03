@@ -116,5 +116,15 @@
       "summary": "客户端配置、结构化输出、流式累积、tool runner 与排查。",
       "headings": {}
     }
+  },
+  "anomalyco-opencode": {
+    "01": {
+      "summary": "仓库结构、核心设计、扩展点与适用边界。",
+      "headings": {}
+    },
+    "02": {
+      "summary": "安装登录、权限顺序、AGENTS.md、自定义 agent 与命令、MCP、非交互运行。",
+      "headings": {}
+    }
   }
 }
