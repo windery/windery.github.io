@@ -1,10 +1,9 @@
 ---
 import Site from '../layouts/Site.astro';
-import {tracks,courses,catalog,trackName,projectHref,courseStatus} from '../lib/content';
+import {courses,catalog,projectHref,courseStatus} from '../lib/content';
 const byUpdated=<T extends {updated:string}>(list:T[])=>[...list].sort((a,b)=>b.updated.localeCompare(a.updated));
 const courseList=byUpdated(courses);
 const projectList=byUpdated(catalog.projects as any[]);
-const trackOf=(e:{track?:string})=>tracks.some(t=>t.slug===e.track)?e.track!:tracks[tracks.length-1].slug;
 const owner=(name:string)=>name.includes('/')?name.slice(0,name.lastIndexOf('/')+1):'';
 const repo=(name:string)=>name.slice(name.lastIndexOf('/')+1);
 const panels=[{id:"courses",label:"课程"},{id:"projects",label:"项目解读"}];
@@ -18,69 +17,47 @@ const panels=[{id:"courses",label:"课程"},{id:"projects",label:"项目解读"}
 
  <section class="home-panel" id="panel-courses" role="tabpanel" aria-labelledby="tab-courses" data-panel="courses">
   <h2 class="panel-title">课程</h2>
-  <div class="filter-tracks" role="group" aria-label="课程方向" data-filter hidden>
-   <button type="button" data-track="all" aria-pressed="true">全部方向</button>
-   {tracks.map(t=><button type="button" data-track={t.slug} aria-pressed="false">{t.name}</button>)}
-  </div>
-  <ul class="course-list">{courseList.map(c=><li data-track={trackOf(c)}>
+  <ul class="course-list">{courseList.map(c=><li>
    <a class="course-card" href={c.href}>
     <span class="course-name">{c.name}</span>
     <span class="course-desc">{c.description}</span>
-    <span class="course-meta"><span>{trackName(c)}</span>{c.detail&&<span>{c.detail}</span>}{c.status&&<span class="status" data-status={c.status}>{courseStatus[c.status]}</span>}</span>
+    <span class="course-meta">{c.detail&&<span>{c.detail}</span>}{c.status&&<span class="status" data-status={c.status}>{courseStatus[c.status]}</span>}</span>
     <svg class="card-arrow" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5"/></svg>
    </a></li>)}</ul>
-  <p class="filter-empty" data-empty hidden>这个方向的课程还在编写。</p>
  </section>
 
  <section class="home-panel" id="panel-projects" role="tabpanel" aria-labelledby="tab-projects" data-panel="projects">
   <h2 class="panel-title">项目解读</h2>
-  <div class="filter-tracks" role="group" aria-label="项目方向" data-filter hidden>
-   <button type="button" data-track="all" aria-pressed="true">全部方向</button>
-   {tracks.map(t=><button type="button" data-track={t.slug} aria-pressed="false">{t.name}</button>)}
-  </div>
-  <ul class="project-list">{projectList.map(p=><li data-track={trackOf(p)}>
+  <ul class="project-list">{projectList.map(p=><li>
    <a class="project-row" href={projectHref(p.slug)}>
     <span class="project-name"><span class="project-owner-name">{owner(p.name)}</span>{repo(p.name)}</span>
     <span class="project-desc">{p.description}</span>
     <span class="project-meta"><span class="project-version">{p.version??`commit ${p.commit.slice(0,7)}`}</span><span>{p.articles.length} 篇</span><time datetime={p.updated}>{p.updated}</time></span>
    </a></li>)}</ul>
-  <p class="filter-empty" data-empty hidden>这个方向还没有项目解读。</p>
  </section>
 </div>
 </Site>
 <script>
-// Tabs keep courses and project write-ups apart; inside each tab a direction filter shows only that direction, or everything when none is chosen. State lives in the URL.
+// Two tabs keep courses and project write-ups apart; the open tab lives in the URL (?tab=projects).
 const tabs=document.querySelector<HTMLElement>('[data-tabs]');
 if(tabs){
  document.documentElement.classList.add('home-tabbed');
  tabs.hidden=false;
- const params=new URLSearchParams(location.search);
  const tabButtons=[...tabs.querySelectorAll<HTMLButtonElement>('[data-tab]')];
  const panels=[...document.querySelectorAll<HTMLElement>('[data-panel]')];
- const state={tab:panels.some(p=>p.dataset.panel===params.get('tab'))?params.get('tab')!:'courses',track:params.get('track')||'all'};
- const sync=()=>{
-  const q=new URLSearchParams();if(state.tab!=='courses')q.set('tab',state.tab);if(state.track!=='all')q.set('track',state.track);
-  history.replaceState(history.state,'',location.pathname+(q.size?`?${q}`:'')+location.hash);
- };
+ const asked=new URLSearchParams(location.search).get('tab');
+ let current=panels.some(p=>p.dataset.panel===asked)?asked!:'courses';
  const render=()=>{
-  tabButtons.forEach(b=>{const on=b.dataset.tab===state.tab;b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1;});
-  for(const panel of panels){
-   panel.hidden=panel.dataset.panel!==state.tab;
-   const filter=panel.querySelector<HTMLElement>('[data-filter]')!;filter.hidden=false;
-   filter.querySelectorAll<HTMLButtonElement>('[data-track]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.track===state.track)));
-   let count=0;
-   panel.querySelectorAll<HTMLElement>('li[data-track]').forEach(li=>{const on=state.track==='all'||li.dataset.track===state.track;li.hidden=!on;if(on)count++;});
-   panel.querySelector<HTMLElement>('[data-empty]')!.hidden=count>0;
-  }
-  sync();
+  tabButtons.forEach(b=>{const on=b.dataset.tab===current;b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1;});
+  panels.forEach(p=>{p.hidden=p.dataset.panel!==current;});
+  history.replaceState(history.state,'',location.pathname+(current==='courses'?'':`?tab=${current}`)+location.hash);
  };
- tabs.addEventListener('click',e=>{const b=(e.target as Element).closest<HTMLButtonElement>('[data-tab]');if(!b)return;state.tab=b.dataset.tab!;state.track='all';render();});
+ tabs.addEventListener('click',e=>{const b=(e.target as Element).closest<HTMLButtonElement>('[data-tab]');if(!b)return;current=b.dataset.tab!;render();});
  tabs.addEventListener('keydown',e=>{
   if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;
-  const i=tabButtons.findIndex(b=>b.dataset.tab===state.tab);const next=tabButtons[(i+(e.key==='ArrowRight'?1:tabButtons.length-1))%tabButtons.length];
-  state.tab=next.dataset.tab!;state.track='all';render();next.focus();
+  const i=tabButtons.findIndex(b=>b.dataset.tab===current);const next=tabButtons[(i+(e.key==='ArrowRight'?1:tabButtons.length-1))%tabButtons.length];
+  current=next.dataset.tab!;render();next.focus();
  });
- panels.forEach(panel=>panel.querySelector('[data-filter]')!.addEventListener('click',e=>{const b=(e.target as Element).closest<HTMLButtonElement>('[data-track]');if(!b)return;state.track=b.dataset.track!;render();}));
  render();
 }
 </script>
