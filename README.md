@@ -68,7 +68,7 @@ python3 scripts/import-rust.py /path/to/rust-course
 npm run build
 ```
 
-导出器只复制课程页、样式、交互和 Rust 示例；不复制学习记录、个人目标、临时截图、工具状态、完整本地 README 或凭证。站内下载包括可运行的 Rust 示例包。浏览器已读标记属于当前设备，不跨设备同步。
+导出器只复制课程页、样式、交互和 Rust 示例，并在每页 `course.css` 之后加载站点主题 `public/course-theme/rust.css`，让课程与全站风格一致而不改原课程工作区；不复制学习记录、个人目标、临时截图、工具状态、完整本地 README 或凭证。站内下载包括可运行的 Rust 示例包。浏览器已读标记属于当前设备，不跨设备同步。
 
 ## 发布
 

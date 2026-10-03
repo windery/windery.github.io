@@ -15,7 +15,7 @@ for folder,pattern in [('assets','course.*'),('lessons','*.html'),('reference','
 shutil.copy2(source/'index.html',dest/'index.html')
 for file in dest.rglob('*.html'):
  s=file.read_text()
- s=s.replace('</head>','<link rel="icon" href="/favicon.svg" type="image/svg+xml"></head>')
+ s=s.replace('</head>','<link rel="stylesheet" href="/course-theme/rust.css"><link rel="icon" href="/favicon.svg" type="image/svg+xml"></head>')
  s=s.replace('<nav aria-label="全站导航">','<nav aria-label="全站导航"><a href="/">学习站</a>')
  s=s.replace('README.md','README.html')
  s=s.replace('RESOURCES.md','RESOURCES.html')
