@@ -8,6 +8,22 @@
       "href": "/courses/rust/",
       "updated": "2026-09-29",
       "createdAt": "2026-09-29T09:20:22-07:00"
+    },
+    {
+      "slug": "java",
+      "name": "Java 深入与架构",
+      "description": "从 JVM、并发到分布式架构，读懂 Java 代码在运行时真正发生了什么。每篇都带可以自己运行的命令和代码。",
+      "detail": "17 篇长文 · 已发布 3 篇 · JDK 21",
+      "href": "/courses/java/",
+      "updated": "2026-10-03",
+      "createdAt": "2026-10-03T09:30:00+08:00",
+      "format": "markdown",
+      "lessons": [
+        "01",
+        "02",
+        "03"
+      ],
+      "status": "writing"
     }
   ],
   "projects": [
@@ -54,6 +70,20 @@
         "03"
       ],
       "createdAt": "2026-09-29T09:38:49-07:00"
+    },
+    {
+      "slug": "openjdk-jol",
+      "name": "openjdk/jol",
+      "description": "OpenJDK 的对象布局工具：读出对象头、字段偏移、对齐填充和整张对象图的内存占用。",
+      "source": "https://github.com/openjdk/jol",
+      "sourceVisibility": "public",
+      "commit": "db2cc744485031c8149991a004ab02f2ea9b24dd",
+      "updated": "2026-10-03",
+      "articles": [
+        "01",
+        "02"
+      ],
+      "createdAt": "2026-10-03T09:30:00+08:00"
     }
   ]
 }
