@@ -1,0 +1,35 @@
+---
+import Site from '../../../layouts/Site.astro';
+import {markdownCourses,courseOutline,courseLessons,lessonHref} from '../../../lib/courses';
+export function getStaticPaths(){return markdownCourses.map(course=>({params:{course:course.slug},props:{course}}));}
+const {course}=Astro.props;
+const outline=courseOutline(course.slug);
+const total=outline.reduce((n,m)=>n+m.lessons.length,0);
+const written=courseLessons(course.slug).length;
+let number=0;
+---
+<Site title={course.name} description={course.description}>
+<div class="listing course-outline" data-pagefind-ignore>
+ <a class="reader-back" href="/courses/"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10H4m5-5-5 5 5 5"/></svg>返回课程目录</a>
+ <h1>{course.name}</h1>
+ <p class="lead">{course.description}</p>
+ <p class="entry-meta">已发布 {written} 节，共 {total} 节 · 更新于 <time datetime={course.updated}>{course.updated}</time></p>
+ {outline.map(module=><section class="course-module">
+  {module.title&&<h2>{module.title}</h2>}
+  {module.summary&&<p class="course-module-summary">{module.summary}</p>}
+  <ol class="reading-list">{module.lessons.map(l=>{number+=1;const n=String(number).padStart(2,'0');return <li>{l.published
+   ?<a href={lessonHref(course.slug,l.slug)}><span class="reading-number" aria-hidden="true">{n}</span><span class="reading-copy"><span class="reading-title">{l.title}</span><span class="reading-description">{l.summary}</span></span><svg class="reading-arrow" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5"/></svg></a>
+   :<div class="lesson-upcoming"><span class="reading-number" aria-hidden="true">{n}</span><span class="reading-copy"><span class="reading-title">{l.title}<span class="lesson-status">待撰写</span></span><span class="reading-description">{l.summary}</span></span></div>}</li>;})}</ol>
+ </section>)}
+</div>
+</Site>
+<style>
+.course-outline .reader-back{margin-bottom:12px}
+.course-module{margin-top:44px}
+.course-module h2{font:600 22px/1.5 var(--serif);margin:0 0 6px}
+.course-module-summary{font-size:14px;color:var(--muted);margin:0 0 16px}
+.course-module .reading-list{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.lesson-upcoming{display:grid;grid-template-columns:24px minmax(0,1fr) 20px;gap:16px;align-items:center;min-height:88px;padding:16px 12px}
+.lesson-upcoming .reading-title{color:var(--muted)}
+.lesson-status{display:inline-block;margin-left:10px;font-size:12px;font-weight:400;padding:0 8px;border:1px solid var(--line);border-radius:999px;vertical-align:2px}
+</style>

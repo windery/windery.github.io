@@ -8,6 +8,46 @@
       "href": "/courses/rust/",
       "updated": "2026-09-29",
       "createdAt": "2026-09-29T09:20:22-07:00"
+    },
+    {
+      "slug": "ai-dev",
+      "name": "Vibe Coding 与 Agent 原理",
+      "description": "从大模型原理、用 Java 手写编程 agent，到 Claude Code 的 vibe coding 最佳实践。",
+      "detail": "27 节课程 · Java 示例",
+      "href": "/courses/ai-dev/",
+      "updated": "2026-10-03",
+      "createdAt": "2026-10-03T09:30:00+08:00",
+      "format": "markdown",
+      "lessons": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27"
+      ],
+      "status": "done"
     }
   ],
   "projects": [
@@ -54,6 +94,34 @@
         "03"
       ],
       "createdAt": "2026-09-29T09:38:49-07:00"
+    },
+    {
+      "slug": "anthropics-anthropic-sdk-java",
+      "name": "anthropics/anthropic-sdk-java",
+      "description": "Anthropic 官方 Java SDK：用类型化 builder 调用 Claude API，内置重试、流式与结构化输出。",
+      "source": "https://github.com/anthropics/anthropic-sdk-java",
+      "sourceVisibility": "public",
+      "commit": "6324b459fcde08738a255adcd88439b68851d512",
+      "updated": "2026-10-03",
+      "articles": [
+        "01",
+        "02"
+      ],
+      "createdAt": "2026-10-03T09:30:00+08:00"
+    },
+    {
+      "slug": "anomalyco-opencode",
+      "name": "anomalyco/opencode",
+      "description": "开源的终端编程 agent：支持多家模型，客户端与服务端分离，agent、命令、工具、插件、MCP 都能用文件扩展。",
+      "source": "https://github.com/anomalyco/opencode",
+      "sourceVisibility": "public",
+      "commit": "108b988a08227df45417f27905a4d6b27ad49b6d",
+      "updated": "2026-10-03",
+      "articles": [
+        "01",
+        "02"
+      ],
+      "createdAt": "2026-10-03T18:00:00+08:00"
     }
   ]
 }

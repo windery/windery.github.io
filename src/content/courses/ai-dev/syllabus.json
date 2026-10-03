@@ -1,0 +1,61 @@
+{
+  "modules": [
+    {
+      "title": "第一部分 · 大模型原理：agent 行为的根源",
+      "summary": "编程 agent 的很多“怪脾气”都来自模型本身。先弄清模型怎么工作、怎么训练出来，后面的实践才有依据。",
+      "lessons": [
+        { "slug": "01", "title": "学习地图：vibe coding、agent 与大模型", "summary": "三者是什么关系，为什么最佳实践离不开原理，这门课怎么学。" },
+        { "slug": "02", "title": "大模型如何工作：token、上下文与预测", "summary": "用工程师需要的精度理解 next-token 预测、上下文窗口和无状态调用。" },
+        { "slug": "03", "title": "模型是怎么训练出来的：预训练、指令微调与 RLHF", "summary": "从训练过程解释 agent 为什么爱说“已完成”、会讨好你、会编造不存在的 API。" },
+        { "slug": "04", "title": "控制输出：采样参数、effort 与停止条件", "summary": "temperature 等采样参数的原理，新一代模型为什么改用 effort，max_tokens 与 stop_reason 怎么读。" },
+        { "slug": "05", "title": "上下文的极限：长会话为什么会变差", "summary": "注意力的成本、长上下文中的信息丢失，以及“上下文工程”为什么成了核心技能。" }
+      ]
+    },
+    {
+      "title": "第二部分 · 用 Java 手写一个编程 agent",
+      "summary": "从一次 API 调用开始，用 Java 搭出一个能读代码、改代码、跑命令的最小 agent，亲手看清每一轮发生了什么。",
+      "lessons": [
+        { "slug": "06", "title": "第一次调用：用 HTTP 和 Java SDK 访问 Messages API", "summary": "先用 curl 看清协议，再用 Anthropic Java SDK 写出可运行的调用、流式输出和错误处理。" },
+        { "slug": "07", "title": "Tool use：模型如何“操作”你的代码", "summary": "工具定义、tool_use 与 tool_result 的往返：模型从不直接执行任何东西。" },
+        { "slug": "08", "title": "Agent 循环：手写一个最小的编程 agent", "summary": "用 Java 实现“读文件、改文件、跑命令”的循环，理解停止条件与错误回传。" },
+        { "slug": "09", "title": "编程 agent 的工具箱：搜索、编辑与执行", "summary": "为什么用 grep 而不是向量检索，精确替换式编辑怎么设计，命令输出为什么是最好的反馈。" },
+        { "slug": "10", "title": "上下文工程：system prompt、项目记忆与压缩", "summary": "给手写 agent 加上项目记忆文件和历史压缩，理解每一轮到底发给模型什么。" },
+        { "slug": "11", "title": "规划、待办与子 agent", "summary": "给 agent 加上计划和待办列表，再用子 agent 隔离上下文，看清它们各自的代价。" },
+        { "slug": "12", "title": "权限与沙箱：agent 的安全边界", "summary": "命令审批、路径限制、prompt injection 与沙箱隔离，在手写 agent 上逐一实现。" }
+      ]
+    },
+    {
+      "title": "第三部分 · Claude Code 实践",
+      "summary": "带着手写 agent 的经验使用 Claude Code。每条实践都对应前两部分的某个原理。",
+      "lessons": [
+        { "slug": "13", "title": "用原理看懂 Claude Code", "summary": "把手写 agent 的每个部件对应到 Claude Code，用 hooks 和日志观察它的实际行为。" },
+        { "slug": "14", "title": "写给 agent 的需求：从一句话到可执行的 spec", "summary": "什么信息必须给，什么可以让 agent 自己找，如何让它先追问你。" },
+        { "slug": "15", "title": "先探索、再计划、后编码：一次任务的节奏", "summary": "plan mode 的用法，以及每一步该检查什么。" },
+        { "slug": "16", "title": "反馈回路：让 agent 用测试和编译器验证自己", "summary": "测试先行、构建检查与可复现的验证命令，是 agent 产出质量的最大杠杆。" },
+        { "slug": "17", "title": "管理会话：何时清空、何时压缩、何时重来", "summary": "根据上下文原理决定会话边界，避免在变差的会话里越陷越深。" },
+        { "slug": "18", "title": "项目配置：CLAUDE.md、skills、MCP 与 hooks", "summary": "写一份有用的 CLAUDE.md，沉淀可复用的技能，接入外部系统，在关键节点执行规则。" },
+        { "slug": "19", "title": "审查 AI 写的代码：错误模式与 review 清单", "summary": "过度实现、假装通过的测试、悄悄放宽的约束：哪些地方必须人来看。" },
+        { "slug": "20", "title": "并行与自动化：多会话、worktree 与 CI", "summary": "同时推进多个任务，以及把 agent 放进流水线时的注意事项。" }
+      ]
+    },
+    {
+      "title": "第四部分 · Spring Boot 实战",
+      "summary": "在熟悉的 Java 后端项目里完整走一遍，并复盘成本与失败。",
+      "lessons": [
+        { "slug": "21", "title": "实战：用 Claude Code 在 Spring Boot 项目中交付一个功能", "summary": "从需求、计划、实现、测试到 PR，记录每一步的决策和 agent 的表现。" },
+        { "slug": "22", "title": "复盘：失败案例、成本与团队落地", "summary": "agent 在哪些任务上不划算，如何统计成本，怎样在团队里推广。" }
+      ]
+    },
+    {
+      "title": "第五部分 · 进阶：通读 opencode",
+      "summary": "读一个开源编程 agent 的完整源码，和手写版、Claude Code 逐项对照。",
+      "lessons": [
+        { "slug": "23", "title": "给 Java 程序员的 TypeScript 阅读速成", "summary": "只讲读懂 opencode 源码需要的语法：类型、async/await、模块与常见写法。" },
+        { "slug": "24", "title": "opencode 的整体结构与 agent 循环", "summary": "从入口找到主循环，和第 8 课的手写版对照。" },
+        { "slug": "25", "title": "opencode 的工具与权限", "summary": "工具如何定义、注册和审批，和第 9、12 课对照。" },
+        { "slug": "26", "title": "opencode 的上下文压缩与会话管理", "summary": "会话如何存储、何时压缩、压缩成什么，和第 10、17 课对照。" },
+        { "slug": "27", "title": "opencode 的子 agent 与扩展，以及三方对照总结", "summary": "子 agent、MCP 等扩展机制的实现，总结手写版、opencode 与 Claude Code 的异同。" }
+      ]
+    }
+  ]
+}
