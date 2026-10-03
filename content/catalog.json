@@ -12,11 +12,19 @@
     {
       "slug": "java",
       "name": "Java 深入与架构",
-      "description": "从 JVM、并发到分布式架构，读懂 Java 代码在运行时真正发生了什么。",
-      "detail": "34 节课程 · 已发布 5 节 · 示例以 JDK 21 实测",
+      "description": "从 JVM、并发到分布式架构，读懂 Java 代码在运行时真正发生了什么。每篇都带可以自己运行的命令和代码。",
+      "detail": "17 篇长文 · 已发布 3 篇 · JDK 21",
       "href": "/courses/java/",
       "updated": "2026-10-03",
-      "createdAt": "2026-10-03T09:30:00+08:00"
+      "createdAt": "2026-10-03T09:30:00+08:00",
+      "format": "markdown",
+      "lessons": [
+        "01",
+        "02",
+        "03"
+      ],
+      "track": "java",
+      "status": "writing"
     }
   ],
   "projects": [
@@ -74,10 +82,10 @@
       "updated": "2026-10-03",
       "articles": [
         "01",
-        "02",
-        "03"
+        "02"
       ],
-      "createdAt": "2026-10-03T09:30:00+08:00"
+      "createdAt": "2026-10-03T09:30:00+08:00",
+      "track": "java"
     }
   ]
 }

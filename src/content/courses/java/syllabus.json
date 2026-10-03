@@ -1,0 +1,69 @@
+{
+  "modules": [
+    {
+      "title": "第一部分 · JVM 运行时：从源码到运行",
+      "summary": "看清一个 Java 进程启动后发生了什么：线程、默认配置、类加载、字节码、对象在内存里的样子，以及 JIT 怎样改写你的代码。",
+      "lessons": [
+        { "slug": "01", "title": "从 java 命令到 main：一个 Java 进程里有什么", "summary": "启动流程、JVM 自己的线程、ergonomics 怎样决定 GC 和堆大小，以及用 jcmd 取证。" },
+        { "slug": "02", "title": "类加载与字节码：类的身份和编译器做的事", "summary": "初始化时机、双亲委派与模块化后的变化、类的身份，再用 javap 看装箱、拼接和 switch。" },
+        { "slug": "03", "title": "对象布局与 JIT：内存里的对象和越跑越快的代码", "summary": "用 JOL 测量对象头、字段重排和压缩指针，再看分层编译、内联与逃逸分析。" }
+      ]
+    },
+    {
+      "title": "第二部分 · 内存与垃圾回收",
+      "summary": "把 OutOfMemoryError、GC 停顿和内存上涨对应到具体机制和取证步骤。",
+      "lessons": [
+        { "slug": "04", "title": "JVM 内存区域与 OOM 取证", "summary": "堆、栈、元空间、直接内存各自怎样溢出，引用类型与堆转储分析。" },
+        { "slug": "05", "title": "GC 原理与收集器选择：G1 与 ZGC", "summary": "可达性、分代假设、读懂 GC 日志，按延迟与吞吐目标选择收集器。" }
+      ]
+    },
+    {
+      "title": "第三部分 · 并发：从内存模型到虚拟线程",
+      "summary": "从 happens-before 出发，一直讲到线程池、异步编排和虚拟线程。大模型调用这类高延迟 I/O 正需要这些。",
+      "lessons": [
+        { "slug": "06", "title": "Java 内存模型与锁：happens-before、volatile 与 AQS", "summary": "可见性和有序性由谁保证，synchronized 的实现，AQS 如何撑起 j.u.c。" },
+        { "slug": "07", "title": "线程池与异步编排", "summary": "ThreadPoolExecutor 的提交路径与参数取舍，CompletableFuture 的线程与异常传播。" },
+        { "slug": "08", "title": "虚拟线程与并发容器", "summary": "虚拟线程的调度与 pinning、结构化并发，以及 ConcurrentHashMap 的设计。" }
+      ]
+    },
+    {
+      "title": "第四部分 · 语言与类库的深层机制",
+      "summary": "框架“魔法”背后的语言机制，以及网络 I/O 的底层模型。",
+      "lessons": [
+        { "slug": "09", "title": "泛型、现代 Java 与反射代理", "summary": "类型擦除与桥方法，record、sealed 与模式匹配，反射、动态代理与注解处理。" },
+        { "slug": "10", "title": "I/O 模型与 Netty", "summary": "从 read 系统调用到 epoll，再到 Netty 的事件循环与内存管理。" }
+      ]
+    },
+    {
+      "title": "第五部分 · Spring 原理",
+      "summary": "读源码理解每天都在用的容器、代理和自动配置。",
+      "lessons": [
+        { "slug": "11", "title": "Spring IoC、AOP 与事务", "summary": "Bean 的一生、代理怎样织入，以及 @Transactional 为什么会失效。" },
+        { "slug": "12", "title": "Spring Boot 自动配置与启动流程", "summary": "条件注解如何决定哪个 Bean 生效，SpringApplication.run 做了哪些事。" }
+      ]
+    },
+    {
+      "title": "第六部分 · 性能与线上诊断",
+      "summary": "用可信的方法测量，用标准步骤排查。",
+      "lessons": [
+        { "slug": "13", "title": "基准、剖析与线上排查", "summary": "JMH 写对微基准，JFR 与 async-profiler 读火焰图，CPU、内存、线程问题的取证清单。" }
+      ]
+    },
+    {
+      "title": "第七部分 · 架构：从单体到分布式",
+      "summary": "在没有分布式事务的前提下保证正确，在依赖不可靠的前提下保持稳定。",
+      "lessons": [
+        { "slug": "14", "title": "边界与一致性：DDD、幂等、Saga 与 Outbox", "summary": "依赖方向与服务边界，跨服务流程的最终一致方案。" },
+        { "slug": "15", "title": "缓存与消息队列", "summary": "缓存一致性、穿透与雪崩，Kafka 的分区、顺序与重复消费。" },
+        { "slug": "16", "title": "稳定性与可观测性", "summary": "限流、熔断与降级，用 OpenTelemetry 把日志、指标和链路串起来。" }
+      ]
+    },
+    {
+      "title": "第八部分 · 在 Java 后端落地 AI 功能",
+      "summary": "Agent 原理见「Vibe Coding 与 Agent 原理」课程；这里讲怎样把 AI 能力稳稳地放进 Java 服务。",
+      "lessons": [
+        { "slug": "17", "title": "在 Java 后端落地 AI 功能", "summary": "Spring AI 与 LangChain4j 的抽象、服务边界、限流超时与可观测性。" }
+      ]
+    }
+  ]
+}
