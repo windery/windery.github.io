@@ -2,6 +2,10 @@ name: Publish learning site
 on:
   push:
     branches: [main]
+  # Runs in main's context (workflow file and permissions come from main), so
+  # PR previews can be published to the same Pages site. Fork PRs are skipped.
+  pull_request_target:
+    types: [opened, synchronize, reopened, closed]
   workflow_dispatch:
 permissions:
   contents: read
@@ -10,15 +14,54 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build:
+    if: github.event_name != 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      previews: ${{ steps.previews.outputs.previews }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
           cache: npm
       - run: npm ci
       - run: npm run build
+      - name: Build previews of open PRs
+        id: previews
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/prs"
+          gh api "repos/$REPO/pulls?state=open&per_page=100" \
+            --jq ".[] | select(.head.repo.full_name == \"$REPO\") | \"\(.number) \(.head.sha)\"" > "$RUNNER_TEMP/prs/list"
+          results='[]'
+          while read -r number sha; do
+            [ -n "$number" ] || continue
+            dir="$RUNNER_TEMP/prs/pr-$number"
+            status=failed
+            if git init -q "$dir" \
+              && git -C "$dir" fetch -q --depth 1 "https://github.com/$REPO.git" "$sha" \
+              && git -C "$dir" checkout -q FETCH_HEAD \
+              && (cd "$dir" && env -u GH_TOKEN npm ci --cache "$RUNNER_TEMP/prs/npm-cache" && env -u GH_TOKEN npm run build); then
+              node .github/workflows/preview-paths.mjs "$dir/dist" "/preview/pr-$number"
+              mkdir -p dist/preview
+              rm -rf "dist/preview/pr-$number"
+              mv "$dir/dist" "dist/preview/pr-$number"
+              status=ok
+            else
+              echo "::warning::Preview for PR #$number failed to build; publishing without it."
+            fi
+            rm -rf "$dir"
+            results=$(jq -c --argjson n "$number" --arg sha "$sha" --arg s "$status" '. + [{number:$n,sha:$sha,status:$s}]' <<<"$results")
+          done < "$RUNNER_TEMP/prs/list"
+          echo "previews=$results" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
@@ -34,3 +77,37 @@ jobs:
     steps:
       - uses: actions/deploy-pages@v4
         id: deployment
+  comment:
+    needs: [build, deploy]
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@v7
+        env:
+          PREVIEWS: ${{ needs.build.outputs.previews }}
+        with:
+          script: |
+            const marker = '<!-- pr-preview -->';
+            const previews = JSON.parse(process.env.PREVIEWS);
+            if (context.payload.action === 'closed') {
+              previews.push({ number: context.payload.pull_request.number, status: 'closed' });
+            }
+            for (const p of previews) {
+              const url = `https://windery.github.io/preview/pr-${p.number}/`;
+              const short = p.sha?.slice(0, 7);
+              const body = p.status === 'ok'
+                ? `${marker}\n预览：${url}\n\n对应提交 ${short}。PR 有新提交时会自动更新，PR 关闭后预览会删除。`
+                : p.status === 'closed'
+                ? `${marker}\nPR 已关闭，预览已删除。`
+                : `${marker}\n提交 ${short} 的预览没有构建成功，详见 Actions 日志。线上站点不受影响。`;
+              const { owner, repo } = context.repo;
+              const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number: p.number });
+              const mine = comments.find(c => c.body?.startsWith(marker));
+              if (!mine && p.status === 'closed') continue;
+              if (mine) {
+                if (mine.body !== body) await github.rest.issues.updateComment({ owner, repo, comment_id: mine.id, body });
+              } else {
+                await github.rest.issues.createComment({ owner, repo, issue_number: p.number, body });
+              }
+            }
