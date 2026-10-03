@@ -7,24 +7,21 @@ const projectList=byUpdated(catalog.projects as any[]);
 const trackOf=(e:{track?:string})=>tracks.some(t=>t.slug===e.track)?e.track!:tracks[tracks.length-1].slug;
 const owner=(name:string)=>name.includes('/')?name.slice(0,name.lastIndexOf('/')+1):'';
 const repo=(name:string)=>name.slice(name.lastIndexOf('/')+1);
+const panels=[{id:'courses',label:'课程',count:courseList.length},{id:'projects',label:'项目解读',count:projectList.length}];
 ---
 <Site title="学习笔记">
 <div class="home" data-pagefind-ignore>
  <h1 class="visually-hidden">Windery 学习笔记</h1>
- <div class="filters" data-filters hidden>
-  <div class="filter-types" role="group" aria-label="内容类型">
-   <button type="button" data-type="all" aria-pressed="true">全部<span data-count="all">{courseList.length+projectList.length}</span></button>
-   <button type="button" data-type="course" aria-pressed="false">课程<span data-count="course">{courseList.length}</span></button>
-   <button type="button" data-type="project" aria-pressed="false">项目解读<span data-count="project">{projectList.length}</span></button>
-  </div>
-  <div class="filter-tracks" role="group" aria-label="方向">
+ <div class="home-tabs" role="tablist" aria-label="内容类型" data-tabs hidden>
+  {panels.map((p,i)=><button type="button" role="tab" id={`tab-${p.id}`} aria-controls={`panel-${p.id}`} aria-selected={i===0?'true':'false'} tabindex={i===0?0:-1} data-tab={p.id}>{p.label}<span>{p.count}</span></button>)}
+ </div>
+
+ <section class="home-panel" id="panel-courses" role="tabpanel" aria-labelledby="tab-courses" data-panel="courses">
+  <h2 class="panel-title">课程</h2>
+  <div class="filter-tracks" role="group" aria-label="课程方向" data-filter hidden>
    <button type="button" data-track="all" aria-pressed="true">全部方向</button>
    {tracks.map(t=><button type="button" data-track={t.slug} aria-pressed="false">{t.name}</button>)}
   </div>
- </div>
-
- <section class="shelf" data-kind="course" aria-labelledby="courses-title">
-  <h2 id="courses-title">课程</h2>
   <ul class="course-list">{courseList.map(c=><li data-track={trackOf(c)}>
    <a class="course-card" href={c.href}>
     <span class="course-name">{c.name}</span>
@@ -32,52 +29,58 @@ const repo=(name:string)=>name.slice(name.lastIndexOf('/')+1);
     <span class="course-meta"><span>{trackName(c)}</span>{c.detail&&<span>{c.detail}</span>}{c.status&&<span class="status" data-status={c.status}>{courseStatus[c.status]}</span>}</span>
     <svg class="card-arrow" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5"/></svg>
    </a></li>)}</ul>
+  <p class="filter-empty" data-empty hidden>这个方向的课程还在编写。</p>
  </section>
 
- <section class="shelf" data-kind="project" aria-labelledby="projects-title">
-  <h2 id="projects-title">项目解读</h2>
+ <section class="home-panel" id="panel-projects" role="tabpanel" aria-labelledby="tab-projects" data-panel="projects">
+  <h2 class="panel-title">项目解读</h2>
+  <div class="filter-tracks" role="group" aria-label="项目方向" data-filter hidden>
+   <button type="button" data-track="all" aria-pressed="true">全部方向</button>
+   {tracks.map(t=><button type="button" data-track={t.slug} aria-pressed="false">{t.name}</button>)}
+  </div>
   <ul class="project-list">{projectList.map(p=><li data-track={trackOf(p)}>
    <a class="project-row" href={projectHref(p.slug)}>
     <span class="project-name"><span class="project-owner-name">{owner(p.name)}</span>{repo(p.name)}</span>
     <span class="project-desc">{p.description}</span>
     <span class="project-meta"><span class="project-version">{p.version??`commit ${p.commit.slice(0,7)}`}</span><span>{p.articles.length} 篇</span><time datetime={p.updated}>{p.updated}</time></span>
    </a></li>)}</ul>
+  <p class="filter-empty" data-empty hidden>这个方向还没有项目解读。</p>
  </section>
-
- <p class="filter-empty" data-empty hidden>这个方向下还没有内容。</p>
 </div>
 </Site>
 <script>
-// Type and direction filters: show only matching entries; with nothing chosen, everything shows.
-const root=document.querySelector<HTMLElement>('[data-filters]');
-if(root){
- root.hidden=false;
+// Tabs keep courses and project write-ups apart; inside each tab a direction filter shows only that direction, or everything when none is chosen. State lives in the URL.
+const tabs=document.querySelector<HTMLElement>('[data-tabs]');
+if(tabs){
+ document.documentElement.classList.add('home-tabbed');
+ tabs.hidden=false;
  const params=new URLSearchParams(location.search);
- const state={type:params.get('type')||'all',track:params.get('track')||'all'};
- const shelves=[...document.querySelectorAll<HTMLElement>('.shelf')];
- const empty=document.querySelector<HTMLElement>('[data-empty]')!;
- const apply=()=>{
-  root.querySelectorAll<HTMLButtonElement>('[data-type]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.type===state.type)));
-  root.querySelectorAll<HTMLButtonElement>('[data-track]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.track===state.track)));
-  let shown=0;const counts:Record<string,number>={all:0};
-  for(const shelf of shelves){
-   let count=0;
-   shelf.querySelectorAll<HTMLElement>('li[data-track]').forEach(li=>{const on=state.track==='all'||li.dataset.track===state.track;li.hidden=!on;if(on)count++;});
-   counts[shelf.dataset.kind!]=count;counts.all+=count;
-   const on=(state.type==='all'||shelf.dataset.kind===state.type)&&count>0;
-   shelf.hidden=!on;if(on)shown+=count;
-  }
-  root.querySelectorAll<HTMLElement>('[data-count]').forEach(el=>{el.textContent=String(counts[el.dataset.count!]??0);});
-  empty.hidden=shown>0;
-  const q=new URLSearchParams();if(state.type!=='all')q.set('type',state.type);if(state.track!=='all')q.set('track',state.track);
+ const tabButtons=[...tabs.querySelectorAll<HTMLButtonElement>('[data-tab]')];
+ const panels=[...document.querySelectorAll<HTMLElement>('[data-panel]')];
+ const state={tab:panels.some(p=>p.dataset.panel===params.get('tab'))?params.get('tab')!:'courses',track:params.get('track')||'all'};
+ const sync=()=>{
+  const q=new URLSearchParams();if(state.tab!=='courses')q.set('tab',state.tab);if(state.track!=='all')q.set('track',state.track);
   history.replaceState(history.state,'',location.pathname+(q.size?`?${q}`:'')+location.hash);
  };
- root.addEventListener('click',e=>{
-  const b=(e.target as Element).closest<HTMLButtonElement>('button');if(!b)return;
-  if(b.dataset.type)state.type=b.dataset.type;
-  if(b.dataset.track)state.track=b.dataset.track;
-  apply();
+ const render=()=>{
+  tabButtons.forEach(b=>{const on=b.dataset.tab===state.tab;b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1;});
+  for(const panel of panels){
+   panel.hidden=panel.dataset.panel!==state.tab;
+   const filter=panel.querySelector<HTMLElement>('[data-filter]')!;filter.hidden=false;
+   filter.querySelectorAll<HTMLButtonElement>('[data-track]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.track===state.track)));
+   let count=0;
+   panel.querySelectorAll<HTMLElement>('li[data-track]').forEach(li=>{const on=state.track==='all'||li.dataset.track===state.track;li.hidden=!on;if(on)count++;});
+   panel.querySelector<HTMLElement>('[data-empty]')!.hidden=count>0;
+  }
+  sync();
+ };
+ tabs.addEventListener('click',e=>{const b=(e.target as Element).closest<HTMLButtonElement>('[data-tab]');if(!b)return;state.tab=b.dataset.tab!;state.track='all';render();});
+ tabs.addEventListener('keydown',e=>{
+  if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;
+  const i=tabButtons.findIndex(b=>b.dataset.tab===state.tab);const next=tabButtons[(i+(e.key==='ArrowRight'?1:tabButtons.length-1))%tabButtons.length];
+  state.tab=next.dataset.tab!;state.track='all';render();next.focus();
  });
- apply();
+ panels.forEach(panel=>panel.querySelector('[data-filter]')!.addEventListener('click',e=>{const b=(e.target as Element).closest<HTMLButtonElement>('[data-track]');if(!b)return;state.track=b.dataset.track!;render();}));
+ render();
 }
 </script>

@@ -2,19 +2,20 @@
 [hidden]{display:none!important}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .home{max-width:1000px;margin:0 auto;padding:40px 32px 24px}
-.filters{display:grid;gap:14px;padding-bottom:28px;border-bottom:1px solid var(--line)}
-.filters button{font:inherit;cursor:pointer;border:0;transition:background-color .16s,color .16s,box-shadow .16s}
-.filter-types{display:flex;gap:6px;flex-wrap:wrap}
-.filter-types button{display:inline-flex;align-items:baseline;gap:8px;padding:8px 16px;border-radius:999px;background:var(--surface);color:var(--muted);font-size:15px;font-weight:550}
-.filter-types button span{font:12px/1 var(--mono);color:inherit;opacity:.75}
-.filter-types button:hover{color:var(--ink)}
-.filter-types button[aria-pressed=true]{background:var(--ink);color:#fff}
-.filter-tracks{display:flex;gap:4px;flex-wrap:wrap}
-.filter-tracks button{padding:4px 10px;border-radius:6px;background:transparent;color:var(--muted);font-size:13px}
+.home-tabs{display:flex;gap:28px;border-bottom:1px solid var(--line)}
+.home-tabs button{font:inherit;cursor:pointer;background:none;border:0;display:inline-flex;align-items:baseline;gap:8px;padding:6px 0 14px;margin-bottom:-1px;font-size:20px;font-weight:650;letter-spacing:-.01em;color:var(--muted);border-bottom:3px solid transparent;transition:color .16s,border-color .16s}
+.home-tabs button span{font:13px/1 var(--mono);font-weight:400}
+.home-tabs button:hover{color:var(--ink)}
+.home-tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--mark)}
+.home-panel{padding:24px 0 8px}
+.panel-title{font-size:13px;font-weight:600;color:var(--muted);letter-spacing:.06em;margin:0 0 14px}
+.home-tabbed .panel-title{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.home-panel+.home-panel{border-top:1px solid var(--line);margin-top:24px}
+.home-tabbed .home-panel+.home-panel{border-top:0;margin-top:0}
+.filter-tracks{display:flex;gap:4px;flex-wrap:wrap;margin:0 0 18px}
+.filter-tracks button{font:inherit;cursor:pointer;border:0;padding:4px 10px;border-radius:6px;background:transparent;color:var(--muted);font-size:13px;transition:background-color .16s,color .16s}
 .filter-tracks button:hover{color:var(--ink);background:var(--surface)}
 .filter-tracks button[aria-pressed=true]{color:var(--ink);font-weight:600;background:var(--mark)}
-.home .shelf{display:block;padding:36px 0 8px;border:0;gap:0}
-.shelf h2{font-size:13px;font-weight:600;color:var(--muted);letter-spacing:.06em;margin:0 0 14px}
 .course-list,.project-list{list-style:none;margin:0;padding:0}
 .course-list{display:grid;gap:12px}
 .course-card{position:relative;display:grid;gap:6px;padding:24px 64px 22px 26px;border:1px solid var(--line);border-radius:14px;color:var(--ink);text-decoration:none;transition:border-color .16s,box-shadow .2s}
@@ -37,7 +38,7 @@
 .project-desc{grid-column:1;font-size:14px;line-height:1.7;color:var(--muted)}
 .project-meta{grid-column:2;grid-row:1/3;align-self:center;justify-content:flex-end}
 .project-version{font-family:var(--mono);font-size:12px;color:var(--ink);background:var(--surface);padding:1px 7px;border-radius:4px}
-.filter-empty{padding:40px 0;color:var(--muted);font-size:15px}
+.filter-empty{padding:24px 0;color:var(--muted);font-size:15px}
 /* Course index page reuses the direction sections. */
 .listing-tracks{max-width:936px}
 .track{padding:32px 0 16px;border-top:1px solid var(--line)}
@@ -76,4 +77,4 @@ a.track-row:hover{background:var(--surface)}
  .track-meta{grid-column:1}
  .track-arrow{grid-column:2;grid-row:1/3}
 }
-@media(prefers-reduced-motion:reduce){.filters button,.course-card,.card-arrow{transition:none}}
+@media(prefers-reduced-motion:reduce){.home-tabs button,.filter-tracks button,.course-card,.card-arrow{transition:none}}
