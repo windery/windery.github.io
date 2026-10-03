@@ -12,8 +12,8 @@
     {
       "slug": "ai-dev",
       "name": "Vibe Coding 与 Agent 原理",
-      "description": "从大模型原理到编程 agent 的实现，再到有依据的 vibe coding 最佳实践。",
-      "detail": "22 节课程 · 已发布 5 节 · Java 示例",
+      "description": "从大模型原理、用 Java 手写编程 agent，到 Claude Code 的 vibe coding 最佳实践。",
+      "detail": "27 节课程 · 已发布 6 节 · Java 示例",
       "href": "/courses/ai-dev/",
       "updated": "2026-10-03",
       "createdAt": "2026-10-03T09:30:00+08:00",
@@ -23,8 +23,11 @@
         "02",
         "03",
         "04",
-        "05"
-      ]
+        "05",
+        "06"
+      ],
+      "track": "ai",
+      "status": "writing"
     }
   ],
   "projects": [
