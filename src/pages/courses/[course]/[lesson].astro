@@ -1,0 +1,40 @@
+---
+import ArticleToc from '../../../components/ArticleToc.astro';
+import Site from '../../../layouts/Site.astro';
+import {lessons,markdownCourses,courseLessons,lessonHref} from '../../../lib/courses';
+export function getStaticPaths(){return lessons.map(lesson=>({params:{course:lesson.frontmatter.course,lesson:lesson.frontmatter.lesson},props:{lesson}}));}
+const {lesson}=Astro.props;
+const {frontmatter:data,Content}=lesson;
+const course=markdownCourses.find(c=>c.slug===data.course)!;
+const siblings=courseLessons(data.course);
+const index=siblings.findIndex(l=>l.frontmatter.lesson===data.lesson);
+const headings=lesson.getHeadings().filter(h=>h.depth===2).map(h=>({...h,label:h.text}));
+const back=`/courses/${course.slug}/`;
+---
+<Site title={`${data.title} · ${course.name}`} description={data.description}>
+<div class="reader-layout">
+<aside class="reader-sidebar" aria-label="课程导航"><a class="reader-back" href={back} data-pagefind-ignore><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10H4m5-5-5 5 5 5"/></svg>返回课程大纲</a><p class="reader-toc-label">本课目录</p><ArticleToc headings={headings}/></aside>
+<article class="reader-article" data-pagefind-body>
+ <a class="reader-back reader-back-mobile" href={back} data-pagefind-ignore><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10H4m5-5-5 5 5 5"/></svg>返回课程大纲</a>
+ <header class="reader-header"><h1>{data.title}</h1><span hidden data-pagefind-meta="title">{`${course.name} · ${data.title}`}</span><p class="reader-source-name" data-pagefind-ignore><span>{course.name}</span>{data.module&&<span>{data.module}</span>}<span>第 {data.lesson} 课</span></p><p class="entry-meta" data-pagefind-ignore><time datetime={data.updated}>{data.updated}</time></p></header>
+ <details class="reader-mobile-navigation" data-pagefind-ignore><summary><span>本课目录</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></summary><ArticleToc headings={headings}/></details>
+ <div class="prose"><Content/></div>
+ <nav class="article-pagination" aria-label="课程顺序" data-pagefind-ignore>{index>0&&<a rel="prev" href={lessonHref(course.slug,siblings[index-1].frontmatter.lesson)}>上一课：{siblings[index-1].frontmatter.title}</a>}{index<siblings.length-1&&<a rel="next" href={lessonHref(course.slug,siblings[index+1].frontmatter.lesson)}>下一课：{siblings[index+1].frontmatter.title}</a>}</nav>
+</article>
+</div>
+<script>
+const headings=[...document.querySelectorAll<HTMLElement>('.reader-article .prose h2')];
+const links=[...document.querySelectorAll<HTMLAnchorElement>('[data-reading-anchor]')];
+let scheduled=false;
+function update(){
+ let active=headings[0];for(const h of headings){if(h.getBoundingClientRect().top<=150)active=h;}
+ if(active)for(const a of links){if(decodeURIComponent(a.hash.slice(1))===active.id)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');}
+ scheduled=false;
+}
+window.addEventListener('scroll',()=>{if(!scheduled){scheduled=true;requestAnimationFrame(update);}},{passive:true});
+update();
+for(const a of links)a.addEventListener('click',()=>{
+ const details=a.closest('details');if(details)details.open=false;
+});
+</script>
+</Site>

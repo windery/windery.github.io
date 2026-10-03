@@ -8,6 +8,22 @@
       "href": "/courses/rust/",
       "updated": "2026-09-29",
       "createdAt": "2026-09-29T09:20:22-07:00"
+    },
+    {
+      "slug": "ai-dev",
+      "name": "AI 应用开发基础",
+      "description": "从 Java 后端出发，学会把大模型接进真实系统：API、Prompt、工具调用、RAG、评测与上线。",
+      "detail": "24 节课程 · 已发布 4 节 · Java 示例",
+      "href": "/courses/ai-dev/",
+      "updated": "2026-10-03",
+      "createdAt": "2026-10-03T09:30:00+08:00",
+      "format": "markdown",
+      "lessons": [
+        "01",
+        "02",
+        "03",
+        "04"
+      ]
     }
   ],
   "projects": [
@@ -54,6 +70,20 @@
         "03"
       ],
       "createdAt": "2026-09-29T09:38:49-07:00"
+    },
+    {
+      "slug": "anthropics-anthropic-sdk-java",
+      "name": "anthropics/anthropic-sdk-java",
+      "description": "Anthropic 官方 Java SDK：用类型化 builder 调用 Claude API，内置重试、流式与结构化输出。",
+      "source": "https://github.com/anthropics/anthropic-sdk-java",
+      "sourceVisibility": "public",
+      "commit": "6324b459fcde08738a255adcd88439b68851d512",
+      "updated": "2026-10-03",
+      "articles": [
+        "01",
+        "02"
+      ],
+      "createdAt": "2026-10-03T09:30:00+08:00"
     }
   ]
 }

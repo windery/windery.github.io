@@ -106,5 +106,15 @@
         "来源与版本": "来源与版本"
       }
     }
+  },
+  "anthropics-anthropic-sdk-java": {
+    "01": {
+      "summary": "模块组成、核心设计与内置的可靠性能力。",
+      "headings": {}
+    },
+    "02": {
+      "summary": "客户端配置、结构化输出、流式累积、tool runner 与排查。",
+      "headings": {}
+    }
   }
 }

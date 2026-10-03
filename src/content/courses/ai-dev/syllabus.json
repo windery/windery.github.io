@@ -1,0 +1,64 @@
+{
+  "modules": [
+    {
+      "title": "第一部分 · 从后端视角认识大模型",
+      "summary": "把 LLM 当成一个新的远程服务来理解：它接收什么、返回什么、为什么会出错。",
+      "lessons": [
+        { "slug": "01", "title": "学习地图：从 Java 后端到 AI 开发工程师", "summary": "AI 开发工程师做什么，哪些后端经验可以直接迁移，这门课怎么学。" },
+        { "slug": "02", "title": "大模型如何工作：token、上下文与预测", "summary": "用工程师需要的精度理解 next-token 预测、上下文窗口和无状态调用。" },
+        { "slug": "03", "title": "控制输出：采样参数、effort 与停止条件", "summary": "temperature 等采样参数的原理，新一代模型为什么改用 effort，max_tokens 与 stop_reason 怎么读。" },
+        { "slug": "04", "title": "第一次调用：用 HTTP 和 Java SDK 访问 Messages API", "summary": "先用 curl 看清协议，再用 Anthropic Java SDK 写出可运行的调用、流式输出和错误处理。" }
+      ]
+    },
+    {
+      "title": "第二部分 · Prompt 与结构化输出",
+      "summary": "让模型稳定地产出程序能用的结果。",
+      "lessons": [
+        { "slug": "05", "title": "Prompt 工程：system prompt、示例与结构化指令", "summary": "写给模型的“接口文档”：角色、约束、示例与 XML 标签。" },
+        { "slug": "06", "title": "结构化输出：JSON Schema 与 Java 类型映射", "summary": "用 schema 约束输出，直接反序列化成 Java 对象，并处理失败。" },
+        { "slug": "07", "title": "流式输出与多轮对话", "summary": "SSE 事件、会话历史的维护方式，以及在 Web 服务中转发流。" },
+        { "slug": "08", "title": "成本与延迟：token 计量与 prompt caching", "summary": "估算一次请求的费用，用缓存和批处理降低成本。" }
+      ]
+    },
+    {
+      "title": "第三部分 · 工具调用与 Agent",
+      "summary": "让模型调用你的代码，从一次问答走向能完成任务的系统。",
+      "lessons": [
+        { "slug": "09", "title": "Tool use：让模型调用你的方法", "summary": "工具定义、tool_use 与 tool_result 的往返，以及参数校验。" },
+        { "slug": "10", "title": "Agent 循环：从单次调用到自主执行", "summary": "手写 agent loop，理解停止条件、错误回传与上下文增长。" },
+        { "slug": "11", "title": "MCP：把工具做成标准服务", "summary": "Model Context Protocol 的角色划分，用 Java 写一个 MCP server。" },
+        { "slug": "12", "title": "Agent 设计模式：工作流、路由与编排", "summary": "什么时候不需要 agent，链式、并行、评估-优化与多 agent 编排各适合什么。" }
+      ]
+    },
+    {
+      "title": "第四部分 · RAG 与知识接入",
+      "summary": "把企业里的文档和数据交给模型使用。",
+      "lessons": [
+        { "slug": "13", "title": "Embedding 与向量相似度", "summary": "向量是什么，余弦相似度如何衡量语义距离。" },
+        { "slug": "14", "title": "RAG 管道：切块、检索与拼接", "summary": "从文档到答案的完整链路，以及每一步的取舍。" },
+        { "slug": "15", "title": "向量存储与混合检索", "summary": "pgvector、Elasticsearch 等方案对比，关键词与向量检索如何结合。" },
+        { "slug": "16", "title": "RAG 质量：重排、引用与常见失败", "summary": "召回不到、答非所问、编造来源时该查哪里。" }
+      ]
+    },
+    {
+      "title": "第五部分 · 评估与生产化",
+      "summary": "用后端工程的标准要求 AI 功能：可测、可观测、可控。",
+      "lessons": [
+        { "slug": "17", "title": "Eval：怎样知道改动让系统变好了", "summary": "构建评测集、打分方式与回归流程。" },
+        { "slug": "18", "title": "可观测性：trace、日志与 token 统计", "summary": "记录什么、怎么关联一次 agent 运行中的所有调用。" },
+        { "slug": "19", "title": "安全：prompt injection 与权限边界", "summary": "不可信输入、工具权限、数据外泄的防护思路。" },
+        { "slug": "20", "title": "上线：限流、重试、降级与模型选择", "summary": "429 与超时处理、回退模型、按场景选模型和 effort。" }
+      ]
+    },
+    {
+      "title": "第六部分 · Java 生态与实战",
+      "summary": "在熟悉的 Spring 体系里落地，并完成一个综合项目。",
+      "lessons": [
+        { "slug": "21", "title": "Spring AI：在 Spring Boot 中接入大模型", "summary": "ChatClient、Advisor、向量存储抽象，以及它替你做了什么。" },
+        { "slug": "22", "title": "LangChain4j：另一种 Java 抽象", "summary": "AI Services、工具与记忆，和 Spring AI 的取舍对比。" },
+        { "slug": "23", "title": "实战：带知识库与工具的问答服务", "summary": "把 RAG、工具调用、评测与监控组装成一个 Spring Boot 服务。" },
+        { "slug": "24", "title": "下一步：本地模型、微调与持续学习", "summary": "Ollama 本地运行、何时考虑微调，以及如何跟上变化。" }
+      ]
+    }
+  ]
+}
