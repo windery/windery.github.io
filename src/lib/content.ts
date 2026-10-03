@@ -18,8 +18,8 @@ export const libraryEntries=[
  ...catalog.projects.map(content=>({kind:'project' as const,content})),
 ].reverse().sort((a,b)=>Date.parse(b.content.createdAt)-Date.parse(a.content.createdAt));
 
-// Learning route: tracks group courses and projects; entries without a track fall into "extra".
-type Track={slug:string;step:string;name:string;role:string;summary:string};
+// Tracks group courses and projects by subject; entries without a track fall into "extra".
+type Track={slug:string;name:string;summary:string};
 type Course={slug:string;track?:string;name:string;description:string;detail?:string;href?:string;status?:string;updated:string;createdAt:string};
 export const tracks=catalog.tracks as Track[];
 const fallbackTrack=tracks[tracks.length-1].slug;

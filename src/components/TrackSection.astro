@@ -1,12 +1,12 @@
 ---
 import {trackCourses,trackProjects,projectHref} from '../lib/content';
 import CourseRow from './CourseRow.astro';
-const {track,showProjects=true}=Astro.props;
+const {track,index,showProjects=true}=Astro.props;
 const list=trackCourses(track.slug);
 const projects=showProjects?trackProjects(track.slug):[];
 ---
 <section class="route-track" id={`track-${track.slug}`} aria-labelledby={`track-${track.slug}-title`}>
- <header class="route-track-info"><p class="route-step"><span>{track.step}</span>{track.role}</p><h2 id={`track-${track.slug}-title`}>{track.name}</h2><p>{track.summary}</p></header>
+ <header class="route-track-info"><p class="route-step"><span>{String(index+1).padStart(2,'0')}</span></p><h2 id={`track-${track.slug}-title`}>{track.name}</h2><p>{track.summary}</p></header>
  <div class="route-track-body">
   {list.length?<ol class="route-courses">{list.map(course=><CourseRow course={course}/>)}</ol>:<p class="route-empty"><span class="route-status" data-status="planned">筹备中</span>课程正在编写，第一批课时完成后会出现在这里。</p>}
   {projects.length>0&&<div class="route-projects"><h3>相关项目解读</h3><ul>{projects.map(p=><li><a href={projectHref(p.slug)}><span class="route-project-name">{p.name}</span><span class="route-project-desc">{p.description}</span></a><span class="route-project-count">{p.articles.length} 篇</span></li>)}</ul></div>}

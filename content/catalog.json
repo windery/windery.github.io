@@ -2,24 +2,18 @@
   "tracks": [
     {
       "slug": "java",
-      "step": "01",
-      "name": "Java 深入与架构",
-      "role": "地基",
-      "summary": "把多年 Java 后端经验往下挖到 JVM、并发与框架原理，再往上走到分布式与系统架构。"
+      "name": "Java 与架构",
+      "summary": "JVM、并发与框架原理，一直到分布式与系统架构。"
     },
     {
       "slug": "ai",
-      "step": "02",
-      "name": "AI 开发基础",
-      "role": "转向",
-      "summary": "从大模型原理、Prompt 与 RAG 到 Agent 和工具调用，补齐做 AI 应用需要的知识。"
+      "name": "AI 开发",
+      "summary": "大模型原理、Prompt、RAG，以及 Agent 与工具调用。"
     },
     {
       "slug": "extra",
-      "step": "03",
-      "name": "拓展阅读",
-      "role": "视野",
-      "summary": "路线之外的语言与工具，换一种思路理解类型、内存和工程。"
+      "name": "语言与工具",
+      "summary": "其他编程语言与工具，换一种思路理解类型、内存和工程。"
     }
   ],
   "courses": [

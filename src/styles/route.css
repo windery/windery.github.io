@@ -1,9 +1,8 @@
-/* Learning route: the home page and course directory group content by track (Java → AI → extra). */
+/* Tracks: the home page and course directory group content by subject. */
 .home{max-width:1200px}
 .home-intro{max-width:1136px;padding:64px 0 40px}
 .home-intro p{max-width:36em}
-.home-intro .home-kicker{font-size:13px;letter-spacing:.08em;color:var(--accent);margin:0 0 14px}
-.route-overview{max-width:1136px;margin:0 auto 8px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--ink);border-bottom:1px solid var(--line)}
+.route-overview{max-width:1136px;margin:0 auto 8px;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);border-top:1px solid var(--ink);border-bottom:1px solid var(--line)}
 .route-overview a{display:flex;align-items:baseline;gap:14px;padding:16px 20px 16px 0;color:var(--ink);text-decoration:none;font-size:15px;transition:color .16s}
 .route-overview a+a{padding-left:20px;border-left:1px solid var(--line)}
 .route-overview a:hover{color:var(--accent)}
@@ -45,15 +44,10 @@ a.route-course-link:hover h3{color:var(--accent)}
 .home-recent a:hover{color:var(--accent)}
 .listing-wide{max-width:1200px}
 .listing-wide .route-track:first-child{border-top:1px solid var(--line);margin-top:32px}
-.about h2{font:600 22px/1.4 var(--serif);margin:40px 0 14px}
-.about-route{padding-left:1.4em;margin:0 0 20px}
-.about-route li{margin:0 0 12px}
-.about-route strong{display:block;font-weight:600}
-.about-route span{color:var(--muted);font-size:15px}
 @media(max-width:960px){.route-track{grid-template-columns:minmax(0,240px) minmax(0,1fr);gap:40px}}
 @media(max-width:740px){
  .home-intro{padding:36px 0 28px}
- .route-overview{grid-template-columns:1fr}
+ .route-overview{grid-auto-flow:row}
  .route-overview a,.route-overview a+a{padding:12px 0;border-left:0}
  .route-overview a+a{border-top:1px solid var(--line)}
  .route-track{display:block;padding:32px 0}

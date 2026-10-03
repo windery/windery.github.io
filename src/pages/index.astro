@@ -4,11 +4,11 @@ import {tracks,libraryEntries,trackName,projectHref} from '../lib/content';
 import TrackSection from '../components/TrackSection.astro';
 const recent=libraryEntries.slice(0,6);
 ---
-<Site title="学习笔记" description="Windery 的个人学习站：从 Java 后端走向 AI 开发，记录课程、架构笔记与开源项目解读。">
+<Site title="学习笔记">
 <div class="home" data-pagefind-ignore>
-<header class="home-intro"><p class="home-kicker">Windery 的学习站</p><h1>从 Java 后端，<br/>走向 AI 开发。</h1><p>以 Java 工程经验为地基，向下深挖原理、向上搭建架构；同时系统补上 AI 开发的基础，再到真实开源项目里看它们怎样落地。</p></header>
-<nav class="route-overview" aria-label="学习路线">{tracks.map(t=><a href={`#track-${t.slug}`}><span>{t.step}</span>{t.name}</a>)}</nav>
-<div class="route" aria-label="学习路线">{tracks.map(track=><TrackSection track={track}/>)}</div>
+<header class="home-intro"><h1>学过的，<br/>留在这里。</h1><p>沿着课程建立理解，<br/>在真实项目里追踪代码与设计。</p></header>
+<nav class="route-overview" aria-label="学习方向">{tracks.map((t,i)=><a href={`#track-${t.slug}`}><span>{String(i+1).padStart(2,'0')}</span>{t.name}</a>)}</nav>
+<div class="route">{tracks.map((track,i)=><TrackSection track={track} index={i}/>)}</div>
 <section class="home-recent" aria-labelledby="recent-title">
  <h2 id="recent-title">最近更新</h2>
  <ol>{recent.map(({kind,content})=><li><time datetime={content.createdAt}>{content.createdAt.slice(0,10)}</time><span class="recent-kind">{kind==='course'?'课程':'项目解读'} · {trackName(content)}</span><a href={kind==='course'?(content as any).href:projectHref(content.slug)}>{content.name}</a></li>)}</ol>
