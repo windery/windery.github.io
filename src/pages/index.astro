@@ -17,22 +17,21 @@ const panels=[{id:"courses",label:"课程"},{id:"projects",label:"项目解读"}
 
  <section class="home-panel" id="panel-courses" role="tabpanel" aria-labelledby="tab-courses" data-panel="courses">
   <h2 class="panel-title">课程</h2>
-  <ul class="course-list">{courseList.map(c=><li>
-   <a class="course-card" href={c.href}>
-    <span class="course-name">{c.name}</span>
-    <span class="course-desc">{c.description}</span>
-    <span class="course-meta">{c.detail&&<span>{c.detail}</span>}{c.status&&<span class="status" data-status={c.status}>{courseStatus[c.status]}</span>}</span>
-    <svg class="card-arrow" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5"/></svg>
+  <ul class="entry-list">{courseList.map(c=><li>
+   <a class="entry-row" href={c.href}>
+    <span class="entry-name">{c.name}</span>
+    <span class="entry-desc">{c.description}</span>
+    <span class="entry-meta">{c.status&&<span class="status" data-status={c.status}>{courseStatus[c.status]}</span>}{c.detail&&<span>{c.detail}</span>}</span>
    </a></li>)}</ul>
  </section>
 
  <section class="home-panel" id="panel-projects" role="tabpanel" aria-labelledby="tab-projects" data-panel="projects">
   <h2 class="panel-title">项目解读</h2>
-  <ul class="project-list">{projectList.map(p=><li>
-   <a class="project-row" href={projectHref(p.slug)}>
-    <span class="project-name"><span class="project-owner-name">{owner(p.name)}</span>{repo(p.name)}</span>
-    <span class="project-desc">{p.description}</span>
-    <span class="project-meta"><span class="project-version">{p.version??`commit ${p.commit.slice(0,7)}`}</span><span>{p.articles.length} 篇</span><time datetime={p.updated}>{p.updated}</time></span>
+  <ul class="entry-list">{projectList.map(p=><li>
+   <a class="entry-row" href={projectHref(p.slug)}>
+    <span class="entry-name"><span class="project-owner-name">{owner(p.name)}</span>{repo(p.name)}</span>
+    <span class="entry-desc">{p.description}</span>
+    <span class="entry-meta"><span class="project-version">{p.version??`commit ${p.commit.slice(0,7)}`}</span><span>{p.articles.length} 篇</span><time datetime={p.updated}>{p.updated}</time></span>
    </a></li>)}</ul>
  </section>
 </div>

@@ -1,220 +1,118 @@
 ---
-name: Rust 阅读课
-description: 以暖白纸面、中文层级与真实代码组织的离线技术教材
+name: Windery 学习笔记
+description: 白底、无衬线、只有一种荧光黄强调色的个人学习站
 colors:
-  paper: "#faf8f3"
-  ink: "#292c29"
-  muted: "#686b62"
-  accent: "#a33e25"
-  line: "#d9d8cf"
-  surface: "#f0eee6"
-  sage: "#e8ede5"
-  code: "#f0efe8"
+  paper: "#ffffff"
+  ink: "#161614"
+  muted: "#66655f"
+  line: "#e7e6e1"
+  surface: "#f5f5f2"
+  mark: "#ffe14a"
+  mark-soft: "#fff3a8"
 typography:
-  display:
-    fontFamily: "\"Songti SC\", \"Noto Serif CJK SC\", \"STSong\", Georgia, serif"
-    fontSize: "clamp(38px,4.1vw,58px)"
-    fontWeight: 600
-    lineHeight: 1.45
-    letterSpacing: "-.035em"
-  lesson-title:
-    fontFamily: "\"Songti SC\", \"Noto Serif CJK SC\", \"STSong\", Georgia, serif"
-    fontSize: "clamp(30px,3vw,44px)"
-    fontWeight: 600
-    lineHeight: 1.45
-    letterSpacing: "-.035em"
-  headline:
-    fontFamily: "-apple-system, BlinkMacSystemFont, \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
-    fontSize: "25px"
-    fontWeight: 600
-    lineHeight: 1.45
-  body:
-    fontFamily: "-apple-system, BlinkMacSystemFont, \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
-    fontSize: "16px"
-    fontWeight: 400
-    lineHeight: 1.9
-  lead:
-    fontFamily: "-apple-system, BlinkMacSystemFont, \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+  sans:
+    fontFamily: "\"Schibsted Grotesk\", -apple-system, BlinkMacSystemFont, \"PingFang SC\", \"Hiragino Sans GB\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", sans-serif"
+  mono:
+    fontFamily: "\"JetBrains Mono\", \"SFMono-Regular\", Consolas, \"Liberation Mono\", Menlo, monospace"
+  tab:
+    fontSize: "20px"
+    fontWeight: 650
+  entry-name:
     fontSize: "17px"
-    fontWeight: 400
-    lineHeight: 1.95
-  label:
-    fontFamily: "-apple-system, BlinkMacSystemFont, \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+    fontWeight: 650
+  entry-desc:
+    fontSize: "14px"
+    lineHeight: 1.7
+  meta:
     fontSize: "13px"
-    fontWeight: 400
-    lineHeight: 1.75
-  code:
-    fontFamily: "\"SFMono-Regular\", Consolas, \"Liberation Mono\", Menlo, monospace"
-    fontSize: "13px"
-    fontWeight: 400
-    lineHeight: 1.9
+  tag:
+    fontSize: "12px"
+  reader-title:
+    fontSize: "40px"
+    fontWeight: 650
 rounded:
-  control: "3px"
-  inline-code: "2px"
-spacing:
-  space-1: "8px"
-  space-2: "16px"
-  space-3: "24px"
-  space-4: "32px"
-  space-5: "48px"
-  space-6: "64px"
-components:
-  button-default:
-    backgroundColor: "{colors.ink}"
-    textColor: "{colors.paper}"
-    rounded: "{rounded.control}"
-    padding: "11px 19px"
-  button-start:
-    backgroundColor: "{colors.accent}"
-    textColor: "{colors.paper}"
-    rounded: "{rounded.control}"
-    padding: "12px 22px"
-  button-copy:
-    backgroundColor: "transparent"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.control}"
-    padding: "6px 10px"
-  search:
-    backgroundColor: "transparent"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.control}"
-    padding: "10px 12px"
-    width: "100%"
-  lesson-row:
-    textColor: "{colors.ink}"
-    padding: "15px 10px 17px"
-  code-block:
-    backgroundColor: "{colors.code}"
-    textColor: "{colors.ink}"
-    typography: "{typography.code}"
-    rounded: "{rounded.control}"
-    padding: "24px"
-  answer-disclosure:
-    backgroundColor: "transparent"
-    padding: "17px 0"
+  tag: "4px"
+  control: "6px"
 ---
-
-# Design System: Rust 阅读课
+# Design System: Windery 学习笔记
 
 ## Overview
 
-**Creative North Star: "可反复翻阅的中文技术教材"**
+Windery 自己的学习站：课程与开源项目解读。界面要简洁，重要信息突出，其余都退后。只有浅色主题，全站统一，Rust 课程的导出页也套用同一套外观。
 
-以“可反复翻阅的中文技术教材”为视觉参照：暖白纸面承载深墨正文，宋体标题形成章节感，铁锈橙标注可行动的位置。信息密度由段落、细线与留白调节，服务长文阅读和代码推理。
-
-系统来自已实现的共享样式与生成模板。首页的阶段目录、课程的窄正文和第 7 节借用演示各有任务，不要求所有页面套同一构图。字体和脚本均保持本地可用，不引入网络依赖。
-
-**Key Characteristics:**
-- 暖白纸面与深墨正文
-- 中文衬线标题、系统无衬线正文、等宽代码
-- 细分隔线与小圆角，静态表面无阴影
-- 真实代码、折叠解析与明确的交互状态
-
-依据：`assets/course.css` 为视觉实现，`assets/course.js` 为交互实现，`scripts/build_course.py` 为生成模板，`course/content.py` 为教学内容。抽样核对首页与 `lessons/0007-borrowing.html`；已有截图仅作现状参考，不表示用户批准图或新增浏览器测试。前置机器可读值记录真实复用样式，间距保留已有 CSS 变量名的数字级次。
+- 白底、深墨文字、细分隔线，没有装饰图片、口号或营销式文案。
+- 唯一的强调色是荧光黄（`mark`），像在书上划重点：链接下划线、当前 tab、悬停时的名称高亮、当前目录项。
+- 中文用系统无衬线字体；拉丁字母用自托管的 Schibsted Grotesk；版本号、commit、代码用 JetBrains Mono。
+- 读者关心的来源信息要具体：代码仓库链接、发布版本号、commit 和阅读日期，不用「公开源码」「版本」这类空标签。
+- 站点的定位与描述不随阶段学习目标变化，阶段目标不写进站点文案。
 
 ## Colors
 
-单一铁锈橙强调色与暖中性色组成教材纸面；状态色只表达具体交互结果。
+- **paper**：全页背景。
+- **ink**：正文、标题、链接文字、品牌方块。
+- **muted**：说明、元信息、未选中的 tab。
+- **line**：分隔线与边框。
+- **surface**：版本号与 commit 的底色、悬停底色、表头。
+- **mark**：荧光黄。当前 tab 的下划线、链接下划线、名称悬停高亮、文字选区。
+- **mark-soft**：浅黄。「连载中」状态、当前目录项、导航当前项。
 
-### Primary
-- **铁锈橙（accent）**：正文链接、品牌方块、阶段序号、首页开始按钮、焦点轮廓与选择状态。
-
-### Neutral
-- **暖白纸（paper）**：全页背景，以及深底按钮上的浅色文字。
-- **深墨（ink）**：正文、标题与常规实心按钮。
-- **灰橄榄（muted）**：说明、辅助导航与来源。
-- **纸边灰（line）**：分隔线、表格边线与答案选项边界。
-- **浅纸层（surface）**：行内代码、目录悬停与表头。
-- **代码纸（code）**：多行代码与代码工具栏。
-- **淡鼠尾草（sage）**：已读按钮的按下状态；对应状态仍须显示文字。
-
-链接、选项反馈和语法高亮另有局部色值，保留在实现中；不要把它们当成新增品牌主色。sidecar 的八阶色带仅供面板展示，由现有颜色推导，不是新的实现令牌。
+不要再加第二种强调色。状态只靠浅黄、灰底和细边框区分。
 
 ## Typography
 
-**Display Font:** Songti SC，依次回退 Noto Serif CJK SC、STSong、Georgia、serif。  
-**Body Font:** 系统无衬线，包含 PingFang SC 与 Microsoft YaHei。  
-**Label/Mono Font:** SFMono-Regular、Consolas、Liberation Mono、Menlo、monospace。
+`--serif` 与 `--sans` 都指向同一组无衬线字体，旧样式里的 serif 引用因此也是无衬线。字体文件在 `public/fonts/`，只覆盖拉丁字符，中文走系统字体，不下载中文字体。
 
-标题带有中文教材章节感，正文以清晰连续阅读为主。只调用本地可用字体，不下载字体包。
-
-### Hierarchy
-- **Display**：首页及通用页面主标题使用 display；首页行高单独增至 (1.5)。
-- **Lesson title**：课程标题使用 lesson-title；移动尺寸见 Layout。
-- **Headline**：通用二级标题使用 headline；课程分节标题为 (23px)，最窄断点为 (22px)。
-- **Body / Lead**：正文使用 body；导读使用 lead 与辅助文字色。课程段落上限 (42em)，导读通常不超过 (34em)。
-- **Label / Code**：辅助说明使用 label；代码使用 code，标题栏与按钮局部缩小。不要将小字号辅助文字用于主要教学段落。
-
-**The 阅读层级 Rule.** 大标题负责章节识别；正文保留足够行距；代码独立使用等宽字体。
+- 首页 tab：20px / 650。
+- 列表条目名称：17px / 650；项目的 owner 部分用 muted、常规字重。
+- 条目说明：14px，行高 1.7。
+- 元信息：13px，数字等宽对齐；版本号和 commit 用 mono 12px 加 surface 底。
+- 文章标题：40px，窄屏 36px。
 
 ## Layout
 
-全站外框上限 (1232px)，桌面左右内边距 (32px)。基础间距级次见 frontmatter；真实布局也使用内容所需的中间值，不要求强制吸附所有数值。
+### 顶栏与页脚
 
-首页主区为内容与教学代码双栏；课程目录按阶段分组，阶段侧栏 (220px)、间隔 (48px)，条目以编号、标题与说明连续排列。目录不是独立重复卡片网格。此规则只适用于课程目录。
+顶栏只有品牌「Windery / 学习笔记」和「搜索」。课程和项目解读的入口是首页的 tab，不在顶栏重复。页脚只有站名和「内容与源码」链接。
 
-课程桌面为侧栏 (190px)、间隔 (78px) 与正文上限 (720px)。侧栏距顶部 (32px) 粘性定位。速查有独立容器与表格，不套用课程侧栏。
+### 首页
 
-- 在 (1000px) 及以下收紧栏宽和间距；课程侧栏变为 (160px)、栏距 (40px)。
-- 在 (740px) 及以下，页面左右留白 (24px)，首页与阶段目录单栏，课程侧栏改为正文前的流式导航；课程标题 (34px)。
-- 在 (480px) 及以下，页面左右留白 (20px)，搜索栏纵排、参考入口单栏；课程标题 (30px)，正文代码 (12px)，代码内边距 (18px 16px)。
+- 页面上一组 tab：「课程」|「项目解读」，下面直接是所选 tab 的列表。没有方向筛选，也没有计数。
+- 两个 tab 用同一种行样式：左侧名称和一行说明，右侧元信息；行与行之间是细线。窄屏时元信息移到说明下方。
+- 课程行的元信息：状态标签（筹备中 / 连载中 / 已完结）和课时说明。项目行的元信息：发布版本（没有时显示 `commit xxxxxxx`）、篇数、阅读日期。
+- 两个列表都按 `updated` 倒序。
+- 打开的 tab 记在 URL 里：`/?tab=projects` 直接打开项目解读。旧地址 `/courses/` 和 `/projects/` 跳转到对应 tab。
+- 无脚本时两个列表上下依次显示，各带标题。
 
-长代码与表格在自身容器横向滚动。打印使用 (18mm) 页边距，隐藏操作组件，展开答案，代码允许换行。
+样式见 `src/styles/route.css`，页面见 `src/pages/index.astro`。
 
-## Elevation & Depth
+### 文章页
 
-静态界面无 box-shadow。层次由暖纸底色、代码浅底、细分隔线以及文字密度建立。交互以底色、边框或文字颜色变化呈现，无位移或缩放动画。常规按钮和目录条目采用 (0.16s) 颜色或背景过渡；减少动态效果偏好关闭过渡与平滑滚动。
+- 桌面左侧栏：最上方是「全部项目解读」链接（回到项目解读 tab），下面是本文的 H2 目录，粘性定位，当前章节用 mark-soft 底色标出。
+- 标题下一行写项目名和「第 N 篇，共 M 篇」。再下一行是来源信息（`SourceMeta.astro`）：代码仓库链接（私有仓库只写名称并标「私有仓库」）、版本号与 commit 链接、阅读日期。
+- 文末是带标题的「上一篇 / 下一篇」。
+- 850px 及以下把目录收进标题下方的折叠组件；640px 及以下表格在页边距内横向滚动。
 
-**The 纸面分层 Rule.** 用纸色、浅底色与细线区分内容层次；不为普通阅读容器增加阴影。
+样式见 `src/styles/reading.css`。
 
-## Shapes
+### Rust 课程
 
-按钮、输入框、代码块和选项采用 frontmatter 的 control 小圆角；行内代码使用 inline-code。阅读区域与分组保留平直细线，不套大圆角面板。品牌为方形文字标识；普通内容不需要额外徽章。
+导出的 HTML 不改结构，只在 `course.css` 之后加载 `public/course-theme/rust.css`，换成本站的颜色、字体和强调方式。`scripts/import-rust.py` 每次导入都会注入这个样式表。
 
-## Components
+## Shapes & Depth
 
-### Buttons
-常规提交与已读操作为深墨实心按钮；首页开始按钮使用铁锈橙，是局部强调变体。复制按钮为透明底细边框。hover 改底色，focus-visible 使用强调色 (2px) 外轮廓与 (5px) 间距；禁用态透明度 (0.5)。已读按钮通过 aria-pressed 与文字共同表达可撤销状态。
-
-### Inputs / Fields
-搜索使用透明底、细边框与小圆角，标签始终可见。输入后筛选课程，同时隐藏空阶段，保留空结果提示。判断题使用原生单选框，选中后改变选项底色和边框；提交反馈通过 aria-live 与文字说明结果。
-
-### Navigation
-全站导航使用辅助文字色，悬停转为强调色；课程侧栏锚点与底部前后课链接保持文本可读。跳到正文链接在键盘聚焦时显示。移动侧栏变为流式导航，不遮挡正文。方向箭头统一使用内联 SVG，尺寸 (16px)、线宽 (1.5)，圆端点与圆连接，继承文字颜色；辅助图标对读屏隐藏。
-
-### Course Directory
-阶段标题与细线建立分组，行项悬停使用浅纸层；编号使用等宽字体，已读状态补充“已读”文字。目录入口的视觉密度与长文页不同，不把目录行变成全站内容容器。
-
-### Code & Answers
-代码块使用等宽字体与浅代码底；工具栏显示文件名与复制操作。复制失败显示手动复制说明。折叠答案采用原生 details/summary 与强调色标记；展开内容仍可离线阅读，无脚本时保留解析入口。误读提示采用上下分隔线与强调文字。
-
-### Borrowing Study
-第 7 节专用的三步借用演示使用细边框区域、等分步骤按钮、代码行与数据关系图。按下态通过 aria-pressed、边框和底色表达，内容对应本课代码。它是教学组件样例，不要求其他课无差别添加演示。
+- 小圆角：标签 4px，控件 6px，代码块 8px。
+- 静态内容没有阴影，也不用卡片做结构。层次靠留白、细线和字重。
+- 过渡只用于颜色和底色（约 0.16s）；减少动态效果偏好下关闭过渡。
 
 ## Do's and Don'ts
 
-### Do:
-- **Do** 从共享样式与生成模板修改视觉系统，再生成对应页面，保持结果可复现。
-- **Do** 沿用标题、正文、代码三种字体角色；保持本地字体回退与离线资源。
-- **Do** 为交互保留键盘焦点、文字反馈与可识别状态；已读标记不代表已掌握。
-- **Do** 根据页面任务组织布局；目录分阶段，正文控制行宽，速查保留表格。
+### Do
+- 先问一个页面上什么最重要，让它最显眼，其余退后。
+- 给版本、commit、仓库这些读者会查的信息具体值和链接。
+- 新增组件沿用现有的 token 和行样式。
 
-### Don't:
-- **Don't** 用装饰性示例代替教学代码，或让视觉状态暗示未经证明的学习结果。
-- **Don't** 把首页双栏或某节演示强制推广成每个页面的模板。
-- **Don't** 引入网络字体、外部 JavaScript 或普通容器的投影层。
-
-## 本站扩展：项目目录与文章阅读
-
-本站保留暖白、铁锈色与中文阅读字体；上述 Rust 课程规则及独立样式保持独立。共享基础样式见 `src/styles/site.css`，项目目录与文章布局以 `src/styles/reading.css` 为准。只读学习站不使用装饰图片、营销指标卡或无意义动效。
-
-- **首页导语**：站点是 Windery 的个人学习站，导语文案保持不变（「学过的，留在这里。」）。主标题与导语上下排列、左对齐，栏宽与下方方向列表一致（1136px）。阶段性学习目标不写进站点文案。
-- **学习方向**：导语下方是方向索引（编号 + 方向名，上粗线下细线，窄屏改为纵排），随后每个方向一行：左栏 300px 为编号、宋体方向名与说明，右栏为课程行（宋体课名、说明、状态标签与课时信息、箭头），再以虚线分隔列出「相关项目解读」（等宽项目名、单行说明、篇数）。没有课程的方向显示「筹备中」标签与一句说明。方向由 `catalog.json` 的 `tracks` 决定，索引按方向数量等分。样式见 `src/styles/route.css`，组件见 `TrackSection.astro`、`CourseRow.astro`。
-- **状态标签**：细边框小圆角文字标签，连载中/已完结用铁锈色，筹备中用辅助灰；只描述课程编写进度，不表示读者进度。
-- **最近更新**：方向之后列出按 `createdAt` 倒序的前 6 条课程或项目，每行为日期、类型与所属方向、名称，细线分隔。课程目录 `/courses/` 复用方向分组但不列项目；项目目录保持原有组织方式。
-- **两层阅读路径**：`/projects/` 直接进入 `/projects/:slug/:article/`，不设置中间项目落地页。项目名称直达首篇；旧 `/projects/:slug/` 仅保留静态重定向至首篇。
-- **纵向篇目**：目录按项目分组，桌面左侧显示项目名称、简介及元信息，右侧按阅读顺序纵向排列子篇。每行包含编号、标题、短摘要和箭头，以细线分隔，不改为横向卡片。窄屏项目介绍与篇目上下排列。
-- **本文目录**：文章桌面侧栏仅显示当前文章的 H2 目录，粘性定位并独立滚动；不包含兄弟篇或“全部项目”入口。当前章节以铁锈色文字及竖线标识，并保留 `aria-current` 状态。
-- **阅读导航**：桌面侧栏最上方、本文目录之前放置轻量“返回项目目录”链接，手机端置于文章最上方；链接固定回到项目总目录。标题下方一行显示项目名与“第 N 篇，共 M 篇”，恢复列表滚动位置与焦点。文末使用包含文章名称的“上一篇／下一篇”链接，首尾篇只显示存在的相邻文章。
-- **移动阅读**：850px 及以下将本文目录放在标题下方，以原生折叠组件默认收起；选择章节后自动收起并将焦点移至目标标题。640px 及以下项目目录变为单栏；正文表格保留单元格最小宽度，出血到页面边距内横向滚动，不把三列压成竖排碎字。打印时隐藏阅读导航，减少动态效果偏好关闭篇目过渡。
-- **显示文案**：短摘要与精简 H2 标签由 `content/reading.json` 管理，保持正文标题与锚点不变；缺失时使用文章原有信息。组件职责分别见 `ProjectEntry.astro`、`ArticleList.astro` 与 `ArticleToc.astro`。
+### Don't
+- 不加口号、导语、eyebrow 标签或 01/02 式的分节编号。
+- 不在两处放同一个导航入口。
+- 不加深色主题、第二种强调色或装饰性阴影。
+- 不让阶段学习目标出现在站点文案里。

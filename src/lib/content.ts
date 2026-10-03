@@ -12,7 +12,7 @@ export const articleTitle=(a:MarkdownInstance<Article>,name:string)=>a.frontmatt
 export const readingSummary=(a:MarkdownInstance<Article>)=>presentation[a.frontmatter.project]?.[a.frontmatter.articleSlug]?.summary || a.frontmatter.description;
 export const articleHeadings=(a:MarkdownInstance<Article>)=>a.getHeadings().filter(h=>h.depth===2).map(h=>({...h,label:presentation[a.frontmatter.project]?.[a.frontmatter.articleSlug]?.headings[h.text] || h.text}));
 
-type Course={slug:string;track?:string;name:string;description:string;detail?:string;href?:string;status?:string;updated:string;createdAt:string};
+type Course={slug:string;name:string;description:string;detail?:string;href?:string;status?:string;updated:string;createdAt:string};
 export const courses=catalog.courses as Course[];
 export const courseStatus:Record<string,string>={planned:'筹备中',writing:'连载中',done:'已完结'};
 export const projectHref=(slug:string)=>`/projects/${slug}/${projectArticles(slug)[0].frontmatter.articleSlug}/`;
