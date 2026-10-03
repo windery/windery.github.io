@@ -1,13 +1,62 @@
 ---
 import Site from '../layouts/Site.astro';
-import {libraryEntries} from '../lib/content';
-import ProjectEntry from '../components/ProjectEntry.astro';
+import {courses,catalog,projectHref,courseStatus} from '../lib/content';
+const byUpdated=<T extends {updated:string}>(list:T[])=>[...list].sort((a,b)=>b.updated.localeCompare(a.updated));
+const courseList=byUpdated(courses);
+const projectList=byUpdated(catalog.projects as any[]);
+const owner=(name:string)=>name.includes('/')?name.slice(0,name.lastIndexOf('/')+1):'';
+const repo=(name:string)=>name.slice(name.lastIndexOf('/')+1);
+const panels=[{id:"courses",label:"课程"},{id:"projects",label:"项目解读"}];
 ---
 <Site title="学习笔记">
 <div class="home" data-pagefind-ignore>
-<header class="home-intro"><h1>学过的，<br/>留在这里。</h1><p>沿着课程建立理解，<br/>在真实项目里追踪代码与设计。</p></header>
-<div class="home-feed" aria-label="按创建时间从新到旧排列">
-{libraryEntries.map(({kind,content})=>kind==='project'?<ProjectEntry project={content} compact date={content.createdAt} dateLabel="创建于 "/>:<section class="home-course" id={content.slug}><a class="course-entry" href={content.href}><div><h2>{content.name}</h2><p>{content.description}</p></div><svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a><div class="project-group-meta"><span>{content.detail}</span><time datetime={content.createdAt}>创建于 {content.createdAt.slice(0,10)}</time></div></section>)}
-</div>
+ <h1 class="visually-hidden">Windery 学习笔记</h1>
+ <div class="home-tabs" role="tablist" aria-label="内容类型" data-tabs hidden>
+  {panels.map((p,i)=><button type="button" role="tab" id={`tab-${p.id}`} aria-controls={`panel-${p.id}`} aria-selected={i===0?'true':'false'} tabindex={i===0?0:-1} data-tab={p.id}>{p.label}</button>)}
+ </div>
+
+ <section class="home-panel" id="panel-courses" role="tabpanel" aria-labelledby="tab-courses" data-panel="courses">
+  <h2 class="panel-title">课程</h2>
+  <ul class="entry-list">{courseList.map(c=><li>
+   <a class="entry-row" href={c.href}>
+    <span class="entry-name">{c.name}</span>
+    <span class="entry-desc">{c.description}</span>
+    <span class="entry-meta">{c.status&&<span class="status" data-status={c.status}>{courseStatus[c.status]}</span>}{c.detail&&<span>{c.detail}</span>}</span>
+   </a></li>)}</ul>
+ </section>
+
+ <section class="home-panel" id="panel-projects" role="tabpanel" aria-labelledby="tab-projects" data-panel="projects">
+  <h2 class="panel-title">项目解读</h2>
+  <ul class="entry-list">{projectList.map(p=><li>
+   <a class="entry-row" href={projectHref(p.slug)}>
+    <span class="entry-name"><span class="project-owner-name">{owner(p.name)}</span>{repo(p.name)}</span>
+    <span class="entry-desc">{p.description}</span>
+    <span class="entry-meta"><span class="project-version">{p.version??`commit ${p.commit.slice(0,7)}`}</span><span>{p.articles.length} 篇</span><time datetime={p.updated}>{p.updated}</time></span>
+   </a></li>)}</ul>
+ </section>
 </div>
 </Site>
+<script>
+// Two tabs keep courses and project write-ups apart; the open tab lives in the URL (?tab=projects).
+const tabs=document.querySelector<HTMLElement>('[data-tabs]');
+if(tabs){
+ document.documentElement.classList.add('home-tabbed');
+ tabs.hidden=false;
+ const tabButtons=[...tabs.querySelectorAll<HTMLButtonElement>('[data-tab]')];
+ const panels=[...document.querySelectorAll<HTMLElement>('[data-panel]')];
+ const asked=new URLSearchParams(location.search).get('tab');
+ let current=panels.some(p=>p.dataset.panel===asked)?asked!:'courses';
+ const render=()=>{
+  tabButtons.forEach(b=>{const on=b.dataset.tab===current;b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1;});
+  panels.forEach(p=>{p.hidden=p.dataset.panel!==current;});
+  history.replaceState(history.state,'',location.pathname+(current==='courses'?'':`?tab=${current}`)+location.hash);
+ };
+ tabs.addEventListener('click',e=>{const b=(e.target as Element).closest<HTMLButtonElement>('[data-tab]');if(!b)return;current=b.dataset.tab!;render();});
+ tabs.addEventListener('keydown',e=>{
+  if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;
+  const i=tabButtons.findIndex(b=>b.dataset.tab===current);const next=tabButtons[(i+(e.key==='ArrowRight'?1:tabButtons.length-1))%tabButtons.length];
+  current=next.dataset.tab!;render();next.focus();
+ });
+ render();
+}
+</script>

@@ -1,0 +1,39 @@
+/* Site theme over the exported Rust course (course.css stays as exported).
+   Loaded after course.css by scripts/import-rust.py; keeps the course layout, swaps its look for the site's. */
+@font-face{font-family:"Schibsted Grotesk";src:url(/fonts/schibsted-grotesk-latin.woff2) format("woff2");font-weight:400 900;font-display:swap;unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:"JetBrains Mono";src:url(/fonts/jetbrains-mono-latin.woff2) format("woff2");font-weight:100 800;font-display:swap;unicode-range:U+0000-00FF,U+2000-206F,U+2212}
+:root{--paper:#fff;--ink:#161614;--muted:#66655f;--accent:#161614;--line:#e7e6e1;--surface:#f5f5f2;--code:#fafaf8;--sage:#fff3a8;--mark:#ffe14a;--mark-soft:#fff3a8;--sans:"Schibsted Grotesk",-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;--serif:var(--sans);--mono:"JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;--radius:6px}
+html{scrollbar-color:#c9c8c1 var(--paper)}
+::selection{background:var(--mark);color:var(--ink)}
+input{caret-color:var(--ink)}
+a{color:var(--ink);text-decoration-color:var(--mark);text-decoration-thickness:.32em;text-underline-offset:-.12em;text-decoration-skip-ink:none}
+a:hover{color:var(--ink);text-decoration-color:#f5c800}
+a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline-color:var(--ink);outline-offset:3px}
+h1,h2,h3,h4{letter-spacing:-.02em}
+h1{font-family:var(--sans);font-weight:650;letter-spacing:-.025em}
+header.top{padding:18px 32px}
+.brand{letter-spacing:-.01em;font-weight:650;font-size:15px}
+.brand-mark{background:var(--ink);color:#fff;font:700 15px/1 var(--sans);border-radius:7px;box-shadow:inset 0 -7px 0 -2px var(--mark)}
+.top nav{gap:6px}
+.top nav a{padding:6px 12px;border-radius:6px;transition:color .16s,background-color .16s}
+.top nav a:hover{color:var(--ink);background:var(--surface)}
+button:hover,.button:hover{background:#3a3a36}
+button[aria-pressed="true"]{background:var(--mark-soft);color:var(--ink);border-color:#e6c200}
+.hero-actions .button{background:var(--ink);border-color:var(--ink)}
+.hero-actions .button:hover{background:#3a3a36}
+.reading-method h2,.curriculum-heading h2{font-family:var(--sans);font-weight:650}
+.stage-number{font:600 28px/1 var(--mono);color:var(--ink)}
+.lesson-row[data-read="true"] .num{color:var(--ink);background:var(--mark-soft);border-radius:3px}
+code{color:var(--ink);border-radius:4px}
+pre{border-radius:8px}
+.toolbar input{border-color:var(--line);border-radius:8px}
+.code-head button{border-color:var(--line);border-radius:6px}
+.code-head button:hover{background:var(--surface)}
+.callout b{color:var(--ink)}
+.callout b::after{content:"";display:block;width:28px;height:3px;margin-top:4px;background:var(--mark)}
+summary::marker{color:var(--ink)}
+.quiz label:has(input:checked){border-color:var(--ink);background:var(--mark-soft)}
+.quiz input{accent-color:var(--ink)}
+.borrow-steps button[aria-pressed="true"]{color:var(--ink);border-color:var(--ink);background:var(--mark-soft)}
+.borrow-connector{border-bottom-color:var(--ink);color:var(--ink)}
+@media(prefers-reduced-motion:reduce){.top nav a{transition:none}}

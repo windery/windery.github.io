@@ -4,7 +4,7 @@ import { resolve, join, basename } from 'node:path';
 import { execFileSync } from 'node:child_process';
 const { values } = parseArgs({ options: {
   dir: { type:'string' }, slug: { type:'string' }, name: { type:'string' },
-  repo: { type:'string' }, commit: { type:'string' }, date: { type:'string' }, description: { type:'string' },
+  repo: { type:'string' }, commit: { type:'string' }, date: { type:'string' }, description: { type:'string' }, version: { type:'string' },
   'allow-private-source': { type:'boolean', default:false }
 }});
 for (const key of ['dir','slug','name','repo','commit','date','description']) {
@@ -49,7 +49,9 @@ if(existing && existing.source!==source) throw new Error('Project slug belongs t
 const dest=join(root,'src/content/projects',values.slug);
 await mkdir(dest,{recursive:true});
 for(const file of staged) await writeFile(join(dest,file.name),file.content);
-const project={slug:values.slug,name:values.name,description:values.description,source,sourceVisibility,commit:values.commit,updated:values.date,createdAt:existing?.createdAt || new Date().toISOString(),articles:staged.map(x=>basename(x.name,'.md'))};
+// A release version only carries over while the commit is unchanged.
+const version=values.version || (existing?.commit===values.commit ? existing?.version : undefined);
+const project={slug:values.slug,name:values.name,description:values.description,source,sourceVisibility,commit:values.commit,...(version?{version}:{}),updated:values.date,createdAt:existing?.createdAt || new Date().toISOString(),articles:staged.map(x=>basename(x.name,'.md'))};
 const index=catalog.projects.findIndex(p=>p.slug===values.slug);
 if(index<0) catalog.projects.push(project); else catalog.projects[index]=project;
 await writeFile(catalogPath,JSON.stringify(catalog,null,2)+'\n');

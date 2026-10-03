@@ -16,13 +16,13 @@ npm run preview
 
 ## 内容如何组织
 
-- `content/catalog.json`：明确的公开目录。项目的 `articles` 列表控制发布篇目；课程与项目的 `createdAt` 记录创建时间，供首页排序。
+- `content/catalog.json`：明确的公开目录。课程可选 `status`（`planned` 筹备中、`writing` 连载中、`done` 已完结），未写 `href` 的课程只展示不链接。项目的 `articles` 列表控制发布篇目；`createdAt` 记录首次入库时间，导入器更新项目时保留它。
 - `content/reading.json`：按项目 slug、文章 slug 维护目录短摘要 `summary` 与 H2 显示标签 `headings`；导入器不会覆盖该文件。
 - `src/content/projects/<项目>/<编号>.md`：项目文章的可编辑源文件；记录来源仓库、commit 和阅读日期。
 - `public/courses/rust/`：已导出的 Rust 课程、练习和示例下载。
 - `src/layouts/`、`src/styles/`：共享页面与教材式样式。
 
-首页将课程与项目合并为一个列表，按 `createdAt` 倒序排列，同时间条目采用反向插入顺序。旧条目的创建时间已根据首次入库的 Git commit 时间补齐；项目导入器在首次导入时生成 `createdAt`，后续更新保留该值。排序仅作用于首页，项目目录、课程目录及其他入口保持原有组织方式。
+首页只有两个 tab：「课程」和「项目解读」，各是一个按 `updated` 倒序的列表。项目行显示发布版本（没有时显示 commit）、篇数和阅读日期。`/?tab=projects` 直接打开项目解读；旧地址 `/courses/`、`/projects/` 会跳转到对应 tab。
 
 项目阅读只有两层：从 `/projects/` 的纵向篇目进入 `/projects/:slug/:article/`。项目名称直接打开首篇，旧 `/projects/:slug/` 静态重定向到首篇，不再展示独立落地页。文章侧栏仅显示本文 H2 目录；桌面本文目录上方、手机文章顶部的“返回”固定回到项目总目录并恢复列表滚动位置与焦点，文末提供具名的上一篇／下一篇。手机端的本文目录位于标题下方，默认折叠，点击章节锚点后自动关闭。
 
@@ -47,7 +47,9 @@ npm run import:project -- \
   --description '这个项目解决什么问题。'
 ```
 
-私有仓库的文档已获公开授权时，在上述命令增加 `--allow-private-source`；页面标注「私有源码 · 文档公开」，不生成不可访问的源码按钮，也不改变源仓库权限。导入器会拒绝用另一来源覆盖已有项目路径。
+`--version` 可选，填写该 commit 对应的发布版本（如 `v1.2.3`），文章页和首页会显示它；没有发布版本时只显示 commit。
+
+私有仓库的文档已获公开授权时，在上述命令增加 `--allow-private-source`；页面在代码仓库一栏标注「私有仓库」，不生成不可访问的源码按钮，也不改变源仓库权限。导入器会拒绝用另一来源覆盖已有项目路径。
 
 4. 运行 build 与 preview，核对文章、来源、代码块和链接；检查 Git diff。
 5. 确认内容后提交并推送到 main，网站自动重新发布。
@@ -65,7 +67,7 @@ python3 scripts/import-rust.py /path/to/rust-course
 npm run build
 ```
 
-导出器只复制课程页、样式、交互和 Rust 示例；不复制学习记录、个人目标、临时截图、工具状态、完整本地 README 或凭证。站内下载包括可运行的 Rust 示例包。浏览器已读标记属于当前设备，不跨设备同步。
+导出器只复制课程页、样式、交互和 Rust 示例，并在每页 `course.css` 之后加载站点主题 `public/course-theme/rust.css`，让课程与全站风格一致而不改原课程工作区；不复制学习记录、个人目标、临时截图、工具状态、完整本地 README 或凭证。站内下载包括可运行的 Rust 示例包。浏览器已读标记属于当前设备，不跨设备同步。
 
 ## 发布
 
