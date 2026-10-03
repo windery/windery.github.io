@@ -1,0 +1,23 @@
+<h1>下载与运行示例</h1>
+<p class="lead">每节课的主示例都是完整的 Java 程序，可以在自己的电脑上运行、修改参数、对照课程中的输出。</p>
+<p><a class="button" href="examples.zip" download>下载 Java 示例</a></p>
+<h2>开始运行</h2>
+<ol><li>安装 JDK 21 或更高版本，确认 <code>java -version</code> 与 <code>javac -version</code> 可用。</li><li>解压下载文件，进入 <code>java-depth</code> 目录。</li><li>运行与课程编号对应的示例，课程名之后可以追加 JVM 参数。</li></ol>
+<pre><code>cd java-depth
+./run.sh l01
+./run.sh l05 -XX:-DoEscapeAnalysis</code></pre>
+<p>不用脚本时，先编译再运行：</p>
+<pre><code>javac -encoding UTF-8 -d out src/L01.java
+java -cp out L01</code></pre>
+<h2>第 04 节需要 JOL</h2>
+<p>第 04 节用 <a href="/projects/openjdk-jol/01/">openjdk/jol</a> 读取对象布局。运行前先把 jol-core 下载到 <code>lib</code> 目录：</p>
+<pre><code>mkdir -p lib
+curl -fLo lib/jol-core-0.17.jar https://repo1.maven.org/maven2/org/openjdk/jol/jol-core/0.17/jol-core-0.17.jar
+./run.sh l04</code></pre>
+<h2>常见问题</h2>
+<div class="table-scroll"><table><thead><tr><th>现象</th><th>处理</th></tr></thead><tbody>
+<tr><td>Windows 上不能执行 run.sh</td><td>用上面的 javac / java 两条命令；classpath 分隔符写成 <code>;</code>，例如 <code>java -cp "out;lib/jol-core-0.17.jar" L04</code>。</td></tr>
+<tr><td>中文输出是乱码</td><td>Windows 先执行 <code>chcp 65001</code>，或给 java 加上 <code>-Dstdout.encoding=UTF-8</code>。</td></tr>
+<tr><td>输出与课程不同</td><td>线程名单、GC 名称、对象布局都会随 JDK 版本和机器条件变化。课程输出以 JDK 21.0.11、x86_64 Linux 实测；先比较结构和数量级，再查对应 JDK 的文档。</td></tr>
+</tbody></table></div>
+<p><a href="index.html">返回课程目录</a></p>

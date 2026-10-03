@@ -1,0 +1,40 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="面向有经验的 Java 后端工程师：从 JVM、并发到架构，读懂代码在运行时真正发生了什么。"><title>JDK 诊断工具速查 · Java 深入与架构</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script><link rel="icon" href="/favicon.svg" type="image/svg+xml"></head><body><a class="skip-link" href="#main">跳到正文</a><header class="top"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">J.</span><span>Java 深入与架构</span></a><nav aria-label="全站导航"><a href="/">学习站</a><a href="../index.html#curriculum">课程</a><a href="../reference/tools.html">速查</a><a href="../reference/route.html">路线</a></nav></header><main id="main" class="wrap reading-list" data-pagefind-body><h1>JDK 诊断工具速查</h1>
+<p class="lead">课程中用到的命令都在这里。先用 <code>jcmd</code> 列出进程号，下文的 &lt;pid&gt; 都指它。</p>
+<h2>jcmd：对运行中的 JVM 提问</h2>
+<div class="table-scroll"><table><thead><tr><th>命令</th><th>回答的问题</th><th>课程</th></tr></thead><tbody>
+<tr><td><code>jcmd</code></td><td>本机有哪些 Java 进程</td><td>01</td></tr>
+<tr><td><code>jcmd &lt;pid&gt; help</code></td><td>这个 JVM 支持哪些诊断命令</td><td>01</td></tr>
+<tr><td><code>jcmd &lt;pid&gt; VM.flags</code></td><td>最终生效的 JVM 参数，包括 ergonomics 推导出的值</td><td>01</td></tr>
+<tr><td><code>jcmd &lt;pid&gt; VM.command_line</code></td><td>进程启动时的完整命令行</td><td>01</td></tr>
+<tr><td><code>jcmd &lt;pid&gt; Thread.print</code></td><td>所有线程的栈，包括 GC、编译等 JVM 内部线程</td><td>01</td></tr>
+<tr><td><code>jcmd &lt;pid&gt; GC.heap_info</code></td><td>堆的分区和占用</td><td>01</td></tr>
+<tr><td><code>jcmd &lt;pid&gt; GC.class_histogram</code></td><td>堆中每个类的实例数和字节数</td><td>09</td></tr>
+<tr><td><code>jcmd &lt;pid&gt; GC.heap_dump &lt;file&gt;</code></td><td>生成堆转储，交给 MAT 等工具分析</td><td>09</td></tr>
+<tr><td><code>jcmd &lt;pid&gt; Compiler.codecache</code></td><td>JIT 编译后代码占用的 code cache</td><td>05</td></tr>
+<tr><td><code>jcmd &lt;pid&gt; JFR.start duration=60s filename=rec.jfr</code></td><td>录制 60 秒 Java Flight Recorder 数据</td><td>25</td></tr>
+</tbody></table></div>
+<h2>javap：看编译器生成了什么</h2>
+<div class="table-scroll"><table><thead><tr><th>命令</th><th>作用</th></tr></thead><tbody>
+<tr><td><code>javap -c -p Foo</code></td><td>反汇编所有方法（含 private）的字节码</td></tr>
+<tr><td><code>javap -v Foo</code></td><td>额外显示常量池、版本号、局部变量表等全部信息</td></tr>
+<tr><td><code>javap -s Foo</code></td><td>显示方法的内部类型签名，如 <code>(I)Ljava/lang/String;</code></td></tr>
+</tbody></table></div>
+<h2>启动参数：打开观察窗口</h2>
+<div class="table-scroll"><table><thead><tr><th>参数</th><th>作用</th></tr></thead><tbody>
+<tr><td><code>-Xlog:gc</code></td><td>每次 GC 打印一行；<code>-Xlog:gc*</code> 打印全部 GC 细节</td></tr>
+<tr><td><code>-XX:+PrintCompilation</code></td><td>每编译一个方法打印一行，含层级和 OSR 标记</td></tr>
+<tr><td><code>-XX:ActiveProcessorCount=1</code></td><td>让 JVM 以为只有 1 个 CPU，用来复现容器里的 ergonomics</td></tr>
+<tr><td><code>-XX:-UseCompressedOops</code></td><td>关闭压缩指针，引用变成 8 字节</td></tr>
+<tr><td><code>-XX:-DoEscapeAnalysis</code></td><td>关闭逃逸分析，用于对照实验</td></tr>
+<tr><td><code>-XX:+HeapDumpOnOutOfMemoryError</code></td><td>发生 OOM 时自动生成堆转储，线上建议常开</td></tr>
+<tr><td><code>-XX:NativeMemoryTracking=summary</code></td><td>开启后可用 <code>jcmd &lt;pid&gt; VM.native_memory summary</code> 查看堆外内存</td></tr>
+</tbody></table></div>
+<h2>JOL：测量对象布局</h2>
+<div class="table-scroll"><table><thead><tr><th>调用</th><th>作用</th></tr></thead><tbody>
+<tr><td><code>ClassLayout.parseClass(Foo.class).toPrintable()</code></td><td>某个类的实例字段偏移、对齐与大小</td></tr>
+<tr><td><code>ClassLayout.parseInstance(obj).toPrintable()</code></td><td>同上，并显示对象头当前的值</td></tr>
+<tr><td><code>GraphLayout.parseInstance(obj).toFootprint()</code></td><td>沿引用统计整张对象图，按类汇总数量和字节数</td></tr>
+<tr><td><code>VM.current().details()</code></td><td>当前 JVM 的指针大小、对齐等基本参数</td></tr>
+</tbody></table></div>
+<p>更多用法见 <a href="/projects/openjdk-jol/02/">openjdk/jol 使用指南</a>。</p>
+<p><a href="../index.html">返回课程目录</a></p></main></body></html>

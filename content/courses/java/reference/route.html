@@ -1,0 +1,29 @@
+<h1>学习路线</h1>
+<p class="lead">这门课写给正在从 Java 后端转向 AI 应用开发的工程师。不必从头读到尾，按目标选路线。</p>
+<h2>三条路线，共用一份课程</h2>
+<div class="table-scroll"><table><thead><tr><th>你的目标</th><th>建议路线</th></tr></thead><tbody>
+<tr><td>尽快转向 AI 应用开发</td><td>01–05 打好运行时基础，13–15 掌握线程池与虚拟线程（大模型调用是高延迟 I/O），然后读 27–34 的架构与 AI 应用阶段。</td></tr>
+<tr><td>补齐深度，准备架构设计或面试</td><td>按顺序读完 01–23，再读 27–32。每个阶段结束时做一遍下表的检查。</td></tr>
+<tr><td>解决眼前的线上问题</td><td>先读 01 学会用 jcmd 取证，再按症状跳转：内存问题读 06–09，卡顿与线程问题读 10–16，性能问题读 24–26。</td></tr>
+</tbody></table></div>
+<h2>为什么转 AI 还要学这些</h2>
+<div class="table-scroll"><table><thead><tr><th>AI 应用里的问题</th><th>对应的课程</th></tr></thead><tbody>
+<tr><td>一次模型调用要几秒，成百上千个并发请求怎么撑住</td><td>13 线程池、14 CompletableFuture、15 虚拟线程</td></tr>
+<tr><td>向量、embedding 缓存放在进程内会占多少内存</td><td>04 对象布局、06 内存区域、09 内存泄漏排查</td></tr>
+<tr><td>模型 API 限流、超时、偶发失败</td><td>31 限流、熔断与降级</td></tr>
+<tr><td>一次 Agent 请求调了五个工具，哪一步慢了</td><td>32 可观测性</td></tr>
+<tr><td>把检索、生成、评估组织成能演进的服务</td><td>27 边界设计、33 Java 调用大模型、34 RAG 服务实战</td></tr>
+</tbody></table></div>
+<h2>每阶段怎样知道可以继续</h2>
+<div class="table-scroll"><table><thead><tr><th>阶段</th><th>可以继续的标志</th></tr></thead><tbody>
+<tr><td>01 JVM 运行时</td><td>拿到一个陌生 Java 进程，能用 jcmd 说出它的 GC、堆上限和最忙的线程；能用 javap 解释一处“反直觉”的输出。</td></tr>
+<tr><td>02 内存与 GC</td><td>看到一条 OutOfMemoryError 消息，能说出是哪个区域、先采集什么证据。</td></tr>
+<tr><td>03 并发</td><td>能说明一段代码为什么需要 volatile 或锁，并为一个 I/O 密集服务选出线程模型。</td></tr>
+<tr><td>04 语言与类库</td><td>能解释泛型擦除、动态代理在一段框架代码里的作用。</td></tr>
+<tr><td>05 框架原理</td><td>能说出一个 @Transactional 不生效的原因，并在源码里找到对应的位置。</td></tr>
+<tr><td>06 性能与诊断</td><td>能写出一个结论可信的 JMH 基准，读懂一张火焰图。</td></tr>
+<tr><td>07 架构</td><td>能为一个跨服务的下单流程设计幂等和最终一致方案，并说出取舍。</td></tr>
+<tr><td>08 AI 应用</td><td>能用 Java 搭出一个带检索、工具调用和超时保护的最小 RAG 服务。</td></tr>
+</tbody></table></div>
+<p>复习时只做一件事：合上课程，重新运行示例前先写下预测。预测错了，比读对十遍更有价值。</p>
+<p><a href="../index.html">返回课程目录</a></p>

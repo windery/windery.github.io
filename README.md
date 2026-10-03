@@ -67,6 +67,17 @@ npm run build
 
 导出器只复制课程页、样式、交互和 Rust 示例；不复制学习记录、个人目标、临时截图、工具状态、完整本地 README 或凭证。站内下载包括可运行的 Rust 示例包。浏览器已读标记属于当前设备，不跨设备同步。
 
+## 更新 Java 深入与架构课程
+
+课程源文件在 `content/courses/java/`：`course.mjs` 是完整大纲，`lessons/<id>.mjs` 是已写好的课，`examples/src/` 是每节课的 Java 示例（页面代码与下载包共用这一份）。大纲中没有正文文件的课在目录里显示为“待写”。
+
+```sh
+node scripts/build-java-course.mjs --check   # 编译并运行示例，核对课程中写的输出（需要 JDK 21+）
+npm run build
+```
+
+脚本会重写整个 `public/courses/java/`，不要手工修改那里的文件。
+
 ## 发布
 
 main 分支推送触发 `.github/workflows/deploy.yml`。Pages 设置使用 GitHub Actions。发布产物只包含 `dist/`；无需服务器、数据库或飞书 token。
