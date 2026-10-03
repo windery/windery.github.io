@@ -47,7 +47,6 @@
         "26",
         "27"
       ],
-      "track": "ai",
       "status": "done"
     }
   ],
@@ -98,7 +97,6 @@
     },
     {
       "slug": "anthropics-anthropic-sdk-java",
-      "track": "ai",
       "name": "anthropics/anthropic-sdk-java",
       "description": "Anthropic 官方 Java SDK：用类型化 builder 调用 Claude API，内置重试、流式与结构化输出。",
       "source": "https://github.com/anthropics/anthropic-sdk-java",
@@ -113,7 +111,6 @@
     },
     {
       "slug": "anomalyco-opencode",
-      "track": "ai",
       "name": "anomalyco/opencode",
       "description": "开源的终端编程 agent：支持多家模型，客户端与服务端分离，agent、命令、工具、插件、MCP 都能用文件扩展。",
       "source": "https://github.com/anomalyco/opencode",
