@@ -11,9 +11,9 @@
     },
     {
       "slug": "ai-dev",
-      "name": "AI 应用开发基础",
-      "description": "从 Java 后端出发，学会把大模型接进真实系统：API、Prompt、工具调用、RAG、评测与上线。",
-      "detail": "24 节课程 · 已发布 4 节 · Java 示例",
+      "name": "Vibe Coding 与 Agent 原理",
+      "description": "从大模型原理到编程 agent 的实现，再到有依据的 vibe coding 最佳实践。",
+      "detail": "22 节课程 · 已发布 5 节 · Java 示例",
       "href": "/courses/ai-dev/",
       "updated": "2026-10-03",
       "createdAt": "2026-10-03T09:30:00+08:00",
@@ -22,7 +22,8 @@
         "01",
         "02",
         "03",
-        "04"
+        "04",
+        "05"
       ]
     }
   ],
