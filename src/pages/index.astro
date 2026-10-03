@@ -1,17 +1,41 @@
 ---
 import Site from '../layouts/Site.astro';
-import {tracks,libraryEntries,trackName,projectHref} from '../lib/content';
+import {tracks,libraryEntries,trackName,projectHref,trackCourses,trackProjects,courses,catalog} from '../lib/content';
 import TrackSection from '../components/TrackSection.astro';
-const recent=libraryEntries.slice(0,6);
+// Most recently updated first; libraryEntries already breaks ties by creation order.
+const recent=[...libraryEntries].sort((a,b)=>b.content.updated.localeCompare(a.content.updated)).slice(0,6);
+const count=(slug:string)=>trackCourses(slug).length+trackProjects(slug).length;
+const latest=libraryEntries.map(e=>e.content.updated).sort().at(-1);
 ---
 <Site title="学习笔记">
 <div class="home" data-pagefind-ignore>
-<header class="home-intro"><h1>学过的，<br/>留在这里。</h1><p>沿着课程建立理解，<br/>在真实项目里追踪代码与设计。</p></header>
-<nav class="route-overview" aria-label="学习方向">{tracks.map((t,i)=><a href={`#track-${t.slug}`}><span>{String(i+1).padStart(2,'0')}</span>{t.name}</a>)}</nav>
-<div class="route">{tracks.map((track,i)=><TrackSection track={track} index={i}/>)}</div>
-<section class="home-recent" aria-labelledby="recent-title">
- <h2 id="recent-title">最近更新</h2>
- <ol>{recent.map(({kind,content})=><li><time datetime={content.createdAt}>{content.createdAt.slice(0,10)}</time><span class="recent-kind">{kind==='course'?'课程':'项目解读'} · {trackName(content)}</span><a href={kind==='course'?(content as any).href:projectHref(content.slug)}>{content.name}</a></li>)}</ol>
-</section>
+<header class="home-head"><h1>目录</h1><p>{courses.length} 门课程 · {catalog.projects.length} 个项目解读 · 最近更新于 <time datetime={latest}>{latest}</time></p></header>
+<div class="home-body">
+ <nav class="index-rail" aria-label="按方向浏览">
+  <p>按方向浏览</p>
+  <ul>{tracks.map(t=><li><a href={`#track-${t.slug}`} data-index-link={`track-${t.slug}`}><span class="index-name">{t.name}</span><span class="index-count">{count(t.slug)}</span></a></li>)}<li><a href="#recent" data-index-link="recent"><span class="index-name">最近更新</span></a></li></ul>
+ </nav>
+ <div class="home-main">
+  {tracks.map(track=><TrackSection track={track}/>)}
+  <section class="recent" id="recent" aria-labelledby="recent-title" data-track>
+   <h2 id="recent-title">最近更新</h2>
+   <ol>{recent.map(({kind,content})=><li><time datetime={content.updated}>{content.updated}</time><a href={kind==='course'?(content as any).href:projectHref(content.slug)}>{content.name}</a><span>{kind==='course'?'课程':'项目解读'} · {trackName(content)}</span></li>)}</ol>
+  </section>
+ </div>
+</div>
 </div>
 </Site>
+<script>
+// Mark the index entry for the section being read; the marker stroke is the page's one motion.
+const links=new Map([...document.querySelectorAll<HTMLAnchorElement>('[data-index-link]')].map(a=>[a.dataset.indexLink!,a]));
+const mark=(id:string)=>links.forEach((a,key)=>key===id?a.setAttribute('aria-current','true'):a.removeAttribute('aria-current'));
+const sections=[...document.querySelectorAll<HTMLElement>('[data-track]')];
+if(sections.length){
+ mark(sections[0].id);
+ const observer=new IntersectionObserver(entries=>{
+  const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top)[0];
+  if(visible)mark((visible.target as HTMLElement).id);
+ },{rootMargin:'-20% 0px -65% 0px'});
+ sections.forEach(s=>observer.observe(s));
+}
+</script>

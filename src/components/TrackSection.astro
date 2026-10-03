@@ -1,14 +1,15 @@
 ---
-import {trackCourses,trackProjects,projectHref} from '../lib/content';
-import CourseRow from './CourseRow.astro';
-const {track,index,showProjects=true}=Astro.props;
-const list=trackCourses(track.slug);
-const projects=showProjects?trackProjects(track.slug):[];
+import {trackCourses,trackProjects,projectHref,courseStatus} from '../lib/content';
+const {track,showProjects=true}=Astro.props;
+const entries=[
+ ...trackCourses(track.slug).map(c=>({kind:'课程',name:c.name,description:c.description,href:c.href,status:c.status&&courseStatus[c.status],statusKey:c.status,meta:c.detail})),
+ ...(showProjects?trackProjects(track.slug):[]).map(p=>({kind:'项目解读',name:p.name,description:p.description,href:projectHref(p.slug),status:undefined,statusKey:undefined,meta:`${p.articles.length} 篇`})),
+];
 ---
-<section class="route-track" id={`track-${track.slug}`} aria-labelledby={`track-${track.slug}-title`}>
- <header class="route-track-info"><p class="route-step"><span>{String(index+1).padStart(2,'0')}</span></p><h2 id={`track-${track.slug}-title`}>{track.name}</h2><p>{track.summary}</p></header>
- <div class="route-track-body">
-  {list.length?<ol class="route-courses">{list.map(course=><CourseRow course={course}/>)}</ol>:<p class="route-empty"><span class="route-status" data-status="planned">筹备中</span>课程正在编写，第一批课时完成后会出现在这里。</p>}
-  {projects.length>0&&<div class="route-projects"><h3>相关项目解读</h3><ul>{projects.map(p=><li><a href={projectHref(p.slug)}><span class="route-project-name">{p.name}</span><span class="route-project-desc">{p.description}</span></a><span class="route-project-count">{p.articles.length} 篇</span></li>)}</ul></div>}
- </div>
+<section class="track" id={`track-${track.slug}`} aria-labelledby={`track-${track.slug}-title`} data-track>
+ <header class="track-head"><h2 id={`track-${track.slug}-title`}>{track.name}</h2><p>{track.summary}</p></header>
+ {entries.length?<ul class="track-rows">{entries.map(e=><li>
+  {e.href?<a class="track-row" href={e.href}><span class="track-kind">{e.kind}</span><span class="track-copy"><span class="track-name">{e.name}</span><span class="track-desc">{e.description}</span></span><span class="track-meta">{e.status&&<span class="status" data-status={e.statusKey}>{e.status}</span>}{e.meta&&<span>{e.meta}</span>}</span><svg class="track-arrow" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5"/></svg></a>:
+  <div class="track-row"><span class="track-kind">{e.kind}</span><span class="track-copy"><span class="track-name">{e.name}</span><span class="track-desc">{e.description}</span></span><span class="track-meta">{e.status&&<span class="status" data-status={e.statusKey}>{e.status}</span>}</span></div>}
+ </li>)}</ul>:<p class="track-empty"><span class="status" data-status="planned">筹备中</span>这个方向的课程正在编写。</p>}
 </section>

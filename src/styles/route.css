@@ -1,62 +1,68 @@
-/* Tracks: the home page and course directory group content by subject. */
-.home{max-width:1200px}
-.home-intro{max-width:1136px;padding:64px 0 40px}
-.home-intro p{max-width:36em}
-.route-overview{max-width:1136px;margin:0 auto 8px;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);border-top:1px solid var(--ink);border-bottom:1px solid var(--line)}
-.route-overview a{display:flex;align-items:baseline;gap:14px;padding:16px 20px 16px 0;color:var(--ink);text-decoration:none;font-size:15px;transition:color .16s}
-.route-overview a+a{padding-left:20px;border-left:1px solid var(--line)}
-.route-overview a:hover{color:var(--accent)}
-.route-overview span,.route-step span{font:13px/1 var(--mono);color:var(--accent)}
-.route{max-width:1136px;margin:0 auto}
-.route-track{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:64px;padding:40px 0;border-bottom:1px solid var(--line);scroll-margin-top:16px}
-.route-step{display:flex;gap:12px;align-items:baseline;font-size:12px;color:var(--muted);margin:0 0 10px}
-.route-track-info h2{font:600 28px/1.35 var(--serif);margin:0 0 14px}
-.route-track-info>p:last-child{font-size:14px;line-height:1.8;color:var(--muted);margin:0}
-.route-courses,.route-projects ul{list-style:none;margin:0;padding:0}
-.route-course+.route-course{border-top:1px solid var(--line)}
-.route-course-link{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:4px 0 22px;color:var(--ink);text-decoration:none}
-.route-course+.route-course .route-course-link{padding-top:22px}
-.route-course-copy{display:block;min-width:0}
-.route-course h3{font:600 23px/1.4 var(--serif);margin:0 0 8px;transition:color .16s}
-a.route-course-link:hover h3{color:var(--accent)}
-.route-course-desc{display:block;font-size:15px;line-height:1.8;color:var(--muted);margin-bottom:10px}
-.route-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
-.route-status{display:inline-block;flex-shrink:0;white-space:nowrap;font-size:12px;line-height:1.6;padding:0 7px;border:1px solid currentColor;border-radius:3px;color:var(--accent)}
-.route-status[data-status=planned]{color:var(--muted)}
-.route-empty{display:flex;align-items:baseline;gap:12px;font-size:14px;color:var(--muted);margin:4px 0 0}
-.route-projects{margin-top:28px;padding-top:20px;border-top:1px dashed var(--line)}
-.route-courses:empty+.route-projects,.route-empty+.route-projects{margin-top:24px}
-.route-projects h3{font-size:12px;font-weight:400;color:var(--muted);margin:0 0 6px;letter-spacing:.04em}
-.route-projects li{display:flex;align-items:baseline;justify-content:space-between;gap:20px;padding:9px 0}
-.route-projects li+li{border-top:1px solid var(--line)}
-.route-projects a{display:flex;align-items:baseline;gap:16px;min-width:0;color:var(--ink);text-decoration:none}
-.route-projects a:hover .route-project-name{color:var(--accent)}
-.route-project-name{flex-shrink:0;font:14px/1.6 var(--mono);transition:color .16s}
-.route-project-desc{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.route-project-count{flex-shrink:0;font-size:12px;color:var(--muted)}
-.home-recent{max-width:1136px;margin:0 auto;padding:44px 0 8px}
-.home-recent h2{font:600 22px/1.4 var(--serif);margin:0 0 14px}
-.home-recent ol{list-style:none;margin:0;padding:0}
-.home-recent li{display:grid;grid-template-columns:110px 170px minmax(0,1fr);gap:20px;align-items:baseline;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
-.home-recent time{font:12px/1.6 var(--mono);color:var(--muted)}
-.recent-kind{font-size:12px;color:var(--muted)}
-.home-recent a{color:var(--ink);text-decoration:none}
-.home-recent a:hover{color:var(--accent)}
-.listing-wide{max-width:1200px}
-.listing-wide .route-track:first-child{border-top:1px solid var(--line);margin-top:32px}
-@media(max-width:960px){.route-track{grid-template-columns:minmax(0,240px) minmax(0,1fr);gap:40px}}
+/* Home and course index: a direction index on the left, one row per course or project on the right. */
+.home{max-width:1200px;padding:0 32px}
+.home-head{padding:56px 0 28px;border-bottom:1px solid var(--line)}
+.home-head h1{margin:0 0 6px}
+.home-head p{margin:0;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.home-body{display:grid;grid-template-columns:200px minmax(0,1fr);gap:72px}
+.index-rail{position:sticky;top:0;align-self:start;padding:36px 0 24px}
+.index-rail>p{font-size:12px;color:var(--muted);margin:0 0 10px;letter-spacing:.04em}
+.index-rail ul{list-style:none;margin:0;padding:0}
+.index-rail a{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:7px 10px;margin:0 -10px;border-radius:6px;font-size:14px;color:var(--muted);text-decoration:none;background:linear-gradient(90deg,var(--mark),var(--mark)) no-repeat left center/0% 100%;transition:background-size .45s cubic-bezier(.16,1,.3,1),color .16s}
+.index-rail a:hover{color:var(--ink);background-color:var(--surface)}
+.index-rail a[aria-current]{color:var(--ink);font-weight:600;background-size:100% 100%}
+.index-count{font:12px/1 var(--mono);color:var(--muted)}
+.index-rail a[aria-current] .index-count{color:var(--ink)}
+.home-main{min-width:0;padding-bottom:24px}
+.track{padding:36px 0 20px;scroll-margin-top:8px}
+.track+.track,.recent{border-top:1px solid var(--line)}
+.track-head{margin-bottom:12px}
+.track-head h2{font-size:22px;font-weight:650;line-height:1.4;margin:0 0 4px}
+.track-head p{margin:0;font-size:14px;color:var(--muted);max-width:42em}
+.track-rows{list-style:none;margin:0 -14px;padding:0}
+.track-rows li+li{border-top:1px solid var(--line)}
+.track-row{display:grid;grid-template-columns:72px minmax(0,1fr) auto 18px;gap:20px;align-items:center;padding:18px 14px;border-radius:10px;color:var(--ink);text-decoration:none;transition:background-color .16s}
+a.track-row:hover{background:var(--surface)}
+.track-rows li:has(a.track-row:hover)+li,.track-rows li:has(+li a.track-row:hover){border-color:transparent}
+.track-kind{font-size:12px;color:var(--muted);align-self:start;padding-top:3px}
+.track-copy{display:grid;gap:2px;min-width:0}
+.track-name{font-size:16px;font-weight:600;line-height:1.55;justify-self:start}
+a.track-row:hover .track-name{background:linear-gradient(transparent 58%,var(--mark) 58%)}
+.track-desc{font-size:14px;line-height:1.7;color:var(--muted)}
+.track-meta{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.track-arrow{width:18px;height:18px;fill:none;stroke:var(--muted);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s cubic-bezier(.16,1,.3,1),stroke .16s}
+a.track-row:hover .track-arrow{stroke:var(--ink);transform:translateX(3px)}
+.status{display:inline-block;font-size:12px;line-height:1.7;padding:0 8px;border-radius:4px;background:var(--mark-soft);color:var(--ink);white-space:nowrap}
+.status[data-status=planned]{background:transparent;box-shadow:inset 0 0 0 1px var(--line);color:var(--muted)}
+.status[data-status=done]{background:var(--surface)}
+.track-empty{display:flex;align-items:baseline;gap:12px;margin:8px 0 0;padding:16px 0;font-size:14px;color:var(--muted)}
+.recent{padding:36px 0 8px}
+.recent h2{font-size:22px;font-weight:650;margin:0 0 10px}
+.recent ol{list-style:none;margin:0;padding:0}
+.recent li{display:grid;grid-template-columns:104px minmax(0,1fr) auto;gap:20px;align-items:baseline;padding:11px 0;border-top:1px solid var(--line);font-size:14px}
+.recent li:first-child{border-top:0}
+.recent time{font:13px/1.6 var(--mono);color:var(--muted)}
+.recent li span{font-size:12px;color:var(--muted)}
+.recent a{text-decoration-color:transparent}
+.recent a:hover{text-decoration-color:var(--mark)}
+.listing-tracks{max-width:936px}
+.listing-tracks .track:first-of-type{margin-top:16px;border-top:1px solid var(--line)}
+@media(max-width:960px){.home-body{grid-template-columns:168px minmax(0,1fr);gap:40px}.track-row{grid-template-columns:64px minmax(0,1fr) auto 18px;gap:16px}}
 @media(max-width:740px){
- .home-intro{padding:36px 0 28px}
- .route-overview{grid-auto-flow:row}
- .route-overview a,.route-overview a+a{padding:12px 0;border-left:0}
- .route-overview a+a{border-top:1px solid var(--line)}
- .route-track{display:block;padding:32px 0}
- .route-track-info{margin-bottom:22px}
- .route-track-info h2{font-size:25px}
- .route-course h3{font-size:21px}
- .route-projects li{flex-direction:column;gap:2px}
- .route-projects a{flex-direction:column;gap:0}
- .route-project-desc{white-space:normal}
- .home-recent li{grid-template-columns:1fr;gap:2px}
+ .home{padding:0 20px}
+ .home-head{padding:32px 0 20px}
+ .home-body{display:block}
+ .index-rail{position:sticky;top:0;z-index:2;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px);padding:10px 0;margin:0 -20px;border-bottom:1px solid var(--line)}
+ .index-rail>p{display:none}
+ .index-rail ul{display:flex;gap:4px;overflow-x:auto;padding:0 20px;scrollbar-width:none}
+ .index-rail a{margin:0;white-space:nowrap;padding:6px 12px}
+ .track{padding:28px 0 12px;scroll-margin-top:56px}
+ .recent{scroll-margin-top:56px}
+ .track-rows{margin:0 -8px}
+ .track-row{grid-template-columns:minmax(0,1fr) 18px;gap:6px 12px;padding:16px 8px}
+ .track-kind{grid-column:1;padding:0}
+ .track-copy{grid-column:1}
+ .track-meta{grid-column:1}
+ .track-arrow{grid-column:2;grid-row:1/4}
+ .recent li{grid-template-columns:1fr;gap:0}
 }
-@media(prefers-reduced-motion:reduce){.route-overview a,.route-course h3,.route-project-name{transition:none}}
+@media(prefers-reduced-motion:reduce){.index-rail a,.track-row,.track-arrow{transition:none}}
