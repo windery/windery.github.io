@@ -55,11 +55,3 @@
 @media(prefers-reduced-motion:reduce){.reading-list a{transition:none}}
 @media print{.reader-sidebar,.reader-mobile-navigation,.reader-back{display:none}.reader-layout{display:block;margin:0;padding:0}.reader-header h1{font-size:24pt}}
 
-/* One chronological library on the home page, with no category columns. */
-.home-feed{max-width:936px;margin:0 auto}
-.home-feed .project-group-compact,.home-course{border-top:1px solid var(--line);padding:32px 0;margin:0}
-.home-feed .project-group-info>p{max-width:none}
-.home-course .course-entry{padding:0 0 4px}.home-course .course-entry p{margin-bottom:12px}.home-course .project-group-meta{margin:0}
-.home-course .course-entry h2{font:600 26px/1.35 var(--serif);margin:0 0 16px}
-.home-course .course-entry p{font-size:14px;line-height:1.8}
-@media(max-width:640px){.home-feed .project-group-compact,.home-course{padding:28px 0}}

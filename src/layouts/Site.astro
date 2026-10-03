@@ -1,8 +1,9 @@
 ---
 import '../styles/site.css';
 import '../styles/reading.css';
+import '../styles/route.css';
 interface Props { title: string; description?:string; }
-const {title,description='Windery 的学习笔记：系统课程、开源项目解读与代码阅读。'}=Astro.props;
+const {title,description='Windery 的学习笔记：从 Java 后端走向 AI 开发的系统课程、架构笔记与开源项目解读。'}=Astro.props;
 const canonical=new URL(Astro.url.pathname,Astro.site);
 ---
 <!doctype html>
@@ -10,7 +11,7 @@ const canonical=new URL(Astro.url.pathname,Astro.site);
 <head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>{title} · Windery 学习笔记</title><meta name="description" content={description}/><link rel="canonical" href={canonical}/><link rel="icon" type="image/svg+xml" href="/favicon.svg"/><meta property="og:title" content={title}/><meta property="og:description" content={description}/><meta property="og:type" content="website"/><meta property="og:url" content={canonical}/></head>
 <body>
 <a class="skip-link" href="#main">跳到正文</a>
-<header class="site-header"><a class="site-brand" href="/"><img src="/favicon.svg" alt="" width="28" height="28"/><span>Windery <span class="brand-sub">/ 学习笔记</span></span></a><nav aria-label="全站导航"><a href="/courses/" aria-current={Astro.url.pathname.startsWith('/courses/')?'page':undefined}>课程</a><a href="/projects/" aria-current={Astro.url.pathname.startsWith('/projects/')?'page':undefined}>项目解读</a><a href="/search/">搜索</a></nav></header>
+<header class="site-header"><a class="site-brand" href="/"><img src="/favicon.svg" alt="" width="28" height="28"/><span>Windery <span class="brand-sub">/ 学习笔记</span></span></a><nav aria-label="全站导航"><a href="/courses/" aria-current={Astro.url.pathname.startsWith('/courses/')?'page':undefined}>课程</a><a href="/projects/" aria-current={Astro.url.pathname.startsWith('/projects/')?'page':undefined}>项目解读</a><a href="/search/" aria-current={Astro.url.pathname.startsWith('/search/')?'page':undefined}>搜索</a><a href="/about/" aria-current={Astro.url.pathname.startsWith('/about/')?'page':undefined}>关于</a></nav></header>
 <main id="main"><slot/></main>
-<footer class="site-footer"><span>Windery · 学习笔记</span><a href="https://github.com/windery/windery.github.io">内容与源码</a><span>阅读进度保存在当前浏览器</span></footer>
+<footer class="site-footer"><span>Windery · 从 Java 后端走向 AI 开发</span><a href="https://github.com/windery/windery.github.io">内容与源码</a><span>阅读进度保存在当前浏览器</span></footer>
 </body></html>

@@ -1,0 +1,68 @@
+/* Learning route: the home page and course directory group content by track (Java → AI → extra). */
+.home{max-width:1200px}
+.home-intro{max-width:1136px;padding:64px 0 40px}
+.home-intro p{max-width:36em}
+.home-intro .home-kicker{font-size:13px;letter-spacing:.08em;color:var(--accent);margin:0 0 14px}
+.route-overview{max-width:1136px;margin:0 auto 8px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--ink);border-bottom:1px solid var(--line)}
+.route-overview a{display:flex;align-items:baseline;gap:14px;padding:16px 20px 16px 0;color:var(--ink);text-decoration:none;font-size:15px;transition:color .16s}
+.route-overview a+a{padding-left:20px;border-left:1px solid var(--line)}
+.route-overview a:hover{color:var(--accent)}
+.route-overview span,.route-step span{font:13px/1 var(--mono);color:var(--accent)}
+.route{max-width:1136px;margin:0 auto}
+.route-track{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:64px;padding:40px 0;border-bottom:1px solid var(--line);scroll-margin-top:16px}
+.route-step{display:flex;gap:12px;align-items:baseline;font-size:12px;color:var(--muted);margin:0 0 10px}
+.route-track-info h2{font:600 28px/1.35 var(--serif);margin:0 0 14px}
+.route-track-info>p:last-child{font-size:14px;line-height:1.8;color:var(--muted);margin:0}
+.route-courses,.route-projects ul{list-style:none;margin:0;padding:0}
+.route-course+.route-course{border-top:1px solid var(--line)}
+.route-course-link{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:4px 0 22px;color:var(--ink);text-decoration:none}
+.route-course+.route-course .route-course-link{padding-top:22px}
+.route-course-copy{display:block;min-width:0}
+.route-course h3{font:600 23px/1.4 var(--serif);margin:0 0 8px;transition:color .16s}
+a.route-course-link:hover h3{color:var(--accent)}
+.route-course-desc{display:block;font-size:15px;line-height:1.8;color:var(--muted);margin-bottom:10px}
+.route-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.route-status{display:inline-block;flex-shrink:0;white-space:nowrap;font-size:12px;line-height:1.6;padding:0 7px;border:1px solid currentColor;border-radius:3px;color:var(--accent)}
+.route-status[data-status=planned]{color:var(--muted)}
+.route-empty{display:flex;align-items:baseline;gap:12px;font-size:14px;color:var(--muted);margin:4px 0 0}
+.route-projects{margin-top:28px;padding-top:20px;border-top:1px dashed var(--line)}
+.route-courses:empty+.route-projects,.route-empty+.route-projects{margin-top:24px}
+.route-projects h3{font-size:12px;font-weight:400;color:var(--muted);margin:0 0 6px;letter-spacing:.04em}
+.route-projects li{display:flex;align-items:baseline;justify-content:space-between;gap:20px;padding:9px 0}
+.route-projects li+li{border-top:1px solid var(--line)}
+.route-projects a{display:flex;align-items:baseline;gap:16px;min-width:0;color:var(--ink);text-decoration:none}
+.route-projects a:hover .route-project-name{color:var(--accent)}
+.route-project-name{flex-shrink:0;font:14px/1.6 var(--mono);transition:color .16s}
+.route-project-desc{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.route-project-count{flex-shrink:0;font-size:12px;color:var(--muted)}
+.home-recent{max-width:1136px;margin:0 auto;padding:44px 0 8px}
+.home-recent h2{font:600 22px/1.4 var(--serif);margin:0 0 14px}
+.home-recent ol{list-style:none;margin:0;padding:0}
+.home-recent li{display:grid;grid-template-columns:110px 170px minmax(0,1fr);gap:20px;align-items:baseline;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.home-recent time{font:12px/1.6 var(--mono);color:var(--muted)}
+.recent-kind{font-size:12px;color:var(--muted)}
+.home-recent a{color:var(--ink);text-decoration:none}
+.home-recent a:hover{color:var(--accent)}
+.listing-wide{max-width:1200px}
+.listing-wide .route-track:first-child{border-top:1px solid var(--line);margin-top:32px}
+.about h2{font:600 22px/1.4 var(--serif);margin:40px 0 14px}
+.about-route{padding-left:1.4em;margin:0 0 20px}
+.about-route li{margin:0 0 12px}
+.about-route strong{display:block;font-weight:600}
+.about-route span{color:var(--muted);font-size:15px}
+@media(max-width:960px){.route-track{grid-template-columns:minmax(0,240px) minmax(0,1fr);gap:40px}}
+@media(max-width:740px){
+ .home-intro{padding:36px 0 28px}
+ .route-overview{grid-template-columns:1fr}
+ .route-overview a,.route-overview a+a{padding:12px 0;border-left:0}
+ .route-overview a+a{border-top:1px solid var(--line)}
+ .route-track{display:block;padding:32px 0}
+ .route-track-info{margin-bottom:22px}
+ .route-track-info h2{font-size:25px}
+ .route-course h3{font-size:21px}
+ .route-projects li{flex-direction:column;gap:2px}
+ .route-projects a{flex-direction:column;gap:0}
+ .route-project-desc{white-space:normal}
+ .home-recent li{grid-template-columns:1fr;gap:2px}
+}
+@media(prefers-reduced-motion:reduce){.route-overview a,.route-course h3,.route-project-name{transition:none}}

@@ -17,3 +17,16 @@ export const libraryEntries=[
  ...catalog.courses.map(content=>({kind:'course' as const,content})),
  ...catalog.projects.map(content=>({kind:'project' as const,content})),
 ].reverse().sort((a,b)=>Date.parse(b.content.createdAt)-Date.parse(a.content.createdAt));
+
+// Learning route: tracks group courses and projects; entries without a track fall into "extra".
+type Track={slug:string;step:string;name:string;role:string;summary:string};
+type Course={slug:string;track?:string;name:string;description:string;detail?:string;href?:string;status?:string;updated:string;createdAt:string};
+export const tracks=catalog.tracks as Track[];
+const fallbackTrack=tracks[tracks.length-1].slug;
+const trackOf=(entry:{track?:string})=>tracks.some(t=>t.slug===entry.track)?entry.track!:fallbackTrack;
+export const courses=catalog.courses as Course[];
+export const trackCourses=(slug:string)=>courses.filter(c=>trackOf(c)===slug);
+export const trackProjects=(slug:string)=>catalog.projects.filter(p=>trackOf(p)===slug);
+export const trackName=(entry:{track?:string})=>tracks.find(t=>t.slug===trackOf(entry))!.name;
+export const courseStatus:Record<string,string>={planned:'筹备中',writing:'连载中',done:'已完结'};
+export const projectHref=(slug:string)=>`/projects/${slug}/${projectArticles(slug)[0].frontmatter.articleSlug}/`;

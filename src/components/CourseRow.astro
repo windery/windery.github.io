@@ -1,0 +1,10 @@
+---
+import {courseStatus} from '../lib/content';
+const {course,Heading='h3'}=Astro.props;
+const status=course.status&&courseStatus[course.status];
+---
+<li class="route-course">
+ {course.href?
+  <a class="route-course-link" href={course.href}><span class="route-course-copy"><Heading>{course.name}</Heading><span class="route-course-desc">{course.description}</span><span class="route-meta">{status&&<span class="route-status" data-status={course.status}>{status}</span>}{course.detail&&<span>{course.detail}</span>}</span></span><svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>:
+  <div class="route-course-link"><span class="route-course-copy"><Heading>{course.name}</Heading><span class="route-course-desc">{course.description}</span><span class="route-meta">{status&&<span class="route-status" data-status={course.status}>{status}</span>}{course.detail&&<span>{course.detail}</span>}</span></span></div>}
+</li>

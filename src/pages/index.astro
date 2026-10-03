@@ -1,13 +1,17 @@
 ---
 import Site from '../layouts/Site.astro';
-import {libraryEntries} from '../lib/content';
-import ProjectEntry from '../components/ProjectEntry.astro';
+import {tracks,libraryEntries,trackName,projectHref} from '../lib/content';
+import TrackSection from '../components/TrackSection.astro';
+const recent=libraryEntries.slice(0,6);
 ---
-<Site title="学习笔记">
+<Site title="学习笔记" description="Windery 的个人学习站：从 Java 后端走向 AI 开发，记录课程、架构笔记与开源项目解读。">
 <div class="home" data-pagefind-ignore>
-<header class="home-intro"><h1>学过的，<br/>留在这里。</h1><p>沿着课程建立理解，<br/>在真实项目里追踪代码与设计。</p></header>
-<div class="home-feed" aria-label="按创建时间从新到旧排列">
-{libraryEntries.map(({kind,content})=>kind==='project'?<ProjectEntry project={content} compact date={content.createdAt} dateLabel="创建于 "/>:<section class="home-course" id={content.slug}><a class="course-entry" href={content.href}><div><h2>{content.name}</h2><p>{content.description}</p></div><svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a><div class="project-group-meta"><span>{content.detail}</span><time datetime={content.createdAt}>创建于 {content.createdAt.slice(0,10)}</time></div></section>)}
-</div>
+<header class="home-intro"><p class="home-kicker">Windery 的学习站</p><h1>从 Java 后端，<br/>走向 AI 开发。</h1><p>以 Java 工程经验为地基，向下深挖原理、向上搭建架构；同时系统补上 AI 开发的基础，再到真实开源项目里看它们怎样落地。</p></header>
+<nav class="route-overview" aria-label="学习路线">{tracks.map(t=><a href={`#track-${t.slug}`}><span>{t.step}</span>{t.name}</a>)}</nav>
+<div class="route" aria-label="学习路线">{tracks.map(track=><TrackSection track={track}/>)}</div>
+<section class="home-recent" aria-labelledby="recent-title">
+ <h2 id="recent-title">最近更新</h2>
+ <ol>{recent.map(({kind,content})=><li><time datetime={content.createdAt}>{content.createdAt.slice(0,10)}</time><span class="recent-kind">{kind==='course'?'课程':'项目解读'} · {trackName(content)}</span><a href={kind==='course'?(content as any).href:projectHref(content.slug)}>{content.name}</a></li>)}</ol>
+</section>
 </div>
 </Site>
