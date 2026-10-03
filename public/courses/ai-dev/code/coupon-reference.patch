@@ -1,0 +1,1117 @@
+diff --git a/CLAUDE.md b/CLAUDE.md
+new file mode 100644
+index 0000000..f352c45
+--- /dev/null
++++ b/CLAUDE.md
+@@ -0,0 +1,24 @@
++# shop-api
++
++Spring Boot 4.1 + Java 21 的订单服务，JPA + H2，表结构由 Flyway 管理。
++
++## 命令
++- 全部测试：`mvn -q test`
++- 单个测试类：`mvn -q test -Dtest=OrderServiceTest`
++- 启动：`mvn spring-boot:run`（端口 8080）
++
++## 约定
++- 金额用 `BigDecimal`，比较用 `compareTo`，测试用 `isEqualByComparingTo`。
++- 当前时间一律来自注入的 `Clock`，不要调用 `Instant.now()`。测试用 `TestClockConfig` 的固定时钟。
++- 业务规则失败抛 `BusinessException`（409），找不到资源抛 `NotFoundException`（404），参数错误用 Bean Validation 或 `IllegalArgumentException`（400）。
++- 改表只能新增 `src/main/resources/db/migration/V<n>__<说明>.sql`，不要修改已有脚本。
++- 接口返回 record 形式的 Response 对象，不要直接返回实体。
++
++## 测试
++- 服务层测试可以加 `@Transactional` 自动回滚。
++- 接口测试和并发测试不要加 `@Transactional`：前者要暴露懒加载问题，后者每个线程要独立提交。
++- 有并发要求的功能，必须有多线程同时执行的测试。
++
++## 不要做
++- 不要修改已有测试的期望值来让测试通过；如果你认为测试本身错了，先停下来说明理由。
++- 不要新增依赖，除非先说明原因并得到同意。
+diff --git a/SPEC.md b/SPEC.md
+new file mode 100644
+index 0000000..ab2799a
+--- /dev/null
++++ b/SPEC.md
+@@ -0,0 +1,32 @@
++# 限量优惠券
++
++## 背景
++
++运营要做“满减券”活动：券的数量有限，先到先得，用户领取后在下单时使用。
++
++## 规则
++
++1. **创建券**：名称、使用门槛 `threshold`、减免金额 `discount`、发放总量 `totalCount`、截止时间 `validUntil`。
++   要求 `threshold > discount > 0`，`totalCount >= 1`，`validUntil` 晚于当前时间，否则返回 400。
++2. **领券**：用户按券 id 领取。
++   - 已过截止时间：409。
++   - 已经领完：409。高并发下也不能超发。
++   - 同一个用户对同一张券只能领一次：409。
++3. **我的券**：按用户查询领到的券，显示券的信息和状态（AVAILABLE / USED）。
++4. **下单用券**：下单时可以带上一张领到的券 `userCouponId`。
++   - 券必须属于下单用户、状态是 AVAILABLE、下单时没有过期，商品总价不低于门槛，否则 409。
++   - 应付金额 = 商品总价 - 减免金额。订单上记录用了哪张券、减了多少。
++   - 下单后券变为 USED。
++5. **取消订单**：订单用过的券退回为 AVAILABLE。退回后如果已经过期，就不能再用了（第 4 条会拦住）。
++
++## 不做
++
++- 一张订单用多张券。
++- 支付后退款退券。
++- 管理接口的鉴权。
++
++## 验收
++
++- `mvn test` 全部通过，以上每条规则都有对应的测试。
++- 50 个用户同时抢一张总量为 10 的券，最终恰好发出 10 张。
++- 同一个用户并发领同一张券 10 次，最终只有 1 张。
+diff --git a/src/main/java/com/example/shop/common/ApiExceptionHandler.java b/src/main/java/com/example/shop/common/ApiExceptionHandler.java
+index 0f69d84..ba99a1d 100644
+--- a/src/main/java/com/example/shop/common/ApiExceptionHandler.java
++++ b/src/main/java/com/example/shop/common/ApiExceptionHandler.java
+@@ -13,6 +13,11 @@ public class ApiExceptionHandler {
+         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
+     }
+ 
++    @ExceptionHandler(IllegalArgumentException.class)
++    ProblemDetail badRequest(IllegalArgumentException e) {
++        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
++    }
++
+     @ExceptionHandler(BusinessException.class)
+     ProblemDetail business(BusinessException e) {
+         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
+diff --git a/src/main/java/com/example/shop/coupon/ClaimCouponRequest.java b/src/main/java/com/example/shop/coupon/ClaimCouponRequest.java
+new file mode 100644
+index 0000000..b434c7e
+--- /dev/null
++++ b/src/main/java/com/example/shop/coupon/ClaimCouponRequest.java
+@@ -0,0 +1,6 @@
++package com.example.shop.coupon;
++
++import jakarta.validation.constraints.NotBlank;
++
++public record ClaimCouponRequest(@NotBlank String customerId) {
++}
+diff --git a/src/main/java/com/example/shop/coupon/Coupon.java b/src/main/java/com/example/shop/coupon/Coupon.java
+new file mode 100644
+index 0000000..9b14fde
+--- /dev/null
++++ b/src/main/java/com/example/shop/coupon/Coupon.java
+@@ -0,0 +1,73 @@
++package com.example.shop.coupon;
++
++import java.math.BigDecimal;
++import java.time.Instant;
++
++import jakarta.persistence.Entity;
++import jakarta.persistence.GeneratedValue;
++import jakarta.persistence.GenerationType;
++import jakarta.persistence.Id;
++
++@Entity
++public class Coupon {
++
++    @Id
++    @GeneratedValue(strategy = GenerationType.IDENTITY)
++    private Long id;
++
++    private String name;
++    private BigDecimal threshold;
++    private BigDecimal discount;
++    private int totalCount;
++
++    /** 已领取的数量。只通过 CouponRepository.tryClaimOne 的条件更新修改，避免并发超发。 */
++    private int claimedCount;
++
++    private Instant validUntil;
++    private Instant createdAt;
++
++    protected Coupon() {
++    }
++
++    public Coupon(String name, BigDecimal threshold, BigDecimal discount, int totalCount,
++            Instant validUntil, Instant createdAt) {
++        this.name = name;
++        this.threshold = threshold;
++        this.discount = discount;
++        this.totalCount = totalCount;
++        this.validUntil = validUntil;
++        this.createdAt = createdAt;
++    }
++
++    public boolean isExpired(Instant now) {
++        return !now.isBefore(validUntil);
++    }
++
++    public Long getId() {
++        return id;
++    }
++
++    public String getName() {
++        return name;
++    }
++
++    public BigDecimal getThreshold() {
++        return threshold;
++    }
++
++    public BigDecimal getDiscount() {
++        return discount;
++    }
++
++    public int getTotalCount() {
++        return totalCount;
++    }
++
++    public int getClaimedCount() {
++        return claimedCount;
++    }
++
++    public Instant getValidUntil() {
++        return validUntil;
++    }
++}
+diff --git a/src/main/java/com/example/shop/coupon/CouponController.java b/src/main/java/com/example/shop/coupon/CouponController.java
+new file mode 100644
+index 0000000..a080857
+--- /dev/null
++++ b/src/main/java/com/example/shop/coupon/CouponController.java
+@@ -0,0 +1,44 @@
++package com.example.shop.coupon;
++
++import java.util.List;
++
++import org.springframework.http.HttpStatus;
++import org.springframework.validation.annotation.Validated;
++import org.springframework.web.bind.annotation.GetMapping;
++import org.springframework.web.bind.annotation.PathVariable;
++import org.springframework.web.bind.annotation.PostMapping;
++import org.springframework.web.bind.annotation.RequestBody;
++import org.springframework.web.bind.annotation.ResponseStatus;
++import org.springframework.web.bind.annotation.RestController;
++
++@RestController
++public class CouponController {
++
++    private final CouponService service;
++
++    public CouponController(CouponService service) {
++        this.service = service;
++    }
++
++    @PostMapping("/api/coupons")
++    @ResponseStatus(HttpStatus.CREATED)
++    public CouponResponse create(@Validated @RequestBody CreateCouponRequest request) {
++        return CouponResponse.from(service.create(request));
++    }
++
++    @GetMapping("/api/coupons/{id}")
++    public CouponResponse get(@PathVariable Long id) {
++        return CouponResponse.from(service.get(id));
++    }
++
++    @PostMapping("/api/coupons/{id}/claim")
++    @ResponseStatus(HttpStatus.CREATED)
++    public UserCouponResponse claim(@PathVariable Long id, @Validated @RequestBody ClaimCouponRequest request) {
++        return UserCouponResponse.from(service.claim(id, request.customerId()));
++    }
++
++    @GetMapping("/api/customers/{customerId}/coupons")
++    public List<UserCouponResponse> listForCustomer(@PathVariable String customerId) {
++        return service.listForCustomer(customerId).stream().map(UserCouponResponse::from).toList();
++    }
++}
+diff --git a/src/main/java/com/example/shop/coupon/CouponRepository.java b/src/main/java/com/example/shop/coupon/CouponRepository.java
+new file mode 100644
+index 0000000..e9e8631
+--- /dev/null
++++ b/src/main/java/com/example/shop/coupon/CouponRepository.java
+@@ -0,0 +1,18 @@
++package com.example.shop.coupon;
++
++import org.springframework.data.jpa.repository.JpaRepository;
++import org.springframework.data.jpa.repository.Modifying;
++import org.springframework.data.jpa.repository.Query;
++import org.springframework.data.repository.query.Param;
++
++public interface CouponRepository extends JpaRepository<Coupon, Long> {
++
++    /**
++     * 在还有余量时把已领数量加一，返回受影响的行数（1 表示领到，0 表示已领完）。
++     * 判断和更新在同一条 SQL 里完成，数据库的行锁保证并发时不会超发。
++     */
++    @Modifying(clearAutomatically = true)
++    @Query("update Coupon c set c.claimedCount = c.claimedCount + 1 "
++            + "where c.id = :id and c.claimedCount < c.totalCount")
++    int tryClaimOne(@Param("id") Long id);
++}
+diff --git a/src/main/java/com/example/shop/coupon/CouponResponse.java b/src/main/java/com/example/shop/coupon/CouponResponse.java
+new file mode 100644
+index 0000000..5598978
+--- /dev/null
++++ b/src/main/java/com/example/shop/coupon/CouponResponse.java
+@@ -0,0 +1,19 @@
++package com.example.shop.coupon;
++
++import java.math.BigDecimal;
++import java.time.Instant;
++
++public record CouponResponse(
++        Long id,
++        String name,
++        BigDecimal threshold,
++        BigDecimal discount,
++        int totalCount,
++        int claimedCount,
++        Instant validUntil) {
++
++    static CouponResponse from(Coupon c) {
++        return new CouponResponse(c.getId(), c.getName(), c.getThreshold(), c.getDiscount(),
++                c.getTotalCount(), c.getClaimedCount(), c.getValidUntil());
++    }
++}
+diff --git a/src/main/java/com/example/shop/coupon/CouponService.java b/src/main/java/com/example/shop/coupon/CouponService.java
+new file mode 100644
+index 0000000..72df745
+--- /dev/null
++++ b/src/main/java/com/example/shop/coupon/CouponService.java
+@@ -0,0 +1,97 @@
++package com.example.shop.coupon;
++
++import java.math.BigDecimal;
++import java.time.Clock;
++import java.time.Instant;
++import java.util.List;
++
++import org.springframework.dao.DataIntegrityViolationException;
++import org.springframework.stereotype.Service;
++import org.springframework.transaction.annotation.Transactional;
++
++import com.example.shop.common.BusinessException;
++import com.example.shop.common.NotFoundException;
++
++@Service
++public class CouponService {
++
++    private final CouponRepository coupons;
++    private final UserCouponRepository userCoupons;
++    private final Clock clock;
++
++    public CouponService(CouponRepository coupons, UserCouponRepository userCoupons, Clock clock) {
++        this.coupons = coupons;
++        this.userCoupons = userCoupons;
++        this.clock = clock;
++    }
++
++    @Transactional
++    public Coupon create(CreateCouponRequest request) {
++        Instant now = clock.instant();
++        if (!request.validUntil().isAfter(now)) {
++            throw new IllegalArgumentException("截止时间必须晚于当前时间");
++        }
++        return coupons.save(new Coupon(request.name(), request.threshold(), request.discount(),
++                request.totalCount(), request.validUntil(), now));
++    }
++
++    @Transactional(readOnly = true)
++    public Coupon get(Long id) {
++        return coupons.findById(id).orElseThrow(() -> new NotFoundException("优惠券不存在：" + id));
++    }
++
++    /**
++     * 领券。先查重再扣余量，最后插入记录；任何一步失败都会让整个事务回滚，余量不会白扣。
++     * 查重只是为了给出友好的提示，真正保证“一人一张”的是 user_coupon 上的唯一约束。
++     */
++    @Transactional
++    public UserCoupon claim(Long couponId, String customerId) {
++        Coupon coupon = get(couponId);
++        Instant now = clock.instant();
++        if (coupon.isExpired(now)) {
++            throw new BusinessException("优惠券已过期");
++        }
++        if (userCoupons.existsByCouponIdAndCustomerId(couponId, customerId)) {
++            throw new BusinessException("每人只能领取一张");
++        }
++        if (coupons.tryClaimOne(couponId) == 0) {
++            throw new BusinessException("优惠券已领完");
++        }
++        try {
++            return userCoupons.saveAndFlush(new UserCoupon(get(couponId), customerId, now));
++        } catch (DataIntegrityViolationException e) {
++            // 同一用户的并发请求都通过了查重，唯一约束拦下了后到的那个
++            throw new BusinessException("每人只能领取一张");
++        }
++    }
++
++    @Transactional(readOnly = true)
++    public List<UserCoupon> listForCustomer(String customerId) {
++        return userCoupons.findByCustomerIdOrderByIdDesc(customerId);
++    }
++
++    /**
++     * 下单时使用一张券，返回减免金额。调用方需要在同一个事务里。
++     */
++    @Transactional
++    public BigDecimal use(Long userCouponId, String customerId, BigDecimal totalAmount, Long orderId) {
++        UserCoupon userCoupon = userCoupons.findById(userCouponId)
++                .filter(uc -> uc.getCustomerId().equals(customerId))
++                .orElseThrow(() -> new BusinessException("优惠券不属于该用户：" + userCouponId));
++        Coupon coupon = userCoupon.getCoupon();
++        if (coupon.isExpired(clock.instant())) {
++            throw new BusinessException("优惠券已过期");
++        }
++        if (totalAmount.compareTo(coupon.getThreshold()) < 0) {
++            throw new BusinessException("商品总价未达到使用门槛 " + coupon.getThreshold());
++        }
++        userCoupon.markUsed(orderId);
++        return coupon.getDiscount();
++    }
++
++    /** 订单取消时退回优惠券。 */
++    @Transactional
++    public void release(Long userCouponId) {
++        userCoupons.findById(userCouponId).ifPresent(UserCoupon::release);
++    }
++}
+diff --git a/src/main/java/com/example/shop/coupon/CreateCouponRequest.java b/src/main/java/com/example/shop/coupon/CreateCouponRequest.java
+new file mode 100644
+index 0000000..6055c60
+--- /dev/null
++++ b/src/main/java/com/example/shop/coupon/CreateCouponRequest.java
+@@ -0,0 +1,24 @@
++package com.example.shop.coupon;
++
++import java.math.BigDecimal;
++import java.time.Instant;
++
++import jakarta.validation.constraints.AssertTrue;
++import jakarta.validation.constraints.DecimalMin;
++import jakarta.validation.constraints.Digits;
++import jakarta.validation.constraints.Min;
++import jakarta.validation.constraints.NotBlank;
++import jakarta.validation.constraints.NotNull;
++
++public record CreateCouponRequest(
++        @NotBlank String name,
++        @NotNull @DecimalMin(value = "0", inclusive = false) @Digits(integer = 10, fraction = 2) BigDecimal threshold,
++        @NotNull @DecimalMin(value = "0", inclusive = false) @Digits(integer = 10, fraction = 2) BigDecimal discount,
++        @Min(1) int totalCount,
++        @NotNull Instant validUntil) {
++
++    @AssertTrue(message = "减免金额必须小于使用门槛")
++    public boolean isDiscountBelowThreshold() {
++        return threshold == null || discount == null || discount.compareTo(threshold) < 0;
++    }
++}
+diff --git a/src/main/java/com/example/shop/coupon/UserCoupon.java b/src/main/java/com/example/shop/coupon/UserCoupon.java
+new file mode 100644
+index 0000000..a42dbab
+--- /dev/null
++++ b/src/main/java/com/example/shop/coupon/UserCoupon.java
+@@ -0,0 +1,83 @@
++package com.example.shop.coupon;
++
++import java.time.Instant;
++
++import com.example.shop.common.BusinessException;
++
++import jakarta.persistence.Entity;
++import jakarta.persistence.EnumType;
++import jakarta.persistence.Enumerated;
++import jakarta.persistence.FetchType;
++import jakarta.persistence.GeneratedValue;
++import jakarta.persistence.GenerationType;
++import jakarta.persistence.Id;
++import jakarta.persistence.JoinColumn;
++import jakarta.persistence.ManyToOne;
++
++/** 用户领到的一张券。 */
++@Entity
++public class UserCoupon {
++
++    @Id
++    @GeneratedValue(strategy = GenerationType.IDENTITY)
++    private Long id;
++
++    @ManyToOne(fetch = FetchType.EAGER, optional = false)
++    @JoinColumn(name = "coupon_id")
++    private Coupon coupon;
++
++    private String customerId;
++
++    @Enumerated(EnumType.STRING)
++    private UserCouponStatus status;
++
++    private Long orderId;
++    private Instant claimedAt;
++
++    protected UserCoupon() {
++    }
++
++    public UserCoupon(Coupon coupon, String customerId, Instant claimedAt) {
++        this.coupon = coupon;
++        this.customerId = customerId;
++        this.status = UserCouponStatus.AVAILABLE;
++        this.claimedAt = claimedAt;
++    }
++
++    public void markUsed(Long orderId) {
++        if (status != UserCouponStatus.AVAILABLE) {
++            throw new BusinessException("优惠券不可用，当前状态：" + status);
++        }
++        this.status = UserCouponStatus.USED;
++        this.orderId = orderId;
++    }
++
++    public void release() {
++        this.status = UserCouponStatus.AVAILABLE;
++        this.orderId = null;
++    }
++
++    public Long getId() {
++        return id;
++    }
++
++    public Coupon getCoupon() {
++        return coupon;
++    }
++
++    public String getCustomerId() {
++        return customerId;
++    }
++
++    public UserCouponStatus getStatus() {
++        return status;
++    }
++
++    public Long getOrderId() {
++        return orderId;
++    }
++
++    public Instant getClaimedAt() {
++        return claimedAt;
++    }
++}
+diff --git a/src/main/java/com/example/shop/coupon/UserCouponRepository.java b/src/main/java/com/example/shop/coupon/UserCouponRepository.java
+new file mode 100644
+index 0000000..3ea48cb
+--- /dev/null
++++ b/src/main/java/com/example/shop/coupon/UserCouponRepository.java
+@@ -0,0 +1,12 @@
++package com.example.shop.coupon;
++
++import java.util.List;
++
++import org.springframework.data.jpa.repository.JpaRepository;
++
++public interface UserCouponRepository extends JpaRepository<UserCoupon, Long> {
++
++    boolean existsByCouponIdAndCustomerId(Long couponId, String customerId);
++
++    List<UserCoupon> findByCustomerIdOrderByIdDesc(String customerId);
++}
+diff --git a/src/main/java/com/example/shop/coupon/UserCouponResponse.java b/src/main/java/com/example/shop/coupon/UserCouponResponse.java
+new file mode 100644
+index 0000000..1fb05ba
+--- /dev/null
++++ b/src/main/java/com/example/shop/coupon/UserCouponResponse.java
+@@ -0,0 +1,21 @@
++package com.example.shop.coupon;
++
++import java.math.BigDecimal;
++import java.time.Instant;
++
++public record UserCouponResponse(
++        Long id,
++        Long couponId,
++        String name,
++        BigDecimal threshold,
++        BigDecimal discount,
++        Instant validUntil,
++        UserCouponStatus status,
++        Long orderId) {
++
++    static UserCouponResponse from(UserCoupon uc) {
++        Coupon c = uc.getCoupon();
++        return new UserCouponResponse(uc.getId(), c.getId(), c.getName(), c.getThreshold(), c.getDiscount(),
++                c.getValidUntil(), uc.getStatus(), uc.getOrderId());
++    }
++}
+diff --git a/src/main/java/com/example/shop/coupon/UserCouponStatus.java b/src/main/java/com/example/shop/coupon/UserCouponStatus.java
+new file mode 100644
+index 0000000..d7b27b0
+--- /dev/null
++++ b/src/main/java/com/example/shop/coupon/UserCouponStatus.java
+@@ -0,0 +1,5 @@
++package com.example.shop.coupon;
++
++public enum UserCouponStatus {
++    AVAILABLE, USED
++}
+diff --git a/src/main/java/com/example/shop/order/CreateOrderRequest.java b/src/main/java/com/example/shop/order/CreateOrderRequest.java
+index 6fa9652..7c4ce27 100644
+--- a/src/main/java/com/example/shop/order/CreateOrderRequest.java
++++ b/src/main/java/com/example/shop/order/CreateOrderRequest.java
+@@ -10,7 +10,12 @@ import jakarta.validation.constraints.NotNull;
+ 
+ public record CreateOrderRequest(
+         @NotBlank String customerId,
+-        @NotEmpty List<@Valid Line> items) {
++        @NotEmpty List<@Valid Line> items,
++        Long userCouponId) {
++
++    public CreateOrderRequest(String customerId, List<Line> items) {
++        this(customerId, items, null);
++    }
+ 
+     public record Line(@NotNull Long productId, @Min(1) int quantity) {
+     }
+diff --git a/src/main/java/com/example/shop/order/Order.java b/src/main/java/com/example/shop/order/Order.java
+index 857e2cd..d3a621c 100644
+--- a/src/main/java/com/example/shop/order/Order.java
++++ b/src/main/java/com/example/shop/order/Order.java
+@@ -40,9 +40,15 @@ public class Order {
+     /** 商品总价。 */
+     private BigDecimal totalAmount;
+ 
+-    /** 应付金额。目前没有任何优惠，等于商品总价。 */
++    /** 优惠券减免的金额，没有用券时为 0。 */
++    private BigDecimal discountAmount;
++
++    /** 应付金额 = 商品总价 - 优惠减免。 */
+     private BigDecimal payableAmount;
+ 
++    /** 使用的优惠券（UserCoupon 的 id），没有用券时为 null。 */
++    private Long userCouponId;
++
+     private Instant createdAt;
+     private Instant paidAt;
+ 
+@@ -54,10 +60,20 @@ public class Order {
+         this.items = new ArrayList<>(items);
+         this.status = OrderStatus.CREATED;
+         this.totalAmount = items.stream().map(OrderItem::subtotal).reduce(BigDecimal.ZERO, BigDecimal::add);
++        this.discountAmount = BigDecimal.ZERO;
+         this.payableAmount = totalAmount;
+         this.createdAt = createdAt;
+     }
+ 
++    public void applyCoupon(Long userCouponId, BigDecimal discount) {
++        if (this.userCouponId != null) {
++            throw new BusinessException("一张订单只能使用一张优惠券");
++        }
++        this.userCouponId = userCouponId;
++        this.discountAmount = discount;
++        this.payableAmount = totalAmount.subtract(discount);
++    }
++
+     public void pay(Instant now) {
+         if (status != OrderStatus.CREATED) {
+             throw new BusinessException("只有待支付的订单可以支付，当前状态：" + status);
+@@ -93,6 +109,14 @@ public class Order {
+         return totalAmount;
+     }
+ 
++    public BigDecimal getDiscountAmount() {
++        return discountAmount;
++    }
++
++    public Long getUserCouponId() {
++        return userCouponId;
++    }
++
+     public BigDecimal getPayableAmount() {
+         return payableAmount;
+     }
+diff --git a/src/main/java/com/example/shop/order/OrderResponse.java b/src/main/java/com/example/shop/order/OrderResponse.java
+index 4a52393..63a6f20 100644
+--- a/src/main/java/com/example/shop/order/OrderResponse.java
++++ b/src/main/java/com/example/shop/order/OrderResponse.java
+@@ -10,7 +10,9 @@ public record OrderResponse(
+         OrderStatus status,
+         List<Line> items,
+         BigDecimal totalAmount,
++        BigDecimal discountAmount,
+         BigDecimal payableAmount,
++        Long userCouponId,
+         Instant createdAt,
+         Instant paidAt) {
+ 
+@@ -26,7 +28,9 @@ public record OrderResponse(
+                         .map(i -> new Line(i.getProductId(), i.getProductName(), i.getUnitPrice(), i.getQuantity()))
+                         .toList(),
+                 order.getTotalAmount(),
++                order.getDiscountAmount(),
+                 order.getPayableAmount(),
++                order.getUserCouponId(),
+                 order.getCreatedAt(),
+                 order.getPaidAt());
+     }
+diff --git a/src/main/java/com/example/shop/order/OrderService.java b/src/main/java/com/example/shop/order/OrderService.java
+index 04a134a..06bf705 100644
+--- a/src/main/java/com/example/shop/order/OrderService.java
++++ b/src/main/java/com/example/shop/order/OrderService.java
+@@ -1,5 +1,6 @@
+ package com.example.shop.order;
+ 
++import java.math.BigDecimal;
+ import java.time.Clock;
+ import java.util.List;
+ 
+@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
+ import org.springframework.transaction.annotation.Transactional;
+ 
+ import com.example.shop.common.NotFoundException;
++import com.example.shop.coupon.CouponService;
+ import com.example.shop.product.Product;
+ import com.example.shop.product.ProductRepository;
+ 
+@@ -15,11 +17,13 @@ public class OrderService {
+ 
+     private final OrderRepository orders;
+     private final ProductRepository products;
++    private final CouponService coupons;
+     private final Clock clock;
+ 
+-    public OrderService(OrderRepository orders, ProductRepository products, Clock clock) {
++    public OrderService(OrderRepository orders, ProductRepository products, CouponService coupons, Clock clock) {
+         this.orders = orders;
+         this.products = products;
++        this.coupons = coupons;
+         this.clock = clock;
+     }
+ 
+@@ -30,7 +34,13 @@ public class OrderService {
+                     .orElseThrow(() -> new NotFoundException("商品不存在：" + line.productId()));
+             return new OrderItem(product.getId(), product.getName(), product.getPrice(), line.quantity());
+         }).toList();
+-        return orders.save(new Order(request.customerId(), items, clock.instant()));
++        Order order = orders.save(new Order(request.customerId(), items, clock.instant()));
++        if (request.userCouponId() != null) {
++            BigDecimal discount = coupons.use(request.userCouponId(), request.customerId(),
++                    order.getTotalAmount(), order.getId());
++            order.applyCoupon(request.userCouponId(), discount);
++        }
++        return order;
+     }
+ 
+     @Transactional(readOnly = true)
+@@ -49,6 +59,9 @@ public class OrderService {
+     public Order cancel(Long id) {
+         Order order = get(id);
+         order.cancel();
++        if (order.getUserCouponId() != null) {
++            coupons.release(order.getUserCouponId());
++        }
+         return order;
+     }
+ }
+diff --git a/src/main/resources/db/migration/V2__coupon.sql b/src/main/resources/db/migration/V2__coupon.sql
+new file mode 100644
+index 0000000..b87a012
+--- /dev/null
++++ b/src/main/resources/db/migration/V2__coupon.sql
+@@ -0,0 +1,23 @@
++create table coupon (
++    id            bigint auto_increment primary key,
++    name          varchar(100)   not null,
++    threshold     decimal(12, 2) not null,
++    discount      decimal(12, 2) not null,
++    total_count   int            not null,
++    claimed_count int            not null default 0,
++    valid_until   timestamp(6)   not null,
++    created_at    timestamp(6)   not null
++);
++
++create table user_coupon (
++    id          bigint auto_increment primary key,
++    coupon_id   bigint       not null references coupon (id),
++    customer_id varchar(64)  not null,
++    status      varchar(20)  not null,
++    order_id    bigint,
++    claimed_at  timestamp(6) not null,
++    constraint uk_user_coupon unique (coupon_id, customer_id)
++);
++
++alter table orders add column user_coupon_id bigint;
++alter table orders add column discount_amount decimal(12, 2) not null default 0;
+diff --git a/src/test/java/com/example/shop/coupon/CouponConcurrencyTest.java b/src/test/java/com/example/shop/coupon/CouponConcurrencyTest.java
+new file mode 100644
+index 0000000..2c1bacf
+--- /dev/null
++++ b/src/test/java/com/example/shop/coupon/CouponConcurrencyTest.java
+@@ -0,0 +1,94 @@
++package com.example.shop.coupon;
++
++import static org.assertj.core.api.Assertions.assertThat;
++
++import java.math.BigDecimal;
++import java.time.Duration;
++import java.util.ArrayList;
++import java.util.List;
++import java.util.concurrent.Callable;
++import java.util.concurrent.CountDownLatch;
++import java.util.concurrent.ExecutorService;
++import java.util.concurrent.Executors;
++import java.util.concurrent.Future;
++
++import org.junit.jupiter.api.Test;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.boot.test.context.SpringBootTest;
++import org.springframework.context.annotation.Import;
++
++import com.example.shop.TestClockConfig;
++import com.example.shop.common.BusinessException;
++
++/**
++ * 并发领券。不能加 @Transactional：每个线程要在自己的事务里提交，才能真正产生竞争。
++ */
++@SpringBootTest
++@Import(TestClockConfig.class)
++class CouponConcurrencyTest {
++
++    @Autowired
++    CouponService coupons;
++    @Autowired
++    UserCouponRepository userCoupons;
++
++    private Coupon coupon(int total) {
++        return coupons.create(new CreateCouponRequest("抢券", new BigDecimal("100"), new BigDecimal("10"), total,
++                TestClockConfig.NOW.plus(Duration.ofDays(1))));
++    }
++
++    /** 让所有任务在同一时刻开始，返回成功的次数。 */
++    private int runConcurrently(List<Callable<UserCoupon>> tasks) throws Exception {
++        ExecutorService pool = Executors.newFixedThreadPool(tasks.size());
++        CountDownLatch start = new CountDownLatch(1);
++        List<Future<UserCoupon>> futures = new ArrayList<>();
++        for (Callable<UserCoupon> task : tasks) {
++            futures.add(pool.submit(() -> {
++                start.await();
++                return task.call();
++            }));
++        }
++        start.countDown();
++        int success = 0;
++        for (Future<UserCoupon> f : futures) {
++            try {
++                f.get();
++                success++;
++            } catch (java.util.concurrent.ExecutionException e) {
++                assertThat(e.getCause()).isInstanceOf(BusinessException.class);
++            }
++        }
++        pool.shutdown();
++        return success;
++    }
++
++    @Test
++    void fiftyCustomersCompeteForTenCoupons() throws Exception {
++        Long id = coupon(10).getId();
++        List<Callable<UserCoupon>> tasks = new ArrayList<>();
++        for (int i = 0; i < 50; i++) {
++            String customer = "rush-" + i;
++            tasks.add(() -> coupons.claim(id, customer));
++        }
++
++        int success = runConcurrently(tasks);
++
++        assertThat(success).isEqualTo(10);
++        assertThat(coupons.get(id).getClaimedCount()).isEqualTo(10);
++        assertThat(userCoupons.findAll().stream().filter(uc -> uc.getCoupon().getId().equals(id))).hasSize(10);
++    }
++
++    @Test
++    void sameCustomerClaimingConcurrentlyGetsOnlyOne() throws Exception {
++        Long id = coupon(100).getId();
++        List<Callable<UserCoupon>> tasks = new ArrayList<>();
++        for (int i = 0; i < 10; i++) {
++            tasks.add(() -> coupons.claim(id, "greedy"));
++        }
++
++        int success = runConcurrently(tasks);
++
++        assertThat(success).isEqualTo(1);
++        assertThat(coupons.get(id).getClaimedCount()).isEqualTo(1);
++    }
++}
+diff --git a/src/test/java/com/example/shop/coupon/CouponControllerTest.java b/src/test/java/com/example/shop/coupon/CouponControllerTest.java
+new file mode 100644
+index 0000000..14e019d
+--- /dev/null
++++ b/src/test/java/com/example/shop/coupon/CouponControllerTest.java
+@@ -0,0 +1,80 @@
++package com.example.shop.coupon;
++
++import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
++import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
++import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
++import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
++
++import org.junit.jupiter.api.Test;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.boot.test.context.SpringBootTest;
++import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
++import org.springframework.context.annotation.Import;
++import org.springframework.http.MediaType;
++import org.springframework.test.web.servlet.MockMvc;
++
++import com.example.shop.TestClockConfig;
++import com.jayway.jsonpath.JsonPath;
++
++@SpringBootTest
++@AutoConfigureMockMvc
++@Import(TestClockConfig.class)
++class CouponControllerTest {
++
++    @Autowired
++    MockMvc mvc;
++
++
++    @Test
++    void discountMustBeBelowThreshold() throws Exception {
++        mvc.perform(post("/api/coupons").contentType(MediaType.APPLICATION_JSON).content("""
++                {"name": "x", "threshold": 50, "discount": 50, "totalCount": 1, "validUntil": "2026-10-02T00:00:00Z"}
++                """))
++                .andExpect(status().isBadRequest());
++    }
++
++    @Test
++    void validUntilInThePastIs400() throws Exception {
++        mvc.perform(post("/api/coupons").contentType(MediaType.APPLICATION_JSON).content("""
++                {"name": "x", "threshold": 100, "discount": 10, "totalCount": 1, "validUntil": "2026-09-30T00:00:00Z"}
++                """))
++                .andExpect(status().isBadRequest());
++    }
++
++    @Test
++    void claimAndUseCouponThroughApi() throws Exception {
++        String coupon = mvc.perform(post("/api/coupons").contentType(MediaType.APPLICATION_JSON).content("""
++                {"name": "满300减50", "threshold": 300, "discount": 50, "totalCount": 5, "validUntil": "2026-10-02T00:00:00Z"}
++                """))
++                .andExpect(status().isCreated())
++                .andReturn().getResponse().getContentAsString();
++        Number couponId = JsonPath.read(coupon, "$.id");
++
++        String claimed = mvc.perform(post("/api/coupons/{id}/claim", couponId)
++                        .contentType(MediaType.APPLICATION_JSON).content("""
++                                {"customerId": "api-1"}
++                                """))
++                .andExpect(status().isCreated())
++                .andExpect(jsonPath("$.status").value("AVAILABLE"))
++                .andReturn().getResponse().getContentAsString();
++        Number userCouponId = JsonPath.read(claimed, "$.id");
++
++        mvc.perform(post("/api/coupons/{id}/claim", couponId)
++                        .contentType(MediaType.APPLICATION_JSON).content("""
++                                {"customerId": "api-1"}
++                                """))
++                .andExpect(status().isConflict());
++
++        mvc.perform(post("/api/orders").contentType(MediaType.APPLICATION_JSON).content("""
++                {"customerId": "api-1", "items": [{"productId": 1, "quantity": 1}], "userCouponId": %s}
++                """.formatted(userCouponId)))
++                .andExpect(status().isCreated())
++                .andExpect(jsonPath("$.discountAmount").value(50))
++                .andExpect(jsonPath("$.payableAmount").value(349.00));
++
++        mvc.perform(get("/api/customers/api-1/coupons"))
++                .andExpect(status().isOk())
++                .andExpect(jsonPath("$[0].status").value("USED"))
++                .andExpect(jsonPath("$[0].name").value("满300减50"));
++    }
++}
+diff --git a/src/test/java/com/example/shop/coupon/CouponServiceTest.java b/src/test/java/com/example/shop/coupon/CouponServiceTest.java
+new file mode 100644
+index 0000000..b4501b5
+--- /dev/null
++++ b/src/test/java/com/example/shop/coupon/CouponServiceTest.java
+@@ -0,0 +1,186 @@
++package com.example.shop.coupon;
++
++import static org.assertj.core.api.Assertions.assertThat;
++import static org.assertj.core.api.Assertions.assertThatThrownBy;
++
++import java.math.BigDecimal;
++import java.time.Duration;
++import java.time.Instant;
++import java.util.List;
++
++import org.junit.jupiter.api.Test;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.boot.test.context.SpringBootTest;
++import org.springframework.context.annotation.Import;
++import org.springframework.transaction.annotation.Transactional;
++
++import com.example.shop.TestClockConfig;
++import com.example.shop.common.BusinessException;
++import com.example.shop.order.CreateOrderRequest;
++import com.example.shop.order.Order;
++import com.example.shop.order.OrderService;
++import com.example.shop.order.OrderStatus;
++
++@SpringBootTest
++@Import(TestClockConfig.class)
++@Transactional
++class CouponServiceTest {
++
++    static final Instant TOMORROW = TestClockConfig.NOW.plus(Duration.ofDays(1));
++
++    @Autowired
++    CouponService coupons;
++    @Autowired
++    CouponRepository couponRepository;
++    @Autowired
++    UserCouponRepository userCouponRepository;
++    @Autowired
++    OrderService orders;
++
++    /** 满 300 减 50，共 total 张。 */
++    private Coupon coupon(int total) {
++        return coupons.create(new CreateCouponRequest("满300减50", new BigDecimal("300"), new BigDecimal("50"),
++                total, TOMORROW));
++    }
++
++    /** 直接写库造一张已经过期的券（接口不允许创建过期的券）。 */
++    private Coupon expiredCoupon() {
++        return couponRepository.save(new Coupon("过期券", new BigDecimal("300"), new BigDecimal("50"), 10,
++                TestClockConfig.NOW.minusSeconds(1), TestClockConfig.NOW.minus(Duration.ofDays(2))));
++    }
++
++    /** 1 个机械键盘，总价 399.00。 */
++    private CreateOrderRequest keyboard(String customerId, Long userCouponId) {
++        return new CreateOrderRequest(customerId, List.of(new CreateOrderRequest.Line(1L, 1)), userCouponId);
++    }
++
++    // ---------- 创建 ----------
++
++    @Test
++    void createRejectsValidUntilInThePast() {
++        var request = new CreateCouponRequest("x", new BigDecimal("300"), new BigDecimal("50"), 1,
++                TestClockConfig.NOW);
++
++        assertThatThrownBy(() -> coupons.create(request)).isInstanceOf(IllegalArgumentException.class);
++    }
++
++    // ---------- 领取 ----------
++
++    @Test
++    void claimCreatesAvailableUserCoupon() {
++        Coupon coupon = coupon(10);
++
++        UserCoupon uc = coupons.claim(coupon.getId(), "c-1");
++
++        assertThat(uc.getStatus()).isEqualTo(UserCouponStatus.AVAILABLE);
++        assertThat(coupons.get(coupon.getId()).getClaimedCount()).isEqualTo(1);
++    }
++
++    @Test
++    void claimRejectsExpiredCoupon() {
++        Long id = expiredCoupon().getId();
++
++        assertThatThrownBy(() -> coupons.claim(id, "c-1"))
++                .isInstanceOf(BusinessException.class).hasMessageContaining("过期");
++    }
++
++    @Test
++    void claimRejectsWhenSoldOut() {
++        Long id = coupon(1).getId();
++        coupons.claim(id, "c-1");
++
++        assertThatThrownBy(() -> coupons.claim(id, "c-2"))
++                .isInstanceOf(BusinessException.class).hasMessageContaining("领完");
++    }
++
++    @Test
++    void claimRejectsSecondClaimBySameCustomer() {
++        Long id = coupon(10).getId();
++        coupons.claim(id, "c-1");
++
++        assertThatThrownBy(() -> coupons.claim(id, "c-1"))
++                .isInstanceOf(BusinessException.class).hasMessageContaining("一张");
++        assertThat(coupons.get(id).getClaimedCount()).isEqualTo(1);
++    }
++
++    // ---------- 下单用券 ----------
++
++    @Test
++    void orderWithCouponIsDiscounted() {
++        UserCoupon uc = coupons.claim(coupon(10).getId(), "c-1");
++
++        Order order = orders.create(keyboard("c-1", uc.getId()));
++
++        assertThat(order.getTotalAmount()).isEqualByComparingTo("399.00");
++        assertThat(order.getDiscountAmount()).isEqualByComparingTo("50");
++        assertThat(order.getPayableAmount()).isEqualByComparingTo("349.00");
++        assertThat(uc.getStatus()).isEqualTo(UserCouponStatus.USED);
++        assertThat(uc.getOrderId()).isEqualTo(order.getId());
++    }
++
++    @Test
++    void orderBelowThresholdIsRejected() {
++        UserCoupon uc = coupons.claim(coupon(10).getId(), "c-1");
++        // 2 个显示器支架 = 318.00，满足门槛；1 个只有 159.00
++        var request = new CreateOrderRequest("c-1", List.of(new CreateOrderRequest.Line(2L, 1)), uc.getId());
++
++        assertThatThrownBy(() -> orders.create(request))
++                .isInstanceOf(BusinessException.class).hasMessageContaining("门槛");
++    }
++
++    @Test
++    void orderAtExactlyThresholdIsAccepted() {
++        Coupon coupon = coupons.create(new CreateCouponRequest("满318减18", new BigDecimal("318"),
++                new BigDecimal("18"), 10, TOMORROW));
++        UserCoupon uc = coupons.claim(coupon.getId(), "c-1");
++
++        Order order = orders.create(new CreateOrderRequest("c-1",
++                List.of(new CreateOrderRequest.Line(2L, 2)), uc.getId()));
++
++        assertThat(order.getPayableAmount()).isEqualByComparingTo("300.00");
++    }
++
++    @Test
++    void cannotUseSomeoneElsesCoupon() {
++        UserCoupon uc = coupons.claim(coupon(10).getId(), "c-1");
++
++        assertThatThrownBy(() -> orders.create(keyboard("c-2", uc.getId())))
++                .isInstanceOf(BusinessException.class).hasMessageContaining("不属于");
++    }
++
++    @Test
++    void cannotUseCouponTwice() {
++        UserCoupon uc = coupons.claim(coupon(10).getId(), "c-1");
++        orders.create(keyboard("c-1", uc.getId()));
++
++        assertThatThrownBy(() -> orders.create(keyboard("c-1", uc.getId())))
++                .isInstanceOf(BusinessException.class).hasMessageContaining("不可用");
++    }
++
++    @Test
++    void cannotUseExpiredCoupon() {
++        Coupon expired = expiredCoupon();
++        // 过期券领不到，这里直接造一张“领取后才过期”的记录
++        UserCoupon uc = new UserCoupon(expired, "c-1", TestClockConfig.NOW.minus(Duration.ofDays(1)));
++        Long ucId = userCouponRepository.save(uc).getId();
++
++        assertThatThrownBy(() -> orders.create(keyboard("c-1", ucId)))
++                .isInstanceOf(BusinessException.class).hasMessageContaining("过期");
++    }
++
++    // ---------- 取消退券 ----------
++
++    @Test
++    void cancellingOrderReleasesCoupon() {
++        UserCoupon uc = coupons.claim(coupon(10).getId(), "c-1");
++        Order order = orders.create(keyboard("c-1", uc.getId()));
++
++        Order cancelled = orders.cancel(order.getId());
++
++        assertThat(cancelled.getStatus()).isEqualTo(OrderStatus.CANCELLED);
++        assertThat(uc.getStatus()).isEqualTo(UserCouponStatus.AVAILABLE);
++        assertThat(uc.getOrderId()).isNull();
++        // 退回的券可以再用
++        assertThat(orders.create(keyboard("c-1", uc.getId())).getPayableAmount()).isEqualByComparingTo("349.00");
++    }
++}
