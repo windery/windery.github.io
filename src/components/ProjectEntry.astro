@@ -9,6 +9,6 @@ const posts=projectArticles(project.slug);
 const Heading='h2';
 ---
 <section id={project.slug} data-project={project.slug} class:list={['project-group',{'project-group-compact':compact}]}>
- <header class="project-group-info"><Heading><a href={`/projects/${project.slug}/${posts[0].frontmatter.articleSlug}/`}>{owner&&<span class="project-owner">{owner}/</span>}<span>{name}</span></a></Heading><p>{project.description}</p><div class="project-group-meta"><span>{project.articles.length} 篇</span><time datetime={date}>{dateLabel}{date.slice(0,10)}</time></div></header>
+ <header class="project-group-info"><Heading><a href={`/projects/${project.slug}/${posts[0].frontmatter.articleSlug}/`}>{owner&&<span class="project-owner">{owner}/</span>}<span>{name}</span></a></Heading><p>{project.description}</p><div class="project-group-meta"><span>{project.version??`commit ${project.commit.slice(0,7)}`}</span><span>{project.articles.length} 篇</span><time datetime={date}>{dateLabel}{date.slice(0,10)}</time></div></header>
  <ArticleList posts={posts} project={project}/>
 </section>

@@ -1,5 +1,13 @@
 ---
-interface Props { source:string; commit:string; sourceVisibility?:string; }
-const {source,commit,sourceVisibility='public'}=Astro.props;
+// Concrete source facts readers of a code write-up look for: repository, version, reading date.
+interface Props { source:string; commit:string; sourceVisibility?:string; version?:string; updated:string; }
+const {source,commit,sourceVisibility='public',version,updated}=Astro.props;
+const repo=source.replace(/^https:\/\//,'');
+const shortCommit=commit.slice(0,7);
+const isPublic=sourceVisibility==='public';
 ---
-{sourceVisibility==='public' ? <><a href={source}>公开源码</a> · <a href={`${source}/tree/${commit}`}>版本 {commit.slice(0,12)}</a></> : <>私有源码 · 文档公开 · 版本 {commit.slice(0,12)}</>}
+<dl class="source-facts">
+ <div><dt>代码仓库</dt><dd>{isPublic?<a href={source}>{repo}</a>:<>{repo.replace(/^github\.com\//,'')}<span class="source-note">私有仓库</span></>}</dd></div>
+ <div><dt>版本</dt><dd>{version&&<span class="source-version">{version}</span>}{isPublic?<a class="source-commit" href={`${source}/tree/${commit}`}>commit {shortCommit}</a>:<span class="source-commit">commit {shortCommit}</span>}</dd></div>
+ <div><dt>阅读于</dt><dd><time datetime={updated}>{updated}</time></dd></div>
+</dl>

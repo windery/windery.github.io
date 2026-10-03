@@ -48,7 +48,7 @@ npm run import:project -- \
   --track ai
 ```
 
-`--track` 可选，取 `content/catalog.json` 中某个方向的 slug；更新已有项目时省略会保留原来的方向。
+`--version` 可选，填写该 commit 对应的发布版本（如 `v1.2.3`），文章页和首页会显示它；没有发布版本时只显示 commit。`--track` 可选，取 `content/catalog.json` 中某个方向的 slug；更新已有项目时省略会保留原来的方向。
 
 私有仓库的文档已获公开授权时，在上述命令增加 `--allow-private-source`；页面标注「私有源码 · 文档公开」，不生成不可访问的源码按钮，也不改变源仓库权限。导入器会拒绝用另一来源覆盖已有项目路径。
 

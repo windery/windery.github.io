@@ -1,41 +1,83 @@
 ---
 import Site from '../layouts/Site.astro';
-import {tracks,libraryEntries,trackName,projectHref,trackCourses,trackProjects,courses,catalog} from '../lib/content';
-import TrackSection from '../components/TrackSection.astro';
-// Most recently updated first; libraryEntries already breaks ties by creation order.
-const recent=[...libraryEntries].sort((a,b)=>b.content.updated.localeCompare(a.content.updated)).slice(0,6);
-const count=(slug:string)=>trackCourses(slug).length+trackProjects(slug).length;
-const latest=libraryEntries.map(e=>e.content.updated).sort().at(-1);
+import {tracks,courses,catalog,trackName,projectHref,courseStatus} from '../lib/content';
+const byUpdated=<T extends {updated:string}>(list:T[])=>[...list].sort((a,b)=>b.updated.localeCompare(a.updated));
+const courseList=byUpdated(courses);
+const projectList=byUpdated(catalog.projects as any[]);
+const trackOf=(e:{track?:string})=>tracks.some(t=>t.slug===e.track)?e.track!:tracks[tracks.length-1].slug;
+const owner=(name:string)=>name.includes('/')?name.slice(0,name.lastIndexOf('/')+1):'';
+const repo=(name:string)=>name.slice(name.lastIndexOf('/')+1);
 ---
 <Site title="学习笔记">
 <div class="home" data-pagefind-ignore>
-<header class="home-head"><h1>目录</h1><p>{courses.length} 门课程 · {catalog.projects.length} 个项目解读 · 最近更新于 <time datetime={latest}>{latest}</time></p></header>
-<div class="home-body">
- <nav class="index-rail" aria-label="按方向浏览">
-  <p>按方向浏览</p>
-  <ul>{tracks.map(t=><li><a href={`#track-${t.slug}`} data-index-link={`track-${t.slug}`}><span class="index-name">{t.name}</span><span class="index-count">{count(t.slug)}</span></a></li>)}<li><a href="#recent" data-index-link="recent"><span class="index-name">最近更新</span></a></li></ul>
- </nav>
- <div class="home-main">
-  {tracks.map(track=><TrackSection track={track}/>)}
-  <section class="recent" id="recent" aria-labelledby="recent-title" data-track>
-   <h2 id="recent-title">最近更新</h2>
-   <ol>{recent.map(({kind,content})=><li><time datetime={content.updated}>{content.updated}</time><a href={kind==='course'?(content as any).href:projectHref(content.slug)}>{content.name}</a><span>{kind==='course'?'课程':'项目解读'} · {trackName(content)}</span></li>)}</ol>
-  </section>
+ <h1 class="visually-hidden">Windery 学习笔记</h1>
+ <div class="filters" data-filters hidden>
+  <div class="filter-types" role="group" aria-label="内容类型">
+   <button type="button" data-type="all" aria-pressed="true">全部<span data-count="all">{courseList.length+projectList.length}</span></button>
+   <button type="button" data-type="course" aria-pressed="false">课程<span data-count="course">{courseList.length}</span></button>
+   <button type="button" data-type="project" aria-pressed="false">项目解读<span data-count="project">{projectList.length}</span></button>
+  </div>
+  <div class="filter-tracks" role="group" aria-label="方向">
+   <button type="button" data-track="all" aria-pressed="true">全部方向</button>
+   {tracks.map(t=><button type="button" data-track={t.slug} aria-pressed="false">{t.name}</button>)}
+  </div>
  </div>
-</div>
+
+ <section class="shelf" data-kind="course" aria-labelledby="courses-title">
+  <h2 id="courses-title">课程</h2>
+  <ul class="course-list">{courseList.map(c=><li data-track={trackOf(c)}>
+   <a class="course-card" href={c.href}>
+    <span class="course-name">{c.name}</span>
+    <span class="course-desc">{c.description}</span>
+    <span class="course-meta"><span>{trackName(c)}</span>{c.detail&&<span>{c.detail}</span>}{c.status&&<span class="status" data-status={c.status}>{courseStatus[c.status]}</span>}</span>
+    <svg class="card-arrow" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5"/></svg>
+   </a></li>)}</ul>
+ </section>
+
+ <section class="shelf" data-kind="project" aria-labelledby="projects-title">
+  <h2 id="projects-title">项目解读</h2>
+  <ul class="project-list">{projectList.map(p=><li data-track={trackOf(p)}>
+   <a class="project-row" href={projectHref(p.slug)}>
+    <span class="project-name"><span class="project-owner-name">{owner(p.name)}</span>{repo(p.name)}</span>
+    <span class="project-desc">{p.description}</span>
+    <span class="project-meta"><span class="project-version">{p.version??`commit ${p.commit.slice(0,7)}`}</span><span>{p.articles.length} 篇</span><time datetime={p.updated}>{p.updated}</time></span>
+   </a></li>)}</ul>
+ </section>
+
+ <p class="filter-empty" data-empty hidden>这个方向下还没有内容。</p>
 </div>
 </Site>
 <script>
-// Mark the index entry for the section being read; the marker stroke is the page's one motion.
-const links=new Map([...document.querySelectorAll<HTMLAnchorElement>('[data-index-link]')].map(a=>[a.dataset.indexLink!,a]));
-const mark=(id:string)=>links.forEach((a,key)=>key===id?a.setAttribute('aria-current','true'):a.removeAttribute('aria-current'));
-const sections=[...document.querySelectorAll<HTMLElement>('[data-track]')];
-if(sections.length){
- mark(sections[0].id);
- const observer=new IntersectionObserver(entries=>{
-  const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top)[0];
-  if(visible)mark((visible.target as HTMLElement).id);
- },{rootMargin:'-20% 0px -65% 0px'});
- sections.forEach(s=>observer.observe(s));
+// Type and direction filters: show only matching entries; with nothing chosen, everything shows.
+const root=document.querySelector<HTMLElement>('[data-filters]');
+if(root){
+ root.hidden=false;
+ const params=new URLSearchParams(location.search);
+ const state={type:params.get('type')||'all',track:params.get('track')||'all'};
+ const shelves=[...document.querySelectorAll<HTMLElement>('.shelf')];
+ const empty=document.querySelector<HTMLElement>('[data-empty]')!;
+ const apply=()=>{
+  root.querySelectorAll<HTMLButtonElement>('[data-type]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.type===state.type)));
+  root.querySelectorAll<HTMLButtonElement>('[data-track]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.track===state.track)));
+  let shown=0;const counts:Record<string,number>={all:0};
+  for(const shelf of shelves){
+   let count=0;
+   shelf.querySelectorAll<HTMLElement>('li[data-track]').forEach(li=>{const on=state.track==='all'||li.dataset.track===state.track;li.hidden=!on;if(on)count++;});
+   counts[shelf.dataset.kind!]=count;counts.all+=count;
+   const on=(state.type==='all'||shelf.dataset.kind===state.type)&&count>0;
+   shelf.hidden=!on;if(on)shown+=count;
+  }
+  root.querySelectorAll<HTMLElement>('[data-count]').forEach(el=>{el.textContent=String(counts[el.dataset.count!]??0);});
+  empty.hidden=shown>0;
+  const q=new URLSearchParams();if(state.type!=='all')q.set('type',state.type);if(state.track!=='all')q.set('track',state.track);
+  history.replaceState(history.state,'',location.pathname+(q.size?`?${q}`:'')+location.hash);
+ };
+ root.addEventListener('click',e=>{
+  const b=(e.target as Element).closest<HTMLButtonElement>('button');if(!b)return;
+  if(b.dataset.type)state.type=b.dataset.type;
+  if(b.dataset.track)state.track=b.dataset.track;
+  apply();
+ });
+ apply();
 }
 </script>
