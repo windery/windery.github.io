@@ -1,7 +1,0 @@
----
-import {articleTitle,readingSummary} from '../lib/content';
-const {posts,project}=Astro.props;
----
-<ol class="reading-list" aria-label={`${project.name} 阅读顺序`}>
-{posts.map((a:any,i:number)=><li><a href={`/projects/${project.slug}/${a.frontmatter.articleSlug}/`}><span class="reading-number" aria-hidden="true">{String(i+1).padStart(2,'0')}</span><span class="reading-copy"><span class="reading-title">{articleTitle(a,project.name)}</span><span class="reading-description">{readingSummary(a)}</span></span><svg class="reading-arrow" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5"/></svg></a></li>)}
-</ol>

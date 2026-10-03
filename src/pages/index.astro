@@ -7,13 +7,13 @@ const projectList=byUpdated(catalog.projects as any[]);
 const trackOf=(e:{track?:string})=>tracks.some(t=>t.slug===e.track)?e.track!:tracks[tracks.length-1].slug;
 const owner=(name:string)=>name.includes('/')?name.slice(0,name.lastIndexOf('/')+1):'';
 const repo=(name:string)=>name.slice(name.lastIndexOf('/')+1);
-const panels=[{id:'courses',label:'课程',count:courseList.length},{id:'projects',label:'项目解读',count:projectList.length}];
+const panels=[{id:"courses",label:"课程"},{id:"projects",label:"项目解读"}];
 ---
 <Site title="学习笔记">
 <div class="home" data-pagefind-ignore>
  <h1 class="visually-hidden">Windery 学习笔记</h1>
  <div class="home-tabs" role="tablist" aria-label="内容类型" data-tabs hidden>
-  {panels.map((p,i)=><button type="button" role="tab" id={`tab-${p.id}`} aria-controls={`panel-${p.id}`} aria-selected={i===0?'true':'false'} tabindex={i===0?0:-1} data-tab={p.id}>{p.label}<span>{p.count}</span></button>)}
+  {panels.map((p,i)=><button type="button" role="tab" id={`tab-${p.id}`} aria-controls={`panel-${p.id}`} aria-selected={i===0?'true':'false'} tabindex={i===0?0:-1} data-tab={p.id}>{p.label}</button>)}
  </div>
 
  <section class="home-panel" id="panel-courses" role="tabpanel" aria-labelledby="tab-courses" data-panel="courses">

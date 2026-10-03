@@ -14,9 +14,9 @@ const title=articleTitle(article,project.name);
 ---
 <Site title={data.title} description={data.description}>
 <div class="reader-layout">
-<aside class="reader-sidebar" aria-label="文章导航"><a class="reader-back" href={`/projects/?from=${project.slug}#${project.slug}`} data-pagefind-ignore><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10H4m5-5-5 5 5 5"/></svg>返回项目目录</a><p class="reader-toc-label">本文目录</p><ArticleToc headings={headings}/></aside>
+<aside class="reader-sidebar" aria-label="文章导航"><a class="reader-back" href="/?tab=projects" data-pagefind-ignore><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10H4m5-5-5 5 5 5"/></svg>全部项目解读</a><p class="reader-toc-label">本文目录</p><ArticleToc headings={headings}/></aside>
 <article class="reader-article" data-pagefind-body>
- <a class="reader-back reader-back-mobile" href={`/projects/?from=${project.slug}#${project.slug}`} data-pagefind-ignore><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10H4m5-5-5 5 5 5"/></svg>返回项目目录</a>
+ <a class="reader-back reader-back-mobile" href="/?tab=projects" data-pagefind-ignore><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10H4m5-5-5 5 5 5"/></svg>全部项目解读</a>
  <header class="reader-header"><h1>{title}</h1><span hidden data-pagefind-meta="title">{data.title}</span><p class="reader-source-name" data-pagefind-ignore><span>{project.name}</span><span>第 {index+1} 篇，共 {siblings.length} 篇</span></p><div data-pagefind-ignore><SourceMeta {...data} version={project.commit===data.commit?(project as any).version:undefined}/></div></header>
  <details class="reader-mobile-navigation" data-pagefind-ignore><summary><span>本文目录</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></summary><ArticleToc headings={headings}/></details>
  <div class="prose"><Content/></div>
