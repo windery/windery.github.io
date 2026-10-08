@@ -1,14 +1,16 @@
 ---
 import {projectArticles} from '../lib/content';
 import ArticleList from './ArticleList.astro';
-const {project,compact=false,date=project.updated,dateLabel=''}=Astro.props;
+const {project,compact=false,date=project.updated,dateLabel='更新于 '}=Astro.props;
 const split=project.name.lastIndexOf('/');
 const owner=split>=0?project.name.slice(0,split):'';
 const name=split>=0?project.name.slice(split+1):project.name;
 const posts=projectArticles(project.slug);
-const Heading='h2';
 ---
-<section id={project.slug} data-project={project.slug} class:list={['project-group',{'project-group-compact':compact}]}>
- <header class="project-group-info"><Heading><a href={`/projects/${project.slug}/${posts[0].frontmatter.articleSlug}/`}>{owner&&<span class="project-owner">{owner}/</span>}<span>{name}</span></a></Heading><p>{project.description}</p><div class="project-group-meta"><span>{project.articles.length} 篇</span><time datetime={date}>{dateLabel}{date.slice(0,10)}</time></div></header>
- <ArticleList posts={posts} project={project}/>
+<section id={project.slug} data-project={project.slug} class="entry">
+ <header>
+  <div class="entry-head"><h2 class="entry-title"><a href={`/projects/${project.slug}/${posts[0].frontmatter.articleSlug}/`}>{owner&&<span class="entry-owner">{owner}/</span>}{name}</a></h2><span class="entry-meta">{project.articles.length} 篇 · <time datetime={date}>{dateLabel}{date.slice(0,10)}</time></span></div>
+  <p class="entry-desc">{project.description}</p>
+ </header>
+ <ArticleList posts={posts} project={project} full={!compact}/>
 </section>

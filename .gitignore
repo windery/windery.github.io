@@ -4,3 +4,8 @@ dist/
 .DS_Store
 .env*
 !.env.example
+
+# Impeccable：过程截图与本机文件
+.impeccable/
+.claude/skills/impeccable/scripts/bin/
+.claude/settings.local.json

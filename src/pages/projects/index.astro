@@ -3,7 +3,7 @@ import Site from '../../layouts/Site.astro';
 import {catalog} from '../../lib/content';
 import ProjectEntry from '../../components/ProjectEntry.astro';
 ---
-<Site title="项目解读"><div class="project-library" data-pagefind-ignore><header class="library-header"><h1>项目解读</h1><p>从一篇概览开始，逐步读懂一个项目。</p></header>{catalog.projects.map(project=><ProjectEntry project={project}/>)}</div></Site>
+<Site title="项目解读"><div class="page project-library" data-pagefind-ignore><header class="page-header"><h1>项目解读</h1><p class="lead">从一篇概览开始，逐步读懂一个项目。</p></header><div class="entry-list">{catalog.projects.map(project=><ProjectEntry project={project}/>)}</div></div></Site>
 
 <script>
 const key='project-library-position';
