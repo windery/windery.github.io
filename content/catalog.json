@@ -69,6 +69,51 @@
         "02",
         "03"
       ]
+    },
+    {
+      "slug": "debpalash-voicestudio",
+      "name": "debpalash/VoiceStudio",
+      "description": "在本机完成声音克隆、声音设计、视频配音和语音转写，可通过 API 与 MCP 调用。",
+      "source": "https://github.com/debpalash/VoiceStudio",
+      "sourceVisibility": "public",
+      "commit": "06c6e077f0fc35149efefc3561e9be5ae835d916",
+      "updated": "2026-10-08",
+      "createdAt": "2026-10-08T18:04:08.328Z",
+      "articles": [
+        "01",
+        "02",
+        "03"
+      ]
+    },
+    {
+      "slug": "vectorize-io-hindsight",
+      "name": "vectorize-io/hindsight",
+      "description": "给 AI Agent 加长期记忆：写入时抽取事实，多路检索记忆，再带着记忆推理回答。",
+      "source": "https://github.com/vectorize-io/hindsight",
+      "sourceVisibility": "public",
+      "commit": "6d8b096786df335fc2cc1e5d6662092f0e1b8694",
+      "updated": "2026-10-08",
+      "createdAt": "2026-10-08T18:04:09.936Z",
+      "articles": [
+        "01",
+        "02",
+        "03"
+      ]
+    },
+    {
+      "slug": "paperclipai-paperclip",
+      "name": "paperclipai/paperclip",
+      "description": "把 Claude Code、Codex 等 AI Agent 组织成一家公司，统一派活、唤醒、控预算和审批。",
+      "source": "https://github.com/paperclipai/paperclip",
+      "sourceVisibility": "public",
+      "commit": "317ed367d4e7ef3221cccab2079018534b5be560",
+      "updated": "2026-10-08",
+      "createdAt": "2026-10-08T18:04:11.638Z",
+      "articles": [
+        "01",
+        "02",
+        "03"
+      ]
     }
   ]
 }
