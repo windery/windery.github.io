@@ -54,6 +54,21 @@
         "03"
       ],
       "createdAt": "2026-09-29T09:38:49-07:00"
+    },
+    {
+      "slug": "harry0703-moneyprinterturbo",
+      "name": "harry0703/MoneyPrinterTurbo",
+      "description": "给一个主题，自动完成文案、配音、字幕、素材和剪辑，输出短视频。",
+      "source": "https://github.com/harry0703/MoneyPrinterTurbo",
+      "sourceVisibility": "public",
+      "commit": "9887b459e754ee073c056d988499b91136af9662",
+      "updated": "2026-10-08",
+      "createdAt": "2026-10-08T17:38:14.610Z",
+      "articles": [
+        "01",
+        "02",
+        "03"
+      ]
     }
   ]
 }
