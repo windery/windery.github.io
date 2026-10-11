@@ -1,0 +1,10 @@
+---
+import Site from '../../layouts/Site.astro';
+import {dailies} from '../../lib/content';
+---
+<Site title="AI 日报" description="每天精选 AI 应用开发相关的新项目、模型发布和一线经验。">
+<div class="page" data-pagefind-ignore>
+<header class="page-header"><h1>AI 日报</h1><p class="lead">每天精选 AI 应用开发相关的新项目、模型发布和一线经验。</p></header>
+{dailies.length?<div class="entry-list">{dailies.map(({frontmatter:d})=><section class="entry"><div class="entry-head"><h2 class="entry-title"><a href={`/daily/${d.date}/`}><time datetime={d.date}>{d.date}</time></a></h2></div><ul class="daily-highlights">{d.highlights.map(h=><li>{h}</li>)}</ul></section>)}</div>:<p class="entry-desc">还没有日报。</p>}
+</div>
+</Site>

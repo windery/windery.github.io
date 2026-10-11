@@ -11,6 +11,11 @@
 .entry-kind{font-size:12px;font-weight:500;color:var(--fg-2);border:1px solid var(--border-strong);border-radius:999px;padding:1px 8px;margin-left:10px;vertical-align:3px;letter-spacing:0}
 .entry-desc{font-size:15px;color:var(--fg-2);margin:6px 0 0;max-width:46em}
 
+/* AI 日报列表：每期下面列出要点 */
+.daily-highlights{font-size:15px;color:var(--fg-2);margin:10px 0 0;padding-left:1.2em;max-width:46em}
+.daily-highlights li{margin:4px 0}
+.daily-highlights li::marker{color:var(--fg-3)}
+
 /* 项目内篇目：紧凑版是一行文字链接，完整版是带摘要的单层列表 */
 .reading-list{list-style:none;padding:0;margin:14px 0 0;display:flex;flex-wrap:wrap;gap:6px 24px}
 .reading-list a{display:inline-flex;align-items:center;gap:6px;min-height:32px;color:var(--fg);font-size:14px;font-weight:500}

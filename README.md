@@ -19,6 +19,7 @@ npm run preview
 - `content/catalog.json`：明确的公开目录。项目的 `articles` 列表控制发布篇目；课程与项目的 `createdAt` 记录创建时间，供首页排序。
 - `content/reading.json`：按项目 slug、文章 slug 维护目录短摘要 `summary` 与 H2 显示标签 `headings`；导入器不会覆盖该文件。
 - `src/content/projects/<项目>/<编号>.md`：项目文章的可编辑源文件；记录来源仓库、commit 和阅读日期。
+- `src/content/daily/<YYYY-MM-DD>.md`：AI 日报，每期一个文件，见下文「AI 日报」。
 - `public/courses/rust/`：已导出的 Rust 课程、练习和示例下载。
 - `src/layouts/`、`src/styles/`：共享页面与教材式样式。
 
@@ -27,6 +28,27 @@ npm run preview
 项目阅读只有两层：从 `/projects/` 的纵向篇目进入 `/projects/:slug/:article/`。项目名称直接打开首篇，旧 `/projects/:slug/` 静态重定向到首篇，不再展示独立落地页。文章侧栏仅显示本文 H2 目录；桌面本文目录上方、手机文章顶部的“返回”固定回到项目总目录并恢复列表滚动位置与焦点，文末提供具名的上一篇／下一篇。手机端的本文目录位于标题下方，默认折叠，点击章节锚点后自动关闭。
 
 编辑 `content/reading.json` 时，`headings` 的键必须与正文原始 H2 文本一致，值是目录中显示的短标签；正文标题与原有锚点保持不变。没有配置 `summary` 时回退到文章的 `description`，没有配置 H2 标签时显示原始标题。导入更新文章后，如 H2 有变化，应同步检查这些显示标签。
+
+## AI 日报
+
+`/daily/` 按日期倒序列出每一期和它的要点，`/daily/YYYY-MM-DD/` 是每期页面，沿用文章页的三栏布局和本文目录，并纳入站内搜索。日报不进首页库。
+
+每期文件由任务专用 clone 里的日报生成流程写出，格式由发布命令校验，不合格就不构建：
+
+- frontmatter 每行一个字段，写成「键: JSON 值」：`date`、`title`、`windowStart`、`windowEnd`、`generatedAt`、`highlights`（3–5 条）、`topics`（1–2 个，各含 `title` 和 `angle`）、`deepRead`（`title`、`url`、`reason`）、`x`（`{"status": "ok"}`，或 `{"status": "pending", "reason": "login-expired"}`，原因也可以是 `fetch-failed`）。
+- 正文 H2 板块依次是：GitHub 热门 AI 项目、模型与产品发布、大 V 经验与技术博客（下分「X 动态」「博客与长文」两个 H3）、深读推荐、口播选题。
+- X 状态为 `pending` 时，「X 动态」只写一句含「X 内容待补充」的标注。
+- 完整样例见 `scripts/test/fixtures/daily-sample.md`。仓库里不放真实的一期日报样例。
+
+发布命令目前只有演练模式：
+
+```sh
+npm run publish:daily -- --date 2026-10-11 --dry-run
+```
+
+它依次校验格式、确认这一期没有推上过 `origin/main`（`--force` 跳过）、确认工作区只有这一期的改动、完整构建，然后把提交、推送、等部署、发飞书这几步和飞书消息全文打印出来，都不真正执行。X 状态为 `pending` 时多一条 X 失效提醒。飞书接收人和 X 钥匙串条目名读自不入库的 `ai-daily.local.json`，只放在任务专用 clone 里，并用该 clone 的 `.git/info/exclude` 忽略，否则工作区检查会把它当成改动拦下；`--config` 可以指定别的文件。
+
+`npm test` 在临时仓库里用样例日报和样例配置跑演练模式的各个场景。
 
 ## 添加项目文章
 

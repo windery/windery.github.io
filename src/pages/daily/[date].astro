@@ -1,0 +1,27 @@
+---
+import ArticleToc from '../../components/ArticleToc.astro';
+import ReaderScripts from '../../components/ReaderScripts.astro';
+import Site from '../../layouts/Site.astro';
+import {dailies} from '../../lib/content';
+export function getStaticPaths(){return dailies.map(daily=>({params:{date:daily.frontmatter.date},props:{daily}}));}
+const {daily}=Astro.props;
+const {frontmatter:data,Content}=daily;
+const headings=daily.getHeadings().filter(h=>h.depth===2).map(h=>({...h,label:h.text}));
+---
+<Site title={data.title} description={data.highlights.join('；')}>
+<div class="docs-layout">
+<aside class="docs-sidebar" aria-label="往期日报" data-pagefind-ignore>
+ <a class="sidebar-back" href="/daily/"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10H4m5-5-5 5 5 5"/></svg>全部日报</a>
+ <p class="sidebar-heading">AI 日报</p>
+ <ol class="sidebar-articles">{dailies.map(({frontmatter:d})=><li><a href={`/daily/${d.date}/`} aria-current={d.date===data.date?'page':undefined}>{d.date}</a></li>)}</ol>
+</aside>
+<article class="reader-article" data-pagefind-body>
+ <nav class="breadcrumb" aria-label="位置" data-pagefind-ignore><a href="/daily/">AI 日报</a><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m8 5 5 5-5 5"/></svg><span>{data.date}</span></nav>
+ <header class="reader-header"><h1>{data.title}</h1></header>
+ <details class="reader-mobile-navigation" data-pagefind-ignore><summary><span>本页目录</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></summary><ArticleToc headings={headings}/></details>
+ <div class="prose"><Content/></div>
+</article>
+<aside class="docs-toc" aria-label="本页目录" data-pagefind-ignore><p class="toc-label">本页目录</p><ArticleToc headings={headings}/></aside>
+</div>
+<ReaderScripts/>
+</Site>

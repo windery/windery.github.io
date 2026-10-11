@@ -14,7 +14,7 @@ const path=Astro.url.pathname;
 <header class="site-header">
  <div class="site-header-inner">
   <a class="site-brand" href="/"><img src="/favicon.svg" alt="" width="24" height="24"/><span>Windery</span><span class="brand-sub">学习笔记</span></a>
-  <nav class="site-nav" aria-label="全站导航"><a href="/courses/" aria-current={path.startsWith('/courses/')?'page':undefined}>课程</a><a href="/projects/" aria-current={path.startsWith('/projects/')?'page':undefined}>项目解读</a></nav>
+  <nav class="site-nav" aria-label="全站导航"><a href="/courses/" aria-current={path.startsWith('/courses/')?'page':undefined}>课程</a><a href="/projects/" aria-current={path.startsWith('/projects/')?'page':undefined}>项目解读</a><a href="/daily/" aria-current={path.startsWith('/daily/')?'page':undefined}>AI 日报</a></nav>
   <a class="search-trigger" href="/search/" aria-current={path.startsWith('/search/')?'page':undefined}><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="m13.5 13.5 3 3"/></svg><span>搜索笔记</span></a>
  </div>
 </header>
