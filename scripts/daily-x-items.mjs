@@ -4,6 +4,12 @@ export function unwrapTwitterListResponse(response) {
   return null;
 }
 
+export function isXWindowTruncated(tweets, start, limit) {
+  if (tweets.length < limit) return false;
+  const times = tweets.map(tweet => Date.parse(tweet.createdAtISO || tweet.createdAt || '')).filter(Number.isFinite);
+  return times.length === 0 || Math.min(...times) >= start;
+}
+
 export function selectXItems(tweets, start, end) {
   return tweets.flatMap(tweet => {
     const time = Date.parse(tweet.createdAtISO || tweet.createdAt || '');
