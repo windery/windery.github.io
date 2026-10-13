@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { parseArgs } from 'node:util';
+import { selectXItems } from './daily-x-items.mjs';
 
 const { values } = parseArgs({ options: {
   start: { type: 'string' },
@@ -70,18 +71,5 @@ if (!Array.isArray(tweets)) {
   process.exit(1);
 }
 
-const items = tweets.flatMap(tweet => {
-  const time = Date.parse(tweet.createdAtISO || tweet.createdAt || '');
-  if (!Number.isFinite(time) || time < start || time >= end) return [];
-  const id = String(tweet.id ?? '');
-  const handle = String(tweet.author?.screenName ?? '');
-  if (!/^\d+$/.test(id) || !/^[\w]{1,15}$/.test(handle)) return [];
-  return [{
-    author: tweet.author?.name || handle,
-    handle,
-    createdAt: new Date(time).toISOString(),
-    text: tweet.text || '',
-    url: `https://x.com/${handle}/status/${id}`,
-  }];
-});
+const items = selectXItems(tweets, start, end);
 console.log(JSON.stringify({ status: 'ok', windowStart: new Date(start).toISOString(), windowEnd: new Date(end).toISOString(), items }));
