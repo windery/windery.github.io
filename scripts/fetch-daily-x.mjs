@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { parseArgs } from 'node:util';
-import { selectXItems } from './daily-x-items.mjs';
+import { selectXItems, unwrapTwitterListResponse } from './daily-x-items.mjs';
 
 const { values } = parseArgs({ options: {
   start: { type: 'string' },
@@ -61,7 +61,7 @@ if (result.status !== 0) {
 }
 
 let tweets;
-try { tweets = JSON.parse(result.stdout); }
+try { tweets = unwrapTwitterListResponse(JSON.parse(result.stdout)); }
 catch {
   console.log(JSON.stringify({ status: 'fetch-failed', reason: 'invalid-twitter-response' }));
   process.exit(1);

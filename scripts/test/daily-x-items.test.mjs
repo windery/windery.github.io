@@ -1,6 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { selectXItems } from '../daily-x-items.mjs';
+import { selectXItems, unwrapTwitterListResponse } from '../daily-x-items.mjs';
+
+test('X reader accepts the twitter-cli JSON envelope', () => {
+  const tweets = [{ id: '1' }];
+  assert.deepEqual(unwrapTwitterListResponse({ ok: true, schema_version: 1, data: tweets }), tweets);
+  assert.deepEqual(unwrapTwitterListResponse(tweets), tweets);
+  assert.equal(unwrapTwitterListResponse({ ok: false, data: tweets }), null);
+});
 
 test('X items use the saved half-open time window', () => {
   const tweets = [
