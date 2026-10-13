@@ -2,4 +2,4 @@
 import Site from '../../layouts/Site.astro';
 import {catalog} from '../../lib/content';
 ---
-<Site title="课程"><div class="listing" data-pagefind-ignore><h1>课程</h1><p class="lead">以读懂代码为目标，按自己的节奏学习。</p>{catalog.courses.map(c=><a class="course-entry" href={c.href}><div><h2>{c.name}</h2><p>{c.description}</p><span class="entry-meta">{c.detail}</span></div><svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>)}</div></Site>
+<Site title="课程"><div class="page" data-pagefind-ignore><header class="page-header"><h1>课程</h1><p class="lead">以读懂代码为目标，按自己的节奏学习。</p></header><div class="entry-list">{catalog.courses.map(c=><section class="entry"><div class="entry-head"><h2 class="entry-title"><a href={c.href}>{c.name}</a></h2><span class="entry-meta">{c.detail}</span></div><p class="entry-desc">{c.description}</p><a class="button course-link" href={c.href}>开始阅读<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5"/></svg></a></section>)}</div></div></Site>

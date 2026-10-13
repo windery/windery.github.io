@@ -1,6 +1,7 @@
 ---
 import SourceMeta from '../../../components/SourceMeta.astro';
 import ArticleToc from '../../../components/ArticleToc.astro';
+import ReaderScripts from '../../../components/ReaderScripts.astro';
 import Site from '../../../layouts/Site.astro';
 import {articles,catalog,projectArticles,articleTitle,articleHeadings} from '../../../lib/content';
 export function getStaticPaths(){return articles.map(article=>({params:{project:article.frontmatter.project,article:article.frontmatter.articleSlug},props:{article}}));}
@@ -11,33 +12,26 @@ const siblings=projectArticles(data.project);
 const index=siblings.findIndex(a=>a.frontmatter.articleSlug===data.articleSlug);
 const headings=articleHeadings(article);
 const title=articleTitle(article,project.name);
+const split=project.name.lastIndexOf('/');
+const owner=split>=0?project.name.slice(0,split):'';
+const name=split>=0?project.name.slice(split+1):project.name;
 ---
 <Site title={data.title} description={data.description}>
-<div class="reader-layout">
-<aside class="reader-sidebar" aria-label="文章导航"><a class="reader-back" href={`/projects/?from=${project.slug}#${project.slug}`} data-pagefind-ignore><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10H4m5-5-5 5 5 5"/></svg>返回项目目录</a><p class="reader-toc-label">本文目录</p><ArticleToc headings={headings}/></aside>
+<div class="docs-layout">
+<aside class="docs-sidebar" aria-label="本项目文章" data-pagefind-ignore>
+ <a class="sidebar-back" href={`/projects/?from=${project.slug}#${project.slug}`}><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10H4m5-5-5 5 5 5"/></svg>全部项目</a>
+ <p class="sidebar-heading">{owner&&<span>{owner}/</span>}{name}</p>
+ <ol class="sidebar-articles">{siblings.map(a=><li><a href={`/projects/${data.project}/${a.frontmatter.articleSlug}/`} aria-current={a.frontmatter.articleSlug===data.articleSlug?'page':undefined}>{articleTitle(a,project.name)}</a></li>)}</ol>
+ <div class="sidebar-source"><SourceMeta {...data}/></div>
+</aside>
 <article class="reader-article" data-pagefind-body>
- <a class="reader-back reader-back-mobile" href={`/projects/?from=${project.slug}#${project.slug}`} data-pagefind-ignore><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10H4m5-5-5 5 5 5"/></svg>返回项目目录</a>
- <header class="reader-header"><h1>{title}</h1><span hidden data-pagefind-meta="title">{data.title}</span><p class="reader-source-name" data-pagefind-ignore><span>{project.name}</span><span>第 {index+1} 篇，共 {siblings.length} 篇</span></p><p class="entry-meta" data-pagefind-ignore><time datetime={data.updated}>{data.updated}</time> · <SourceMeta {...data}/></p></header>
- <details class="reader-mobile-navigation" data-pagefind-ignore><summary><span>本文目录</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></summary><ArticleToc headings={headings}/></details>
+ <nav class="breadcrumb" aria-label="位置" data-pagefind-ignore><a href={`/projects/?from=${project.slug}#${project.slug}`}>项目解读</a><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m8 5 5 5-5 5"/></svg><span>{project.name}</span><span class="breadcrumb-position">第 {index+1} 篇，共 {siblings.length} 篇</span></nav>
+ <header class="reader-header"><h1>{title}</h1><span hidden data-pagefind-meta="title">{data.title}</span><p class="entry-meta" data-pagefind-ignore>更新于 <time datetime={data.updated}>{data.updated}</time> · <SourceMeta {...data}/></p></header>
+ <details class="reader-mobile-navigation" data-pagefind-ignore><summary><span>本页目录</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></summary><ArticleToc headings={headings}/></details>
  <div class="prose"><Content/></div>
- <nav class="article-pagination" aria-label="文章顺序" data-pagefind-ignore>{index>0&&<a rel="prev" href={`/projects/${data.project}/${siblings[index-1].frontmatter.articleSlug}/`}>上一篇：{articleTitle(siblings[index-1],project.name)}</a>}{index<siblings.length-1&&<a rel="next" href={`/projects/${data.project}/${siblings[index+1].frontmatter.articleSlug}/`}>下一篇：{articleTitle(siblings[index+1],project.name)}</a>}</nav>
+ <nav class="article-pagination" aria-label="文章顺序" data-pagefind-ignore>{index>0&&<a rel="prev" href={`/projects/${data.project}/${siblings[index-1].frontmatter.articleSlug}/`}><span>上一篇</span>{articleTitle(siblings[index-1],project.name)}</a>}{index<siblings.length-1&&<a rel="next" href={`/projects/${data.project}/${siblings[index+1].frontmatter.articleSlug}/`}><span>下一篇</span>{articleTitle(siblings[index+1],project.name)}</a>}</nav>
 </article>
+<aside class="docs-toc" aria-label="本页目录" data-pagefind-ignore><p class="toc-label">本页目录</p><ArticleToc headings={headings}/></aside>
 </div>
-<script>
-const headings=[...document.querySelectorAll<HTMLElement>('.reader-article .prose h2')];
-const links=[...document.querySelectorAll<HTMLAnchorElement>('[data-reading-anchor]')];
-let scheduled=false;
-function update(){
- let active=headings[0];for(const h of headings){if(h.getBoundingClientRect().top<=150)active=h;}
- if(active)for(const a of links){if(decodeURIComponent(a.hash.slice(1))===active.id)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');}
- scheduled=false;
-}
-window.addEventListener('scroll',()=>{if(!scheduled){scheduled=true;requestAnimationFrame(update);}},{passive:true});
-update();
-for(const a of links)a.addEventListener('click',()=>{
- const details=a.closest('details');if(details)details.open=false;
- const target=document.getElementById(decodeURIComponent(a.hash.slice(1)));
- if(target){target.tabIndex=-1;requestAnimationFrame(()=>{target.focus({preventScroll:true});target.scrollIntoView({block:'start'});});}
-});
-</script>
+<ReaderScripts/>
 </Site>

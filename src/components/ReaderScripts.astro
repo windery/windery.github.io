@@ -1,0 +1,37 @@
+---
+// 文章页与日报页共用：代码块语言条和复制按钮、表格外框、本文目录高亮
+---
+<script>
+// 给代码块加语言条和复制按钮；脚本失效时代码块照常显示
+const copyIcon='<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="7" y="7" width="9" height="9" rx="1.5"/><path d="M13 4.5H5.5a1 1 0 0 0-1 1V13"/></svg>';
+for(const pre of document.querySelectorAll<HTMLPreElement>('.reader-article .prose pre')){
+ const block=document.createElement('div');block.className='code-block';
+ const bar=document.createElement('div');bar.className='code-block-bar';
+ const lang=document.createElement('span');lang.textContent=pre.dataset.language&&pre.dataset.language!=='plaintext'?pre.dataset.language:'text';
+ const button=document.createElement('button');button.type='button';button.className='code-copy';button.innerHTML=copyIcon+'<span>复制</span>';
+ const label=button.querySelector('span')!;
+ button.addEventListener('click',async()=>{
+  try{await navigator.clipboard.writeText(pre.innerText.replace(/\n$/,''));label.textContent='已复制';}
+  catch{label.textContent='请手动选中复制';}
+  setTimeout(()=>{label.textContent='复制';},1600);
+ });
+ bar.append(lang,button);pre.before(block);block.append(bar,pre);
+}
+// 表格放进可横向滚动的外框，让表格撑满栏宽
+for(const table of document.querySelectorAll('.reader-article .prose table')){const wrap=document.createElement('div');wrap.className='table-wrap';table.before(wrap);wrap.append(table);}
+const headings=[...document.querySelectorAll<HTMLElement>('.reader-article .prose h2')];
+const links=[...document.querySelectorAll<HTMLAnchorElement>('[data-reading-anchor]')];
+let scheduled=false;
+function update(){
+ let active=headings[0];for(const h of headings){if(h.getBoundingClientRect().top<=150)active=h;}
+ if(active)for(const a of links){if(decodeURIComponent(a.hash.slice(1))===active.id)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');}
+ scheduled=false;
+}
+window.addEventListener('scroll',()=>{if(!scheduled){scheduled=true;requestAnimationFrame(update);}},{passive:true});
+update();
+for(const a of links)a.addEventListener('click',()=>{
+ const details=a.closest('details');if(details)details.open=false;
+ const target=document.getElementById(decodeURIComponent(a.hash.slice(1)));
+ if(target){target.tabIndex=-1;requestAnimationFrame(()=>{target.focus({preventScroll:true});target.scrollIntoView({block:'start'});});}
+});
+</script>

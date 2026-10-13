@@ -4,10 +4,11 @@ import {libraryEntries} from '../lib/content';
 import ProjectEntry from '../components/ProjectEntry.astro';
 ---
 <Site title="学习笔记">
-<div class="home" data-pagefind-ignore>
-<header class="home-intro"><h1>学过的，<br/>留在这里。</h1><p>沿着课程建立理解，<br/>在真实项目里追踪代码与设计。</p></header>
-<div class="home-feed" aria-label="按创建时间从新到旧排列">
-{libraryEntries.map(({kind,content})=>kind==='project'?<ProjectEntry project={content} compact date={content.createdAt} dateLabel="创建于 "/>:<section class="home-course" id={content.slug}><a class="course-entry" href={content.href}><div><h2>{content.name}</h2><p>{content.description}</p></div><svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a><div class="project-group-meta"><span>{content.detail}</span><time datetime={content.createdAt}>创建于 {content.createdAt.slice(0,10)}</time></div></section>)}
+<div class="page" data-pagefind-ignore>
+<header class="page-header"><h1>学过的，留在这里。</h1><p class="lead">沿着课程建立理解，在真实项目里追踪代码与设计。</p><div class="page-actions"><a class="button button-primary" href="/projects/">浏览项目解读</a><a class="button" href="/courses/">查看课程</a></div></header>
+<h2 class="section-title">最近收录</h2>
+<div class="entry-list" aria-label="按创建时间从新到旧排列">
+{libraryEntries.map(({kind,content})=>kind==='project'?<ProjectEntry project={content} compact date={content.createdAt} dateLabel="收录于 "/>:<section class="entry" id={content.slug}><div class="entry-head"><h2 class="entry-title"><a href={content.href}>{content.name}</a><span class="entry-kind">课程</span></h2><span class="entry-meta">{content.detail} · <time datetime={content.createdAt}>收录于 {content.createdAt.slice(0,10)}</time></span></div><p class="entry-desc">{content.description}</p><a class="button course-link" href={content.href}>开始阅读<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5"/></svg></a></section>)}
 </div>
 </div>
 </Site>

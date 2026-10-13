@@ -2,20 +2,21 @@ name: Publish learning site
 on:
   push:
     branches: [main]
-  # Runs in main's context (workflow file and permissions come from main), so
-  # PR previews can be published to the same Pages site. Fork PRs are skipped.
   pull_request_target:
+    branches: [main]
     types: [opened, synchronize, reopened, closed]
   workflow_dispatch:
-permissions:
-  contents: read
+permissions: {}
 concurrency:
   group: pages
-  cancel-in-progress: true
+  # Do not cancel a deployment between publishing and updating its comments.
+  # Each queued run reconciles ALL current PRs, including closed ones.
+  cancel-in-progress: false
 jobs:
   build:
     if: github.event_name != 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     permissions:
       contents: read
       pull-requests: read
@@ -29,39 +30,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: npm
       - run: npm ci
+      - run: node --test .github/preview/*.test.mjs
       - run: npm run build
-      - name: Build previews of open PRs
+      - name: Snapshot open PRs (trusted API data only)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('node:fs');
+            const prs = await github.paginate(github.rest.pulls.list, { ...context.repo, state: 'open', base: 'main', per_page: 100 });
+            const eligible = prs.filter(p => p.head.repo?.full_name === process.env.GITHUB_REPOSITORY)
+              .map(p => ({ number: p.number, sha: p.head.sha }));
+            fs.writeFileSync(`${process.env.RUNNER_TEMP}/preview-plan.json`, JSON.stringify(eligible));
+      - name: Build isolated PR previews
         id: previews
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
-        run: |
-          mkdir -p "$RUNNER_TEMP/prs"
-          gh api "repos/$REPO/pulls?state=open&per_page=100" \
-            --jq ".[] | select(.head.repo.full_name == \"$REPO\") | \"\(.number) \(.head.sha)\"" > "$RUNNER_TEMP/prs/list"
-          results='[]'
-          while read -r number sha; do
-            [ -n "$number" ] || continue
-            dir="$RUNNER_TEMP/prs/pr-$number"
-            status=failed
-            if git init -q "$dir" \
-              && git -C "$dir" fetch -q --depth 1 "https://github.com/$REPO.git" "$sha" \
-              && git -C "$dir" checkout -q FETCH_HEAD \
-              && (cd "$dir" && env -u GH_TOKEN npm ci --cache "$RUNNER_TEMP/prs/npm-cache" && env -u GH_TOKEN npm run build); then
-              node .github/workflows/preview-paths.mjs "$dir/dist" "/preview/pr-$number"
-              mkdir -p dist/preview
-              rm -rf "dist/preview/pr-$number"
-              mv "$dir/dist" "dist/preview/pr-$number"
-              status=ok
-            else
-              echo "::warning::Preview for PR #$number failed to build; publishing without it."
-            fi
-            rm -rf "$dir"
-            results=$(jq -c --argjson n "$number" --arg sha "$sha" --arg s "$status" '. + [{number:$n,sha:$sha,status:$s}]' <<<"$results")
-          done < "$RUNNER_TEMP/prs/list"
-          echo "previews=$results" >> "$GITHUB_OUTPUT"
+        # No GitHub token or runner directories are passed to the containers.
+        run: node .github/preview/build.mjs
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
@@ -74,6 +58,8 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/deploy-pages@v4
         id: deployment
@@ -86,24 +72,27 @@ jobs:
       - uses: actions/github-script@v7
         env:
           PREVIEWS: ${{ needs.build.outputs.previews }}
+          PAGE_URL: ${{ needs.deploy.outputs.page_url }}
         with:
           script: |
             const marker = '<!-- pr-preview -->';
+            const { owner, repo } = context.repo;
             const previews = JSON.parse(process.env.PREVIEWS);
-            if (context.payload.action === 'closed') {
-              previews.push({ number: context.payload.pull_request.number, status: 'closed' });
+            // Reconcile closed PRs every time: a queued close event can be replaced.
+            const closed = await github.paginate(github.rest.pulls.list, { owner, repo, state: 'closed', base: 'main', per_page: 100 });
+            for (const p of closed) {
+              if (!previews.some(v => v.number === p.number)) previews.push({ number: p.number, status: 'closed' });
             }
             for (const p of previews) {
-              const url = `https://windery.github.io/preview/pr-${p.number}/`;
-              const short = p.sha?.slice(0, 7);
+              const url = new URL(`preview/pr-${p.number}/`, process.env.PAGE_URL).href;
+              const run = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
               const body = p.status === 'ok'
-                ? `${marker}\n预览：${url}\n\n对应提交 ${short}。PR 有新提交时会自动更新，PR 关闭后预览会删除。`
+                ? `${marker}\n预览：${url}\n\n已部署提交 ${p.sha}。[构建记录](${run})。\nPR 更新后重建，关闭后在下一次成功部署时删除。`
                 : p.status === 'closed'
-                ? `${marker}\nPR 已关闭，预览已删除。`
-                : `${marker}\n提交 ${short} 的预览没有构建成功，详见 Actions 日志。线上站点不受影响。`;
-              const { owner, repo } = context.repo;
+                ? `${marker}\nPR 已关闭，预览已删除。[部署记录](${run})。`
+                : `${marker}\n提交 ${p.sha} 的预览构建失败，本次部署未包含该预览。[Actions 日志](${run})。`;
               const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number: p.number });
-              const mine = comments.find(c => c.body?.startsWith(marker));
+              const mine = comments.find(c => c.user?.login === 'github-actions[bot]' && c.user?.type === 'Bot' && c.body?.startsWith(marker));
               if (!mine && p.status === 'closed') continue;
               if (mine) {
                 if (mine.body !== body) await github.rest.issues.updateComment({ owner, repo, comment_id: mine.id, body });

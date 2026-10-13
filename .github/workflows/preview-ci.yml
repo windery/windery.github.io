@@ -1,0 +1,30 @@
+name: Validate preview infrastructure
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: ['claude/pr-preview-site-5fdl92']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test .github/preview/*.test.mjs
+      - run: npm ci
+      - run: npm run build
+      - name: Exercise the exact container build and rewriter
+        env:
+          PREVIEW_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          node -e 'require("fs").writeFileSync(process.env.RUNNER_TEMP+"/preview-plan.json",JSON.stringify([{number:5,sha:process.env.PREVIEW_SHA}]))'
+          node .github/preview/build.mjs
+          node -e 'const m=JSON.parse(require("fs").readFileSync("dist/preview/manifest.json")); if(m.length!==1||m[0].status!=="ok") process.exit(1)'
+          node scripts/check-site.mjs
