@@ -1,0 +1,2 @@
+rateLimit:
+  maxCount: 500

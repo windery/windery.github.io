@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { isXWindowTruncated, selectXItems, unwrapTwitterListResponse } from './daily-x-items.mjs';
 
-const FETCH_LIMIT = 200;
+const FETCH_LIMIT = 500;
 
 const { values } = parseArgs({ options: {
   start: { type: 'string' },
@@ -49,8 +49,9 @@ if (!authToken || !ct0) {
 }
 
 const result = spawnSync('twitter', ['list', listId, '-n', String(FETCH_LIMIT), '--json'], {
+  cwd: resolve(import.meta.dirname, 'twitter-cli-config'),
   encoding: 'utf8',
-  timeout: 90000,
+  timeout: 180000,
   maxBuffer: 16 * 1024 * 1024,
   env: { ...process.env, TWITTER_AUTH_TOKEN: authToken, TWITTER_CT0: ct0 },
 });
@@ -72,6 +73,8 @@ if (!Array.isArray(tweets)) {
   console.log(JSON.stringify({ status: 'fetch-failed', reason: 'invalid-twitter-response' }));
   process.exit(1);
 }
+// ListLatestTweetsTimeline is newest first. A full result is usable when its
+// trailing entries, including several original posts, are before the window.
 if (isXWindowTruncated(tweets, start, FETCH_LIMIT)) {
   console.log(JSON.stringify({ status: 'fetch-failed', reason: 'window-truncated' }));
   process.exit(1);

@@ -40,7 +40,7 @@ npm run preview
 - X 状态为 `pending` 时，「X 动态」只写一句含「X 内容待补充」的标注。
 - 完整样例见 `scripts/test/fixtures/daily-sample.md`。仓库里不放真实的一期日报样例。
 
-Codex 项目 skill 在 `.agents/skills/ai-daily/SKILL.md`，信息源配置在同目录的 `sources.md`。本机定时任务调用该 skill，读取公开信息源，并通过 `scripts/fetch-daily-x.mjs` 只读抓取私密 X List。X 包装器从钥匙串取 cookie，只把它们交给 `twitter-cli` 子进程；用法是 `node scripts/fetch-daily-x.mjs --start <ISO时间> --end <ISO时间>`。
+Codex 项目 skill 在 `.agents/skills/ai-daily/SKILL.md`，信息源配置在同目录的 `sources.md`。本机定时任务调用该 skill，读取公开信息源，并通过 `scripts/fetch-daily-x.mjs` 只读抓取私密 X List。X 包装器从钥匙串取 cookie，只把它们交给 `twitter-cli` 子进程；用法是 `node scripts/fetch-daily-x.mjs --start <ISO时间> --end <ISO时间>`。包装器最多读取 500 条，并检查时间线末尾是否早于窗口起点；覆盖不足时返回 `fetch-failed`。
 
 先运行发布演练：
 

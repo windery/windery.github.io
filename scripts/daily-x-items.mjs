@@ -6,8 +6,10 @@ export function unwrapTwitterListResponse(response) {
 
 export function isXWindowTruncated(tweets, start, limit) {
   if (tweets.length < limit) return false;
-  const times = tweets.map(tweet => Date.parse(tweet.createdAtISO || tweet.createdAt || '')).filter(Number.isFinite);
-  return times.length === 0 || Math.min(...times) >= start;
+  const tail = tweets.slice(-Math.min(10, limit));
+  const times = tail.map(tweet => Date.parse(tweet.createdAtISO || tweet.createdAt || ''));
+  const originalCount = tail.filter(tweet => !tweet.isRetweet).length;
+  return originalCount < Math.min(5, tail.length) || times.some(time => !Number.isFinite(time) || time >= start);
 }
 
 export function selectXItems(tweets, start, end) {

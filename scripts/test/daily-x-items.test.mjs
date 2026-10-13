@@ -9,15 +9,13 @@ test('X reader accepts the twitter-cli JSON envelope', () => {
   assert.equal(unwrapTwitterListResponse({ ok: false, data: tweets }), null);
 });
 
-test('X reader detects when its fetch limit cuts into the saved window', () => {
-  const tweets = [
-    { createdAtISO: '2026-10-14T12:00:00Z' },
-    { createdAtISO: '2026-10-14T09:00:00Z' },
-  ];
+test('X reader checks the tail when its fetch limit is reached', () => {
+  const old = Array.from({ length: 10 }, () => ({ createdAtISO: '2026-10-13T23:00:00Z', isRetweet: false }));
   const start = Date.parse('2026-10-14T00:00:00Z');
-  assert.equal(isXWindowTruncated(tweets, start, 2), true);
-  assert.equal(isXWindowTruncated(tweets, start, 3), false);
-  assert.equal(isXWindowTruncated([{ createdAtISO: '2026-10-13T23:00:00Z' }, tweets[0]], start, 2), false);
+  assert.equal(isXWindowTruncated(old, start, 10), false);
+  assert.equal(isXWindowTruncated(old.slice(0, 9), start, 10), false);
+  assert.equal(isXWindowTruncated([...old.slice(0, 9), { createdAtISO: '2026-10-14T01:00:00Z' }], start, 10), true);
+  assert.equal(isXWindowTruncated(old.map(tweet => ({ ...tweet, isRetweet: true })), start, 10), true);
 });
 
 test('X items use the saved half-open time window', () => {
