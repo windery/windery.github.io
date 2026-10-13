@@ -149,8 +149,71 @@ describe('X 登录过期（pending / login-expired）的日报', () => {
   test('提醒写明补抓的两种触发方式', () => {
     const text = messages(run.stdout)[1].text;
     assert.match(text, /「补抓 X」/);
-    assert.match(text, /任意.*会话.*补抓 2026-10-11/);
+    assert.match(text, /Codex 会话.*补抓 2026-10-11/);
   });
+});
+
+test('补抓演练只计划发送 X 已补上消息', async () => {
+  const work = await checkout();
+  const original = await sample();
+  const pending = original
+    .replace('x: {"status": "ok"}', 'x: {"status": "pending", "reason": "login-expired"}')
+    .replace(/(### X 动态\n)[\s\S]*?(?=### 博客与长文)/, '$1\nX 内容待补充。\n\n');
+  await writeDaily(work, pending);
+  git(work, 'add', '-A');
+  git(work, 'commit', '-q', '-m', 'initial issue');
+  git(work, 'push', '-q', 'origin', 'main');
+  await writeDaily(work, original);
+  const result = publish(work, '--mode', 'backfill');
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(messages(result.stdout).map(m => m.kind), ['X 已补上']);
+});
+
+test('失败通知演练包含步骤和原因', async () => {
+  const work = await checkout();
+  const result = run(work, '--date', DATE, '--dry-run', '--mode', 'failure', '--step', '抓取', '--reason', '所有信息源都不可用', '--config', sampleConfig);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /步骤：抓取/);
+  assert.match(result.stdout, /原因：所有信息源都不可用/);
+});
+
+test('真实发布在部署完成后才发私聊，且只推送当期文件', async () => {
+  const work = await checkout();
+  await writeDaily(work, await sample());
+  const bin = join(tmp, `mock-bin-${++count}`);
+  const log = join(tmp, `publish-${count}.log`);
+  const preload = join(tmp, `fetch-${count}.mjs`);
+  await mkdir(bin);
+  await writeFile(join(bin, 'gh'), '#!/bin/sh\nif [ "$1" = run ] && [ "$2" = list ]; then sha=$(git rev-parse HEAD); printf "[{\\"databaseId\\":123,\\"headSha\\":\\"%s\\"}]\\n" "$sha"; else printf "deployed\\n" >> "$AI_DAILY_TEST_LOG"; fi\n', { mode: 0o755 });
+  await writeFile(join(bin, 'lark-cli'), '#!/bin/sh\nprintf "message\\n" >> "$AI_DAILY_TEST_LOG"\n', { mode: 0o755 });
+  await writeFile(preload, 'globalThis.fetch = async () => ({ status: 200 });\n');
+  const result = spawnSync(process.execPath, ['scripts/publish-daily.mjs', '--date', DATE, '--publish', '--config', sampleConfig], {
+    cwd: work, encoding: 'utf8',
+    env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, NODE_OPTIONS: `--import=${preload}`, AI_DAILY_TEST_LOG: log,
+      GIT_AUTHOR_NAME: 'test', GIT_AUTHOR_EMAIL: 'test@example.com', GIT_COMMITTER_NAME: 'test', GIT_COMMITTER_EMAIL: 'test@example.com' },
+  });
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(await readFile(log, 'utf8'), 'deployed\nmessage\n');
+  assert.match(git(work, 'show', `origin/main:src/content/daily/${DATE}.md`), /样例要点一/);
+  assert.equal(git(work, 'show', '--pretty=', '--name-only', 'HEAD').trim(), `src/content/daily/${DATE}.md`);
+});
+
+test('真实构建失败只发失败通知，不推送', async () => {
+  const work = await checkout();
+  await writeDaily(work, (await sample()).replace('## 深读推荐\n', '## 深读推荐\n\n[坏链接](/daily/missing/)\n'));
+  const bin = join(tmp, `mock-bin-${++count}`);
+  const log = join(tmp, `failure-${count}.log`);
+  await mkdir(bin);
+  await writeFile(join(bin, 'lark-cli'), '#!/bin/sh\nprintf "failure-message\\n" >> "$AI_DAILY_TEST_LOG"\n', { mode: 0o755 });
+  const before = git(work, 'rev-parse', 'origin/main').trim();
+  const result = spawnSync(process.execPath, ['scripts/publish-daily.mjs', '--date', DATE, '--publish', '--config', sampleConfig], {
+    cwd: work, encoding: 'utf8',
+    env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, AI_DAILY_TEST_LOG: log },
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /构建失败/);
+  assert.equal(await readFile(log, 'utf8'), 'failure-message\n');
+  assert.equal(git(work, 'rev-parse', 'origin/main').trim(), before);
 });
 
 describe('拒绝发布', () => {

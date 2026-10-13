@@ -1,8 +1,9 @@
-// AI 日报发布命令。目前只有演练模式：校验和构建真实执行，提交、推送、等部署、发飞书只打印出来
+// AI 日报发布命令。真实模式只在显式传入 --publish 时启用。
 import { parseArgs } from 'node:util';
 import { readFile } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 
 const SITE = 'https://windery.github.io';
 const root = resolve(import.meta.dirname, '..');
@@ -12,18 +13,47 @@ const { values } = parseArgs({ options: {
   date: { type: 'string' },
   config: { type: 'string' },
   'dry-run': { type: 'boolean', default: false },
+  publish: { type: 'boolean', default: false },
+  mode: { type: 'string', default: 'daily' },
+  step: { type: 'string' },
+  reason: { type: 'string' },
   force: { type: 'boolean', default: false },
 } });
+if (values['dry-run'] === values.publish) fail('请选择 --dry-run 或 --publish，且只能选一个。');
+if (!['daily', 'backfill', 'failure'].includes(values.mode)) fail('--mode 要是 daily、backfill 或 failure。');
 const date = values.date ?? '';
 // 解析后格式化回来还是原样，才是真实日期（2026-02-30 会被进位成 03-02）
 const day = Date.parse(`${date}T00:00:00Z`);
 if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(day) || !new Date(day).toISOString().startsWith(date)) fail(`--date 要是真实的 YYYY-MM-DD 日期，现在是 ${JSON.stringify(values.date)}。`);
-if (!values['dry-run']) fail('目前只支持演练模式，请加 --dry-run。');
 const file = `src/content/daily/${date}.md`;
 
 const configPath = values.config ? resolve(values.config) : join(root, 'ai-daily.local.json');
 const config = await readFile(configPath, 'utf8').then(JSON.parse).catch(e => fail(`读不到私有配置 ${configPath}：${e.message}`));
 const receiver = config.feishu.receiveOpenId;
+if (!/^ou_[A-Za-z0-9_]+$/.test(receiver ?? '')) fail('私有配置的飞书接收人 ID 无效。');
+
+const run = (command, args, options = {}) => execFileSync(command, args, {
+  cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], ...options,
+});
+const send = (kind, message) => run('lark-cli', [
+  'im', '+messages-send', '--as', 'bot', '--user-id', receiver,
+  '--idempotency-key', `ai-daily-${date}-${kind}-${createHash('sha256').update(message).digest('hex').slice(0, 10)}`, '--text', message,
+]);
+if (values.mode === 'failure') {
+  if (!values.step || !values.reason) fail('--mode failure 需要 --step 和 --reason。');
+  const message = `AI 日报 ${date} 失败\n步骤：${values.step}\n原因：${values.reason}\n请查看 Codex 定时任务记录并处理后重试。`;
+  if (values['dry-run']) console.log(`演练模式：飞书失败通知\n${message}`);
+  else try { send('failure', message); console.log('失败通知已发出。'); }
+    catch { fail('飞书失败通知发送失败，请检查 lark-cli 机器人登录和接收人。'); }
+  process.exit(0);
+}
+const abort = (step, reason) => {
+  if (values.publish) {
+    try { send('failure', `AI 日报 ${date} 失败\n步骤：${step}\n原因：${reason}\n请查看 Codex 定时任务记录并处理后重试。`); }
+    catch { console.error('飞书失败通知也未能发出，请检查 lark-cli 机器人登录。'); }
+  }
+  fail(reason);
+};
 
 const FIELDS = ['date', 'title', 'windowStart', 'windowEnd', 'generatedAt', 'highlights', 'topics', 'deepRead', 'x'];
 const SECTIONS = ['GitHub 热门 AI 项目', '模型与产品发布', '大 V 经验与技术博客', '深读推荐', '口播选题'];
@@ -90,18 +120,33 @@ if (has('x')) {
   }
   else problems.push(`X 状态要是 ok 或 pending，现在是 ${JSON.stringify(status)}`);
 }
-if (problems.length) fail(`日报格式不合格（${file}），没有构建：\n${problems.map(p => `- ${p}`).join('\n')}`);
+if (problems.length) abort('校验格式', `日报格式不合格（${file}），没有构建：\n${problems.map(p => `- ${p}`).join('\n')}`);
 
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' });
+if (values.publish) {
+  try { git('fetch', 'origin'); }
+  catch { abort('更新远端状态', 'git fetch origin 失败。'); }
+  if (git('rev-parse', 'HEAD').trim() !== git('rev-parse', 'origin/main').trim()) {
+    abort('检查分支', '专用 clone 的 HEAD 与 origin/main 不一致，请先同步再发布。');
+  }
+}
 // origin/main 里已经有这一期，就算发布过
 const published = spawnSync('git', ['cat-file', '-e', `origin/main:${file}`], { cwd: root }).status === 0;
-if (published && !values.force) fail(`${date} 这一期已经发布过（origin/main 里已有 ${file}），拒绝重复发布。确实要重新发布，加 --force。`);
+if (values.mode === 'daily' && published && !values.force) fail(`${date} 这一期已经发布过（origin/main 里已有 ${file}），拒绝重复发布。确实要重新发布，加 --force。`);
+if (values.mode === 'backfill' && !published) abort('检查补抓目标', `${date} 这一期尚未发布，不能补抓。`);
+if (values.mode === 'backfill' && front.x.status !== 'ok') abort('检查补抓内容', '补抓后的 X 状态必须是 ok。');
+if (values.mode === 'backfill') {
+  const previous = git('show', `origin/main:${file}`);
+  if (!/^x: .*"status"\s*:\s*"pending"/m.test(previous)) abort('检查补抓目标', '线上这一期的 X 状态不是 pending，无需补抓。');
+  const withoutX = text => text.replace(/^x: .*$/m, '').replace(/(### X 动态\n)[\s\S]*?(?=### 博客与长文)/m, '$1');
+  if (withoutX(previous) !== withoutX(raw)) abort('检查补抓内容', '补抓只能改 x 状态和「X 动态」小节。');
+}
 const others = git('status', '--porcelain=v1', '-z', '--untracked-files=all', '--no-renames').split('\0').filter(Boolean).map(e => e.slice(3)).filter(p => p !== file);
-if (others.length) fail(`工作区里除了 ${file} 还有别的改动，拒绝发布：\n${others.map(p => `- ${p}`).join('\n')}`);
+if (others.length) abort('检查工作区', `工作区里除了 ${file} 还有别的改动，拒绝发布：\n${others.map(p => `- ${p}`).join('\n')}`);
 
 // 构建输出走 stderr，stdout 只留发布计划
 try { execFileSync('npm', ['run', 'build'], { cwd: root, stdio: ['ignore', 2, 2] }); }
-catch { fail('构建失败（npm run build），没有发布。原因见上面的构建输出。'); }
+catch { abort('构建', '构建失败（npm run build），没有发布。原因见上面的构建输出。'); }
 
 const url = `${SITE}/daily/${date}/`;
 const dailyMessage = [
@@ -115,9 +160,11 @@ const dailyMessage = [
   '',
   `阅读全文：${url}`,
 ].join('\n');
-const messages = [{ kind: '日报', text: dailyMessage }];
+const messages = values.mode === 'backfill'
+  ? [{ kind: 'X 已补上', text: `AI 日报 ${date} 的 X 内容已补上：${url}` }]
+  : [{ kind: '日报', text: dailyMessage }];
 
-if (front.x.status === 'pending') {
+if (values.mode === 'daily' && front.x.status === 'pending') {
   const { service, authTokenAccount, ct0Account } = config.x.keychain;
   messages.push({ kind: 'X 失效提醒', text: [
     `AI 日报 ${date}：X 内容待补充`,
@@ -134,19 +181,57 @@ if (front.x.status === 'pending') {
     '不要用终端的隐藏输入（-w 后面不跟值），它最多只收 128 个字符，而 ct0 有 160 个字符。',
     '',
     '补抓方法（任选一种）：',
-    '· 在 Claude 桌面 app 里手动运行「补抓 X」定时任务',
-    `· 在任意一个 Claude 会话里说：补抓 ${date} 的 X 内容`,
+    '· 在 Codex 桌面 app 里运行「补抓 X」任务',
+    `· 在这个项目的 Codex 会话里说：补抓 ${date} 的 X 内容`,
   ].join('\n') });
 }
 
-console.log(`演练模式：校验和构建已真实执行，下面的步骤只打印，不执行。
+if (values['dry-run']) {
+  console.log(`演练模式：校验和构建已真实执行，下面的步骤只打印，不执行。
 
 1. 提交，只提交这一期的日报文件：
    git add -- ${file}
-   git commit -m "Publish AI daily ${date}" -- ${file}
+   git commit -m "${values.mode === 'backfill' ? 'Backfill X in AI daily' : 'Publish AI daily'} ${date}" -- ${file}
 2. 推送：git push origin main
 3. 等部署：找到这次提交触发的 Pages 部署（Publish learning site），等它成功
 4. 发飞书私聊，机器人身份，接收人 ${receiver}，共 ${messages.length} 条，每条：
    lark-cli im +messages-send --as bot --user-id ${receiver} --text <消息全文>
 `);
-messages.forEach((m, i) => console.log(`----- 飞书消息 ${i + 1}/${messages.length}：${m.kind} -----\n${m.text}\n`));
+  messages.forEach((m, i) => console.log(`----- 飞书消息 ${i + 1}/${messages.length}：${m.kind} -----\n${m.text}\n`));
+  process.exit(0);
+}
+
+const changed = git('status', '--porcelain=v1', '--', file).trim() !== '';
+if (!changed) abort('提交', `${file} 没有待发布的改动。`);
+try {
+  git('add', '--', file);
+  git('commit', '-m', `${values.mode === 'backfill' ? 'Backfill X in AI daily' : 'Publish AI daily'} ${date}`, '--', file);
+} catch { abort('提交', `只提交 ${file} 失败。`); }
+const sha = git('rev-parse', 'HEAD').trim();
+try { git('push', 'origin', 'main'); }
+catch { abort('推送', `提交 ${sha} 未能推送到 origin/main。`); }
+
+let runId;
+for (let attempt = 0; attempt < 20 && !runId; attempt++) {
+  try {
+    const runs = JSON.parse(run('gh', ['run', 'list', '--repo', 'windery/windery.github.io', '--workflow', 'deploy.yml', '--commit', sha, '--json', 'databaseId,headSha,status,conclusion', '--limit', '5']));
+    runId = runs.find(item => item.headSha === sha)?.databaseId;
+  } catch { /* GitHub may not have indexed the new run yet. */ }
+  if (!runId) await new Promise(resolve => setTimeout(resolve, 3000));
+}
+if (!runId) abort('等待部署', `找不到提交 ${sha} 对应的 Pages 部署。`);
+const watched = spawnSync('gh', ['run', 'watch', String(runId), '--repo', 'windery/windery.github.io', '--exit-status', '--interval', '5'], { cwd: root, encoding: 'utf8', timeout: 15 * 60 * 1000 });
+if (watched.status !== 0) abort('等待部署', `Pages 部署 ${runId} 未成功，请查看该 GitHub Actions 运行。`);
+
+let reachable = false;
+for (let attempt = 0; attempt < 20 && !reachable; attempt++) {
+  try { reachable = (await fetch(url, { signal: AbortSignal.timeout(10000) })).status === 200; }
+  catch { /* Wait for Pages propagation. */ }
+  if (!reachable) await new Promise(resolve => setTimeout(resolve, 3000));
+}
+if (!reachable) abort('检查页面', `部署 ${runId} 成功，但 ${url} 尚未返回 200。`);
+for (const [index, message] of messages.entries()) {
+  try { send(values.mode === 'backfill' ? 'backfill' : `message-${index + 1}`, message.text); }
+  catch { abort('发送飞书', `第 ${index + 1} 条飞书私聊发送失败。`); }
+}
+console.log(`已发布：${url}\n提交：${sha}\nPages 部署：${runId}\n飞书消息：${messages.length} 条`);

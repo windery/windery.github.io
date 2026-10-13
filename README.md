@@ -40,13 +40,19 @@ npm run preview
 - X 状态为 `pending` 时，「X 动态」只写一句含「X 内容待补充」的标注。
 - 完整样例见 `scripts/test/fixtures/daily-sample.md`。仓库里不放真实的一期日报样例。
 
-发布命令目前只有演练模式：
+Codex 项目 skill 在 `.agents/skills/ai-daily/SKILL.md`，信息源配置在同目录的 `sources.md`。本机定时任务调用该 skill，读取公开信息源，并通过 `scripts/fetch-daily-x.mjs` 只读抓取私密 X List。X 包装器从钥匙串取 cookie，只把它们交给 `twitter-cli` 子进程；用法是 `node scripts/fetch-daily-x.mjs --start <ISO时间> --end <ISO时间>`。
+
+先运行发布演练：
 
 ```sh
 npm run publish:daily -- --date 2026-10-11 --dry-run
 ```
 
-它依次校验格式、确认这一期没有推上过 `origin/main`（`--force` 跳过）、确认工作区只有这一期的改动、完整构建，然后把提交、推送、等部署、发飞书这几步和飞书消息全文打印出来，都不真正执行。X 状态为 `pending` 时多一条 X 失效提醒。飞书接收人和 X 钥匙串条目名读自不入库的 `ai-daily.local.json`，只放在任务专用 clone 里，并用该 clone 的 `.git/info/exclude` 忽略，否则工作区检查会把它当成改动拦下；`--config` 可以指定别的文件。
+它依次校验格式、确认这一期没有推上过 `origin/main`（`--force` 跳过）、确认工作区只有这一期的改动、完整构建，然后打印提交、推送、等部署、发飞书的计划。`--publish` 才会真实执行这些步骤：先更新 `origin/main`，只提交当期文件，推送后等待对应的 Pages 部署成功且页面可访问，再发飞书私聊。X 状态为 `pending` 时多一条 X 失效提醒。
+
+补抓 X 时用 `--mode backfill`，先演练再用 `--publish`；失败通知用 `--mode failure --step <步骤> --reason <原因>`。两种模式同样需要 `--dry-run` 或 `--publish`。飞书接收人和 X 钥匙串条目名读自不入库的 `ai-daily.local.json`，只放在任务专用 clone 里，并用该 clone 的 `.git/info/exclude` 忽略；`--config` 可以指定别的文件。
+
+`.codex/rules/ai-daily.rules` 会在项目信任后拦截直接运行 `twitter`、`security` 和 `lark-cli` 的命令。Codex 命令规则仅约束所匹配的工具调用，不能作为脚本及私有配置不可修改的完整安全边界；定时任务的权限还须在本机 Codex 设置中收紧。
 
 `npm test` 在临时仓库里用样例日报和样例配置跑演练模式的各个场景。
 
