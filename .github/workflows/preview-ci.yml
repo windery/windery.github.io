@@ -28,3 +28,8 @@ jobs:
           node .github/preview/build.mjs
           node -e 'const m=JSON.parse(require("fs").readFileSync("dist/preview/manifest.json")); if(m.length!==1||m[0].status!=="ok") process.exit(1)'
           node scripts/check-site.mjs
+      - name: Empty open-PR snapshot removes stale previews
+        run: |
+          printf '[]' > "$RUNNER_TEMP/preview-plan.json"
+          node .github/preview/build.mjs
+          node -e 'const fs=require("fs"); if(fs.existsSync("dist/preview/pr-5")||!fs.existsSync("dist/index.html")||JSON.parse(fs.readFileSync("dist/preview/manifest.json")).length) process.exit(1)'

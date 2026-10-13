@@ -52,11 +52,11 @@ for (const p of plan) {
       '--cap-drop=ALL', '--security-opt=no-new-privileges', '--read-only',
       '--pids-limit=256', '--memory=3g', '--cpus=2',
       '--tmpfs', '/tmp:rw,nosuid,nodev,size=512m,mode=1777',
-      '--tmpfs', '/work:rw,nosuid,nodev,size=2g,mode=1777',
+      '--tmpfs', '/work:rw,exec,nosuid,nodev,size=2g,mode=1777',
       '--mount', `type=bind,src=${source},dst=/source,readonly`,
       '--mount', `type=bind,src=${output},dst=/output`,
       '--env', 'HOME=/tmp', '--env', 'npm_config_cache=/tmp/npm-cache',
-      '--workdir', '/work', 'node:24-bookworm-slim', 'sh', '-ec',
+      '--workdir', '/work', 'node:24-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20', 'sh', '-ec',
       'cp -R /source/. /work/; npm ci; npm run build; cp -R dist/. /output/'], 600000);
     // The container is stopped. Restore owner read permissions without following links.
     const readable = p => {

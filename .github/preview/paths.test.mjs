@@ -44,3 +44,9 @@ test('reject symlink and hardlink output without touching external files', () =>
     assert.throws(() => validateTree(dir), /Non-regular/);
   } finally { fs.rmSync(root, { recursive: true, force: true }); }
 });
+
+test('redirect fragments also get noindex', () => {
+  const result = rewriteText('<meta http-equiv="refresh" content="0;url=/new/">', '.html', prefix);
+  assert.ok(result.includes('noindex,nofollow'));
+  assert.ok(result.includes('url=/preview/pr-3/new/'));
+});

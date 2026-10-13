@@ -39,7 +39,8 @@ export function rewriteText(text, ext, prefix) {
     return text.replace(/(["'`])(\/(?:_astro|pagefind)\/[^"'`]+)\1/g, (_, q, url) => `${q}${scoped(url)}${q}`);
   }
   if (ext !== '.html') return text;
-  return css(text)
+  const html = /<head\b/i.test(text) ? text : '<head></head>' + text;
+  return css(html)
     .replace(/<link\b(?=[^>]*\brel\s*=\s*["']canonical["'])[^>]*>/gi, '')
     .replace(/(\s(?:href|src|action|poster|data-src)\s*=\s*)(["'])([^"']*)\2/gi,
       (_, start, q, url) => `${start}${q}${scoped(url)}${q}`)
