@@ -146,10 +146,10 @@ describe('X 登录过期（pending / login-expired）的日报', () => {
     assert.match(text, /不要用终端的隐藏输入.*128/);
   });
 
-  test('提醒写明补抓的两种触发方式', () => {
+  test('提醒写明手动补抓指令', () => {
     const text = messages(run.stdout)[1].text;
-    assert.match(text, /「补抓 X」/);
-    assert.match(text, /Codex 会话.*补抓 2026-10-11/);
+    assert.match(text, /补抓最近一期的 X 内容/);
+    assert.match(text, /或指定日期说：补抓 2026-10-11/);
   });
 });
 
