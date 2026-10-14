@@ -29,16 +29,24 @@ const file = `src/content/daily/${date}.md`;
 
 const configPath = values.config ? resolve(values.config) : join(root, 'ai-daily.local.json');
 const config = await readFile(configPath, 'utf8').then(JSON.parse).catch(e => fail(`读不到私有配置 ${configPath}：${e.message}`));
-const receiver = config.feishu.receiveOpenId;
-if (!/^ou_[A-Za-z0-9_]+$/.test(receiver ?? '')) fail('私有配置的飞书接收人 ID 无效。');
+const receiver = config.feishu.receiveUnionId ?? config.feishu.receiveOpenId;
+const receiverType = config.feishu.receiveUnionId ? 'union_id' : 'open_id';
+if (!(receiverType === 'union_id' ? /^on_[A-Za-z0-9_]+$/ : /^ou_[A-Za-z0-9_]+$/).test(receiver ?? '')) fail('私有配置的飞书接收人 ID 无效。');
+const profileArgs = config.feishu.profile ? ['--profile', config.feishu.profile] : [];
 
 const run = (command, args, options = {}) => execFileSync(command, args, {
   cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], ...options,
 });
-const send = (kind, message) => run('lark-cli', [
-  'im', '+messages-send', '--as', 'bot', '--user-id', receiver,
-  '--idempotency-key', `ai-daily-${date}-${kind}-${createHash('sha256').update(message).digest('hex').slice(0, 10)}`, '--text', message,
-]);
+const send = (kind, message) => {
+  const key = `ai-daily-${date}-${kind}-${createHash('sha256').update(message).digest('hex').slice(0, 10)}`;
+  const args = receiverType === 'union_id'
+    ? ['api', 'POST', '/open-apis/im/v1/messages', '--as', 'bot', '--params', JSON.stringify({ receive_id_type: receiverType }),
+      '--data', JSON.stringify({ receive_id: receiver, msg_type: 'text', content: JSON.stringify({ text: message }), uuid: key })]
+    : ['im', '+messages-send', '--as', 'bot', '--user-id', receiver, '--idempotency-key', key, '--text', message];
+  return run('lark-cli', [...profileArgs, ...args], {
+    env: { ...process.env, GODEBUG: [process.env.GODEBUG, 'http2client=0'].filter(Boolean).join(',') },
+  });
+};
 if (values.mode === 'failure') {
   if (!values.step || !values.reason) fail('--mode failure 需要 --step 和 --reason。');
   const message = `AI 日报 ${date} 失败\n步骤：${values.step}\n原因：${values.reason}\n请查看 Codex 定时任务记录并处理后重试。`;
@@ -195,7 +203,7 @@ if (values['dry-run']) {
 2. 推送：git push origin main
 3. 等部署：找到这次提交触发的 Pages 部署（Publish learning site），等它成功
 4. 发飞书私聊，机器人身份，接收人 ${receiver}，共 ${messages.length} 条，每条：
-   lark-cli im +messages-send --as bot --user-id ${receiver} --text <消息全文>
+   lark-cli ${profileArgs.join(' ')} ${receiverType === 'union_id' ? 'api POST /open-apis/im/v1/messages (receive_id_type=union_id)' : 'im +messages-send'} --as bot <接收人及消息全文>
 `);
   messages.forEach((m, i) => console.log(`----- 飞书消息 ${i + 1}/${messages.length}：${m.kind} -----\n${m.text}\n`));
   process.exit(0);

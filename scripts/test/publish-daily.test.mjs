@@ -177,6 +177,34 @@ test('失败通知演练包含步骤和原因', async () => {
   assert.match(result.stdout, /原因：所有信息源都不可用/);
 });
 
+test('独立机器人按指定 profile 和 union_id 发消息，并保留幂等键', async () => {
+  const work = await checkout();
+  const bin = join(tmp, `mock-bin-${++count}`);
+  const log = join(tmp, `sender-${count}.json`);
+  const configFile = join(tmp, `config-${count}.json`);
+  await mkdir(bin);
+  await writeFile(configFile, JSON.stringify({ feishu: { profile: 'daily-only', receiveUnionId: 'on_sample_receiver' } }));
+  await writeFile(join(bin, 'lark-cli'), `#!/usr/bin/env node
+require('node:fs').writeFileSync(process.env.AI_DAILY_TEST_LOG, JSON.stringify({ args: process.argv.slice(2), godebug: process.env.GODEBUG }));
+`, { mode: 0o755 });
+  const args = ['scripts/publish-daily.mjs', '--date', DATE, '--publish', '--mode', 'failure', '--step', '抓取', '--reason', '测试失败', '--config', configFile];
+  const env = { ...process.env, PATH: `${bin}:${process.env.PATH}`, AI_DAILY_TEST_LOG: log, GODEBUG: 'existing=1' };
+  const result = spawnSync(process.execPath, args, { cwd: work, encoding: 'utf8', env });
+  assert.equal(result.status, 0, result.stderr);
+  const sent = JSON.parse(await readFile(log, 'utf8'));
+  assert.deepEqual(sent.args.slice(0, 5), ['--profile', 'daily-only', 'api', 'POST', '/open-apis/im/v1/messages']);
+  assert.equal(sent.args[sent.args.indexOf('--as') + 1], 'bot');
+  assert.deepEqual(JSON.parse(sent.args[sent.args.indexOf('--params') + 1]), { receive_id_type: 'union_id' });
+  const data = JSON.parse(sent.args[sent.args.indexOf('--data') + 1]);
+  assert.equal(data.receive_id, 'on_sample_receiver');
+  assert.equal(JSON.parse(data.content).text, `AI 日报 ${DATE} 失败\n步骤：抓取\n原因：测试失败\n请查看 Codex 定时任务记录并处理后重试。`);
+  assert.ok(data.uuid.length <= 50);
+  assert.equal(sent.godebug, 'existing=1,http2client=0');
+  const again = spawnSync(process.execPath, args, { cwd: work, encoding: 'utf8', env });
+  assert.equal(again.status, 0, again.stderr);
+  assert.equal(JSON.parse(JSON.parse(await readFile(log, 'utf8')).args.at(-1)).uuid, data.uuid);
+});
+
 test('真实发布在部署完成后才发私聊，且只推送当期文件', async () => {
   const work = await checkout();
   await writeDaily(work, await sample());
