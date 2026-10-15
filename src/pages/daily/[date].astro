@@ -8,20 +8,44 @@ const {daily}=Astro.props;
 const {frontmatter:data,Content}=daily;
 const headings=daily.getHeadings().filter(h=>h.depth===2).map(h=>({...h,label:h.text}));
 ---
-<Site title={data.title} description={data.highlights.join('；')}>
-<div class="docs-layout">
-<aside class="docs-sidebar" aria-label="往期日报" data-pagefind-ignore>
- <a class="sidebar-back" href="/daily/"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10H4m5-5-5 5 5 5"/></svg>全部日报</a>
- <p class="sidebar-heading">AI 日报</p>
- <ol class="sidebar-articles">{dailies.map(({frontmatter:d})=><li><a href={`/daily/${d.date}/`} aria-current={d.date===data.date?'page':undefined}>{d.date}</a></li>)}</ol>
-</aside>
-<article class="reader-article" data-pagefind-body>
- <nav class="breadcrumb" aria-label="位置" data-pagefind-ignore><a href="/daily/">AI 日报</a><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m8 5 5 5-5 5"/></svg><span>{data.date}</span></nav>
- <header class="reader-header"><h1>{data.title}</h1></header>
- <details class="reader-mobile-navigation" data-pagefind-ignore><summary><span>本页目录</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></summary><ArticleToc headings={headings}/></details>
+<Site title={data.title} description={data.summary || data.highlights.slice(0,3).join('；')}>
+<div class="daily-layout">
+<article class="reader-article daily-article" data-pagefind-body>
+ <nav class="breadcrumb" aria-label="位置" data-pagefind-ignore><a href="/daily/">← 全部日报</a></nav>
+ <header class="daily-header">
+  <p class="daily-eyebrow">WINDERY / AI DAILY <time datetime={data.date}>{data.date}</time></p>
+  <h1>{data.title}</h1>
+  <p class="daily-summary">{data.summary || '从模型、工具和一线实践中，找出值得关注的变化。'}</p>
+  <section class="daily-brief" aria-label="今日重点"><h2>先看这几件事</h2><ol>{data.highlights.slice(0,3).map(h=><li>{h}</li>)}</ol></section>
+ </header>
+ <nav class="daily-navigation" aria-label="本期目录" data-pagefind-ignore><ArticleToc headings={headings}/></nav>
  <div class="prose"><Content/></div>
+ <footer class="daily-end" data-pagefind-ignore><a href="/daily/">← 阅读往期日报</a><span>精选变化 · 追溯原文 · 保留判断</span></footer>
 </article>
-<aside class="docs-toc" aria-label="本页目录" data-pagefind-ignore><p class="toc-label">本页目录</p><ArticleToc headings={headings}/></aside>
 </div>
 <ReaderScripts/>
 </Site>
+<style>
+.daily-layout{max-width:880px;margin:auto;padding:0 28px}
+.daily-article{max-width:760px;padding-top:36px}
+.daily-header{padding:12px 0 28px;border-bottom:1px solid var(--border)}
+.daily-eyebrow{font:500 12px/1.6 var(--mono);letter-spacing:.12em;color:var(--fg-3);display:flex;justify-content:space-between;gap:16px;margin-bottom:24px}
+.daily-header h1{font-size:clamp(30px,4.5vw,46px);line-height:1.25;letter-spacing:-.04em;margin-bottom:20px}
+.daily-summary{font-size:18px;color:var(--fg-2);line-height:1.8;margin-bottom:28px}
+.daily-brief{background:var(--bg-subtle);border-left:3px solid var(--link);padding:22px 26px}
+.daily-brief h2{font-size:13px;letter-spacing:.08em;margin:0 0 12px;color:var(--link)}
+.daily-brief ol{padding-left:1.3em;margin:0;display:grid;gap:12px;font-size:16px;line-height:1.8}
+.daily-brief li::marker{color:var(--link);font-weight:600}
+.daily-navigation{padding:18px 0;border-bottom:1px solid var(--border);margin-bottom:32px}
+.daily-navigation :global(.article-toc-list){display:flex;flex-wrap:wrap;gap:8px 22px}
+.daily-navigation :global(.article-toc-list a){font-size:13px;min-height:28px}
+.daily-article :global(.prose){font-size:16px;line-height:1.95;overflow-wrap:anywhere}
+.daily-article :global(.prose h2){font-size:23px;border-top:1px solid var(--border);padding-top:28px;margin-top:48px}
+.daily-article :global(.prose h2:first-of-type){border:0;padding:0;margin-top:0}
+.daily-article :global(.prose h3){font-size:21px;margin-top:32px;line-height:1.5;scroll-margin-top:100px}
+.daily-article :global(.prose h3 a){color:var(--fg);text-decoration:underline;text-decoration-color:var(--border-strong);text-underline-offset:5px}
+.daily-article :global(.prose h3 a:hover){color:var(--link)}
+.daily-article :global(.prose p){margin-bottom:16px}
+.daily-end{border-top:1px solid var(--border);margin-top:48px;padding:24px 0 48px;display:flex;justify-content:space-between;gap:16px;font-size:13px;color:var(--fg-3)}
+@media(max-width:600px){.daily-layout{padding:0 20px}.daily-article{padding-top:24px}.daily-eyebrow{font-size:10px;letter-spacing:.06em}.daily-brief{padding:18px}.daily-summary{font-size:16px}.daily-end{flex-direction:column}}
+</style>

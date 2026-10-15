@@ -64,7 +64,7 @@ const abort = (step, reason) => {
 };
 
 const FIELDS = ['date', 'title', 'windowStart', 'windowEnd', 'generatedAt', 'highlights', 'topics', 'deepRead', 'x'];
-const SECTIONS = ['GitHub 热门 AI 项目', '模型与产品发布', '大 V 经验与技术博客', '深读推荐', '口播选题'];
+const LEGACY_SECTIONS = ['GitHub 热门 AI 项目', '模型与产品发布', '大 V 经验与技术博客', '深读推荐', '口播选题'];
 const X_PENDING_MARK = 'X 内容待补充';
 const X_REASONS = {
   'login-expired': 'X 登录已失效（login-expired）：抓取时未认证，或 cookie 被拒绝',
@@ -90,34 +90,75 @@ if (absent.length) problems.push(`缺少字段：${absent.join('、')}`);
 
 const nonEmpty = v => typeof v === 'string' && v.trim() !== '';
 const has = k => k in front;
+const editorial = front.editorialVersion === 2;
+if (has('editorialVersion') && !editorial) problems.push('editorialVersion 只支持 2，旧版请省略');
+if (editorial && !nonEmpty(front.summary)) problems.push('精选版需要 summary');
+const start = Date.parse(front.windowStart), end = Date.parse(front.windowEnd);
+if (Number.isFinite(start) && Number.isFinite(end) && (start >= end || end-start > 72*3600000)) problems.push('采集窗口要正向且不超过 72 小时');
 if (has('date') && front.date !== date) problems.push(`日期 ${front.date} 和文件名 ${date} 不符`);
 if (has('title') && !nonEmpty(front.title)) problems.push('标题不能为空');
 for (const k of ['windowStart', 'windowEnd', 'generatedAt']) if (has(k) && !(nonEmpty(front[k]) && !Number.isNaN(Date.parse(front[k])))) problems.push(`${k} 要是 ISO 时间，现在是 ${JSON.stringify(front[k])}`);
 if (has('highlights')) {
   const h = front.highlights;
   if (!Array.isArray(h) || !h.every(nonEmpty)) problems.push('要点要是一组文字');
-  else if (h.length < 3 || h.length > 5) problems.push(`要点要 3–5 条，现在是 ${h.length} 条`);
+  else if (editorial ? (h.length < 1 || h.length > 3) : (h.length < 3 || h.length > 5)) problems.push(`要点要 ${editorial ? '1–3' : '3–5'} 条，现在是 ${h.length} 条`);
 }
 if (has('topics')) {
   const t = front.topics;
   if (!Array.isArray(t) || !t.every(x => nonEmpty(x?.title) && nonEmpty(x?.angle))) problems.push('口播选题每个都要有 title 和 angle');
-  else if (t.length < 1 || t.length > 2) problems.push(`口播选题要 1–2 个，现在是 ${t.length} 个`);
+  else if (t.length < (editorial ? 0 : 1) || t.length > 2) problems.push(`口播选题要 1–2 个，现在是 ${t.length} 个`);
 }
 if (has('deepRead')) {
   const d = front.deepRead;
-  if (!(nonEmpty(d?.title) && /^https?:\/\//.test(d?.url ?? '') && nonEmpty(d?.reason))) problems.push('深读推荐要有标题、链接（http 或 https）和理由');
+  if (!(editorial && d === null) && !(nonEmpty(d?.title) && /^https?:\/\//.test(d?.url ?? '') && nonEmpty(d?.reason))) problems.push('深读推荐要有标题、链接（http 或 https）和理由');
 }
 
 const sections = [...body.matchAll(/^## (.+)$/gm)].map(m => m[1].trim());
-const missing = SECTIONS.filter(s => !sections.includes(s));
+const EDITORIAL_SECTIONS = ['重点解读', '工具与实践', '简讯', '深读推荐', '口播选题', '采集说明'];
+const SECTIONS = editorial ? EDITORIAL_SECTIONS : LEGACY_SECTIONS;
+const required = editorial ? ['重点解读', '采集说明'] : SECTIONS;
+const missing = required.filter(s => !sections.includes(s));
 if (missing.length) problems.push(`缺少板块：${missing.join('、')}`);
-else if (sections.join('、') !== SECTIONS.join('、')) problems.push(`板块顺序要是：${SECTIONS.join('、')}；现在是：${sections.join('、')}`);
+if (sections.join('、') !== SECTIONS.filter(s => sections.includes(s)).join('、')) problems.push(`板块顺序要是：${SECTIONS.join('、')}；现在是：${sections.join('、')}`);
+if (editorial) {
+  if (front.deepRead && !sections.includes('深读推荐')) problems.push('deepRead 与深读推荐正文不一致');
+  if (front.topics?.length && !sections.includes('口播选题')) problems.push('topics 与口播选题正文不一致');
+  const coverage = front.coverage;
+  if (!Array.isArray(coverage) || !coverage.length || !coverage.every(c => nonEmpty(c?.source) && ['ok','failed','paused'].includes(c?.status) && nonEmpty(c?.note))) problems.push('coverage 要逐源记录 source、status（ok/failed/paused）和 note');
+  const seen = new Set();
+  let items = 0;
+  for (const section of ['重点解读','工具与实践','简讯']) {
+    const content = body.match(new RegExp(`^## ${section}[ \\t]*\\n([\\s\\S]*?)(?=^## |(?![\\s\\S]))`, 'm'))?.[1] ?? '';
+    const stories = [...content.matchAll(/^### (.+)\n([\s\S]*?)(?=^### |(?![\s\S]))/gm)];
+    if (section === '重点解读' && (!stories.length || stories.length > 3)) problems.push('重点解读要有 1–3 条 H3 条目');
+    for (const story of stories) {
+      items++;
+      const text = story[2];
+      for (const label of ['变化','影响','建议','限制','证据','发布时间']) if (!new RegExp(`\\*\\*${label}：\\*\\*[ \t]*\\S`).test(text)) problems.push(`「${story[1]}」缺少 ${label}`);
+      const evidence = text.match(/\*\*证据：\*\*[^\n]*\[[^\]]+\]\((https?:\/\/[^)]+)\)/)?.[1];
+      const event = text.match(/<!-- event: ([a-z0-9][a-z0-9-]+) -->/)?.[1];
+      if (!event) problems.push(`「${story[1]}」缺少稳定事件 ID（<!-- event: slug -->）`);
+      if (!evidence) problems.push(`「${story[1]}」缺少原始证据链接`);
+      for (const key of [event && `event:${event}`, evidence && `url:${canonicalUrl(evidence)}`].filter(Boolean)) {
+        if (seen.has(key)) problems.push(`重复事件或 URL：${key}`);
+        seen.add(key);
+      }
+    }
+  }
+  if (!items) problems.push('精选版至少需要一个有证据的条目');
+}
+function canonicalUrl(value) {
+  const url = new URL(value); url.hash = '';
+  for (const key of [...url.searchParams.keys()]) if (/^utm_|^(source|ref)$/i.test(key)) url.searchParams.delete(key);
+  url.searchParams.sort();
+  return url.href.replace(/\/$/, '');
+}
 
 // 「大 V 经验与技术博客」下面固定两个小节，「X 动态」只认这一节里的
 const SUBSECTIONS = ['X 动态', '博客与长文'];
-const voices = body.match(/^## 大 V 经验与技术博客[ \t]*\n([\s\S]*?)(?=^## |(?![\s\S]))/m)?.[1];
+const voices = editorial ? body.match(/^## 采集说明[ \t]*\n([\s\S]*?)(?=^## |(?![\s\S]))/m)?.[1] : body.match(/^## 大 V 经验与技术博客[ \t]*\n([\s\S]*?)(?=^## |(?![\s\S]))/m)?.[1];
 const subsections = [...(voices ?? '').matchAll(/^### (.+)$/gm)].map(m => m[1].trim());
-if (voices !== undefined && subsections.join('、') !== SUBSECTIONS.join('、')) problems.push(`「大 V 经验与技术博客」下要依次是「X 动态」「博客与长文」两个小节；现在是：${subsections.join('、') || '没有小节'}`);
+if (!editorial && voices !== undefined && subsections.join('、') !== SUBSECTIONS.join('、')) problems.push(`「大 V 经验与技术博客」下要依次是「X 动态」「博客与长文」两个小节；现在是：${subsections.join('、') || '没有小节'}`);
 const xFeed = (voices ?? '').match(/^### X 动态[ \t]*\n([\s\S]*?)(?=^### |(?![\s\S]))/m)?.[1].trim() ?? '';
 if (has('x')) {
   const { status, reason } = front.x ?? {};
@@ -146,7 +187,7 @@ if (values.mode === 'backfill' && front.x.status !== 'ok') abort('检查补抓�
 if (values.mode === 'backfill') {
   const previous = git('show', `origin/main:${file}`);
   if (!/^x: .*"status"\s*:\s*"pending"/m.test(previous)) abort('检查补抓目标', '线上这一期的 X 状态不是 pending，无需补抓。');
-  const withoutX = text => text.replace(/^x: .*$/m, '').replace(/(### X 动态\n)[\s\S]*?(?=### 博客与长文)/m, '$1');
+  const withoutX = text => text.replace(/^x: .*$/m, '').replace(/(### X 动态[ \t]*\n)[\s\S]*?(?=^### |^## |(?![\s\S]))/m, '$1');
   if (withoutX(previous) !== withoutX(raw)) abort('检查补抓内容', '补抓只能改 x 状态和「X 动态」小节。');
 }
 const others = git('status', '--porcelain=v1', '-z', '--untracked-files=all', '--no-renames').split('\0').filter(Boolean).map(e => e.slice(3)).filter(p => p !== file);
@@ -163,8 +204,7 @@ const dailyMessage = [
   '今日要点',
   ...front.highlights.map((h, i) => `${i + 1}. ${h}`),
   '',
-  '口播选题',
-  ...front.topics.map(t => `· ${t.title}\n  切入角度：${t.angle}`),
+  ...(front.topics.length ? ['口播选题', ...front.topics.map(t => `· ${t.title}\n  切入角度：${t.angle}`)] : []),
   '',
   `阅读全文：${url}`,
 ].join('\n');

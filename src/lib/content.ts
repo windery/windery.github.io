@@ -13,7 +13,7 @@ export const readingSummary=(a:MarkdownInstance<Article>)=>presentation[a.frontm
 export const articleHeadings=(a:MarkdownInstance<Article>)=>a.getHeadings().filter(h=>h.depth===2).map(h=>({...h,label:presentation[a.frontmatter.project]?.[a.frontmatter.articleSlug]?.headings[h.text] || h.text}));
 
 // AI 日报：每期一个 src/content/daily/YYYY-MM-DD.md，格式由 scripts/publish-daily.mjs 校验；按日期从新到旧
-type Daily = {date:string;title:string;highlights:string[]};
+type Daily = {date:string;title:string;summary?:string;editorialVersion?:2;highlights:string[]};
 export const dailies=Object.values(import.meta.glob<MarkdownInstance<Daily>>('../content/daily/*.md',{eager:true})).sort((a,b)=>b.frontmatter.date.localeCompare(a.frontmatter.date));
 
 // Reverse insertion order breaks ties for entries first recorded in the same commit.

@@ -2,9 +2,11 @@
 import Site from '../../layouts/Site.astro';
 import {dailies} from '../../lib/content';
 ---
-<Site title="AI 日报" description="每天精选 AI 应用开发相关的新项目、模型发布和一线经验。">
+<Site title="AI 日报" description="面向 AI 开发者的编辑精选。变化是什么、影响谁、接下来值得做什么。">
 <div class="page" data-pagefind-ignore>
-<header class="page-header"><h1>AI 日报</h1><p class="lead">每天精选 AI 应用开发相关的新项目、模型发布和一线经验。</p></header>
-{dailies.length?<div class="entry-list">{dailies.map(({frontmatter:d})=><section class="entry"><div class="entry-head"><h2 class="entry-title"><a href={`/daily/${d.date}/`}><time datetime={d.date}>{d.date}</time></a></h2></div><ul class="daily-highlights">{d.highlights.map(h=><li>{h}</li>)}</ul></section>)}</div>:<p class="entry-desc">还没有日报。</p>}
+<header class="page-header"><h1>AI 日报</h1><p class="lead">面向 AI 开发者的编辑精选。变化是什么、影响谁、接下来值得做什么。</p></header>
+{dailies.length?<div class="entry-list">{dailies.map(({frontmatter:d})=><section class="entry"><time class="issue-date" datetime={d.date}>{d.date}</time><div class="entry-head"><h2 class="entry-title"><a href={`/daily/${d.date}/`}>{d.title}</a></h2></div>{d.summary && <p class="entry-desc">{d.summary}</p>}<ul class="daily-highlights">{d.highlights.slice(0,3).map(h=><li>{h}</li>)}</ul></section>)}</div>:<p class="entry-desc">还没有日报。</p>}
 </div>
 </Site>
+
+<style>.page{max-width:860px}.issue-date{font:12px var(--mono);color:var(--fg-3);display:block;margin-bottom:10px}.entry-title{font-size:24px;line-height:1.5}.entry{padding:32px 0}</style>

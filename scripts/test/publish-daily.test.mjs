@@ -404,3 +404,43 @@ describe('格式不合格的日报', () => {
     await rejectsFormat(content, /X 动态.*没有内容.*pending/);
   });
 });
+
+// v2 仍通过真实 CLI 验证；所有发送与推送都在临时仓库中模拟。
+const editorialSample = () => readFile(join(fixtures, 'daily-editorial.md'), 'utf8');
+test('精选版少讯日可只刊一条，页面首屏呈现结论和摘要', async () => {
+  const work = await checkout();
+  await writeDaily(work, await editorialSample());
+  const result = publish(work);
+  assert.equal(result.status, 0, result.stderr);
+  const html = await readFile(join(work, `dist/daily/${DATE}/index.html`), 'utf8');
+  assert.ok(html.indexOf('先看这几件事') < html.indexOf('id="重点解读"'));
+  assert.match(html, /已有调用链应先验证幂等性/);
+  assert.doesNotMatch(html, /docs-sidebar/);
+  assert.doesNotMatch(messages(result.stdout)[0].text, /口播选题/);
+  const archive = await readFile(join(work, 'dist/daily/index.html'), 'utf8');
+  assert.match(archive, /先验证工具调用，再考虑迁移 agent/);
+  assert.match(archive, /一次接口更新，如何转成有证据/);
+});
+
+test('精选版拒绝没有原始证据、重复事件和缺覆盖记录的日报', async () => {
+  const source = await editorialSample();
+  await rejectsFormat(source.replace('**证据：**', '**参考：**'), /缺少.*证据|缺少原始证据/);
+  const story = source.match(/### 工具重试[\s\S]*?(?=## 采集说明)/)[0];
+  await rejectsFormat(source.replace('## 采集说明', `## 工具与实践\n\n${story}\n## 采集说明`), /重复事件或 URL/);
+  await rejectsFormat(source.replace(/^coverage: .*$/m, 'coverage: []'), /coverage/);
+  await rejectsFormat(source.replace('2026-10-10T08:00:00+08:00', '2026-10-12T08:00:00+08:00'), /采集窗口/);
+});
+
+test('精选版 X 补抓仍只能更改 X 状态和文末 X 小节', async () => {
+  const work = await checkout();
+  const original = await editorialSample();
+  const pending = original.replace('x: {"status":"ok"}', 'x: {"status":"pending","reason":"fetch-failed"}').replace(/(### X 动态\n)[\s\S]*/, '$1\nX 内容待补充。\n');
+  await writeDaily(work, pending);
+  git(work, 'add', '-A'); git(work, 'commit', '-q', '-m', 'pending editorial'); git(work, 'push', '-q', 'origin', 'main');
+  await writeDaily(work, original);
+  assert.equal(publish(work, '--mode', 'backfill').status, 0);
+  await writeDaily(work, original.replace('**建议：** 编辑判断', '**建议：** 偷改正文'));
+  const rejected = publish(work, '--mode', 'backfill');
+  assert.notEqual(rejected.status, 0);
+  assert.match(rejected.stderr, /补抓只能改/);
+});

@@ -31,14 +31,15 @@ npm run preview
 
 ## AI 日报
 
-`/daily/` 按日期倒序列出每一期和它的要点，`/daily/YYYY-MM-DD/` 是每期页面，沿用文章页的三栏布局和本文目录，并纳入站内搜索。日报不进首页库。
+`/daily/` 按日期倒序展示标题、摘要和最多三条结论。每期页面使用独立的居中正文和轻目录，首屏直接呈现重点；纳入站内搜索，不进首页库。旧日报保持原正文与链接。
 
-每期文件由任务专用 clone 里的日报生成流程写出，格式由发布命令校验，不合格就不构建：
+新版文件使用 `editorialVersion: 2`，完整虚构格式样例见 `scripts/test/fixtures/daily-editorial.md`：
 
-- frontmatter 每行一个字段，写成「键: JSON 值」：`date`、`title`、`windowStart`、`windowEnd`、`generatedAt`、`highlights`（3–5 条）、`topics`（1–2 个，各含 `title` 和 `angle`）、`deepRead`（`title`、`url`、`reason`）、`x`（`{"status": "ok"}`，或 `{"status": "pending", "reason": "login-expired"}`，原因也可以是 `fetch-failed`）。
-- 正文 H2 板块依次是：GitHub 热门 AI 项目、模型与产品发布、大 V 经验与技术博客（下分「X 动态」「博客与长文」两个 H3）、深读推荐、口播选题。
-- X 状态为 `pending` 时，「X 动态」只写一句含「X 内容待补充」的标注。
-- 完整样例见 `scripts/test/fixtures/daily-sample.md`。仓库里不放真实的一期日报样例。
+- frontmatter 每行「键: JSON 值」。保留 `date`、`title`、窗口与生成时间、`x`；增加 `summary` 与逐源 `coverage`（source/status/note）。`highlights` 1–3 条，`topics` 0–2 个，`deepRead` 可为 null。
+- H2 依次是重点解读、工具与实践、简讯、深读推荐、口播选题、采集说明。重点解读与采集说明必需，其余可省略；重点 1–3 条，不设全刊条数配额。
+- 正文事件用 H3，写明变化、影响、建议、限制、原始证据链接、可靠发布时间与稳定事件 ID。CLI 检查字段、窗口不超过 72 小时、本期事件/规范化证据 URL 去重；原文真实性、跨 14 天去重与覆盖完整性由生成流程核对，CLI 不代替编辑核实。
+- 采集说明在文末，包含窗口、覆盖与失败；`### X 动态` 置于该节末尾，pending 时写「X 内容待补充」。补抓仍只允许修改该小节与 x 状态。
+- 未指定 editorialVersion 的历史版本继续按旧规则验证，旧样例保留在 `daily-sample.md`。不得把旧刊伪装成重新采集的新刊。
 
 Codex 项目 skill 在 `.agents/skills/ai-daily/SKILL.md`，信息源配置在同目录的 `sources.md`。本机定时任务调用该 skill，读取公开信息源，并通过 `scripts/fetch-daily-x.mjs` 只读抓取私密 X List。X 包装器从钥匙串取 cookie，只把它们交给 `twitter-cli` 子进程；用法是 `node scripts/fetch-daily-x.mjs --start <ISO时间> --end <ISO时间>`。包装器最多读取 500 条，并检查时间线末尾是否早于窗口起点；覆盖不足时返回 `fetch-failed`。
 
