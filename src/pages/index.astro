@@ -1,13 +1,14 @@
 ---
 import Site from '../layouts/Site.astro';
 import '../styles/daily.css';
-import {libraryEntries,latestDaily,dailyTitle,dailySummary,formatDailyDate} from '../lib/content';
+import {libraryEntries,latestIssue,issueSummary,issueUrl,issueTitle,formatDailyDate} from '../lib/content';
 import ProjectEntry from '../components/ProjectEntry.astro';
+const latestHeadline=latestIssue ? (latestIssue.legacy ? issueTitle(latestIssue) : (latestIssue.editions.find(edition=>edition.meta.kind==='news')?.meta.title || latestIssue.editions[0]?.meta.title || formatDailyDate(latestIssue.date))) : null;
 ---
 <Site title="学习笔记">
 <div class="page" data-pagefind-ignore>
 <header class="page-header"><h1>学过的，留在这里。</h1><p class="lead">沿着课程建立理解，在真实项目里追踪代码与设计。</p><div class="page-actions"><a class="button button-primary" href="/projects/">浏览项目解读</a><a class="button" href="/courses/">查看课程</a></div></header>
-{latestDaily && <section class="latest-daily" aria-labelledby="latest-daily-title"><p class="section-kicker" id="latest-daily-title">最新日报</p><div class="latest-daily-inner"><time datetime={latestDaily.frontmatter.date}>{formatDailyDate(latestDaily.frontmatter.date)}</time><div><h2><a href={`/daily/${latestDaily.frontmatter.date}/`}>{dailyTitle(latestDaily.frontmatter)}</a></h2><p>{dailySummary(latestDaily.frontmatter)}</p><a href={`/daily/${latestDaily.frontmatter.date}/`}>阅读本期 →</a></div></div></section>}
+{latestIssue && <section class="latest-daily" aria-labelledby="latest-daily-title"><p class="section-kicker" id="latest-daily-title">最新日报 · {latestIssue.legacy?'1 篇合刊':`${latestIssue.editions.length} 篇`}</p><div class="latest-daily-inner"><time datetime={latestIssue.date}>{formatDailyDate(latestIssue.date)}</time><div><h2><a href={issueUrl(latestIssue)}>{latestHeadline}</a></h2><p>{issueSummary(latestIssue)}</p><a href={issueUrl(latestIssue)}>阅读本期 →</a></div></div></section>}
 <h2 class="section-title">最近收录</h2>
 <div class="entry-list" aria-label="按创建时间从新到旧排列">
 {libraryEntries.map(({kind,content})=>kind==='project'?<ProjectEntry project={content} compact date={content.createdAt} dateLabel="收录于 "/>:<section class="entry" id={content.slug}><div class="entry-head"><h2 class="entry-title"><a href={content.href}>{content.name}</a><span class="entry-kind">课程</span></h2><span class="entry-meta">{content.detail} · <time datetime={content.createdAt}>收录于 {content.createdAt.slice(0,10)}</time></span></div><p class="entry-desc">{content.description}</p><a class="button course-link" href={content.href}>开始阅读<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5"/></svg></a></section>)}

@@ -1,8 +1,8 @@
 /* AI 日报：单刊阅读 + 索引。正文 720px / 17px，与项目文章共用 --measure。 */
-body:has(.daily-layout,.daily-index) .site-brand,
-body:has(.daily-layout,.daily-index) .site-nav a{display:inline-flex;align-items:center;min-height:44px}
-body:has(.daily-layout,.daily-index) .search-trigger{min-height:44px}
-html:has(.daily-layout,.daily-index){scroll-padding-top:calc(var(--header-h) + 24px)}
+body:has(.daily-layout,.daily-index,.day-issue,.edition-layout) .site-brand,
+body:has(.daily-layout,.daily-index,.day-issue,.edition-layout) .site-nav a{display:inline-flex;align-items:center;min-height:44px}
+body:has(.daily-layout,.daily-index,.day-issue,.edition-layout) .search-trigger{min-height:44px}
+html:has(.daily-layout,.daily-index,.day-issue,.edition-layout){scroll-padding-top:calc(var(--header-h) + 24px)}
 .daily-layout{display:grid;grid-template-columns:minmax(0,var(--measure)) 184px;gap:64px;max-width:1032px;margin:auto;padding:0 32px}
 .daily-article{min-width:0;max-width:var(--measure);padding-top:40px}
 .daily-meta{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px;color:var(--fg-3);font-size:13px}
@@ -140,4 +140,98 @@ html:has(.daily-layout,.daily-index){scroll-padding-top:calc(var(--header-h) + 2
  .daily-sidebar,.daily-mobile-toc,.daily-pagination,.daily-end,.daily-date-rail,.daily-issue-read{display:none}
  .daily-layout{display:block;padding:0}.daily-article{max-width:none}
  .daily-prose{font-size:10.5pt}.daily-prose h2,.daily-prose h3{break-after:avoid}
+}
+
+/* 四篇拆分：当天文章列表 */
+.day-issue{max-width:860px;margin:auto;padding:40px 24px 32px}
+.day-header{padding:0 0 32px;border-bottom:1px solid var(--border)}
+.day-header h1{font-size:clamp(30px,4vw,42px);line-height:1.3;letter-spacing:-.02em;margin:0 0 16px}
+.day-highlights{margin:28px 0 0;padding:20px 24px;background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--radius-lg)}
+.day-highlights h2{font-size:14px;color:var(--fg-3);font-weight:500;margin:0 0 10px}
+.day-highlights ol{margin:0;padding-left:1.2em;display:grid;gap:8px;font-size:15px;line-height:1.8;color:var(--fg-2)}
+.day-highlights li::marker{color:var(--link)}
+.edition-list{border-top:1px solid var(--border);margin-top:32px}
+.edition-row{display:grid;grid-template-columns:96px minmax(0,1fr) 44px;gap:24px;padding:28px 0;border-bottom:1px solid var(--border);align-items:start}
+.edition-label{font-size:12px;line-height:1.8;color:var(--fg-3);margin:0;padding-top:5px}
+.edition-copy h2{font-size:24px;line-height:1.45;margin:0 0 8px;letter-spacing:-.02em}
+.edition-copy h2 a{color:var(--fg)}
+.edition-copy h2 a:hover{color:var(--link)}
+.edition-copy p{font-size:15px;line-height:1.8;color:var(--fg-2);margin:0;max-width:44em}
+.edition-open{display:flex;align-items:center;justify-content:center;min-height:44px;color:var(--fg-3);font-size:18px}
+.edition-open:hover{color:var(--link)}
+.daily-issue-editions{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.daily-issue-editions span{font-size:12px;line-height:1.6;color:var(--fg-3);border:1px solid var(--border);border-radius:999px;padding:1px 8px}
+.daily-issue-date span{font-size:11px;color:var(--fg-3)}
+
+/* 四篇拆分：文章页 */
+.edition-layout{display:grid;grid-template-columns:176px minmax(0,720px) 184px;gap:48px;max-width:1240px;margin:auto;padding:40px 24px 64px;align-items:start}
+.edition-rail{position:sticky;top:calc(var(--header-h) + 32px);align-self:start;max-height:calc(100dvh - var(--header-h) - 64px);overflow:auto;padding-right:20px;border-right:1px solid var(--border)}
+.rail-back{display:inline-flex;align-items:center;min-height:44px;font-size:13px;color:var(--fg-3)}
+.rail-back:hover{color:var(--link)}
+.rail-date{font:12px/1.6 var(--mono);color:var(--fg-3);margin:8px 0 16px}
+.rail-editions{display:grid;gap:2px}
+.rail-editions a{display:grid;gap:2px;padding:10px 10px;border-radius:var(--radius);font-size:13px;line-height:1.6;color:var(--fg-2);min-height:44px}
+.rail-editions a span{font-size:11px;color:var(--fg-3)}
+.rail-editions a:hover{background:var(--bg-hover);color:var(--fg)}
+.rail-editions a[aria-current=page]{background:var(--bg-hover);color:var(--fg)}
+.rail-editions a[aria-current=page] span{color:var(--link)}
+.rail-issue{margin-top:20px}
+.edition-article{min-width:0;max-width:720px}
+.edition-header{padding-bottom:28px;border-bottom:1px solid var(--border);margin-bottom:32px}
+.edition-meta{display:flex;justify-content:space-between;gap:16px;font:500 12px/1.6 var(--mono);letter-spacing:.06em;color:var(--fg-3);margin:0 0 16px}
+.edition-header h1{font-size:clamp(28px,3.4vw,38px);line-height:1.35;letter-spacing:-.02em;margin:0 0 16px;text-wrap:pretty}
+.edition-summary{font-size:18px;line-height:1.85;color:var(--fg-2);margin:0}
+.edition-mobile-toc{display:none}
+.edition-pagination{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;border-top:1px solid var(--border);margin-top:56px;padding-top:24px}
+.edition-pagination a{display:flex;flex-direction:column;gap:8px;padding:12px 0;color:var(--fg);min-height:44px}
+.edition-pagination a[rel=next]{grid-column:2;text-align:right}
+.edition-pagination span{font-size:13px;color:var(--fg-3)}
+.edition-pagination strong{font-size:15px;line-height:1.7;font-weight:500}
+.edition-pagination a:hover strong{color:var(--link)}
+.related{border-top:1px solid var(--border);margin-top:32px;padding-top:24px}
+.related h2{font-size:15px;margin:0 0 12px}
+.related a{display:block;font-size:14px;line-height:1.7;padding:8px 0;min-height:40px;color:var(--fg-2)}
+.related a:hover{color:var(--link)}
+.edition-toc{position:sticky;top:calc(var(--header-h) + 32px);align-self:start;max-height:calc(100dvh - var(--header-h) - 64px);overflow:auto;padding-top:4px}
+.edition-toc .article-toc-list{gap:2px}
+.edition-toc .article-toc-list a{padding:6px 0;font-size:13px}
+.edition-toc .toc-d3 a{padding-left:12px;font-size:12px}
+.mobile-editions{display:grid;gap:2px;border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px}
+.mobile-editions a{padding:10px 12px;font-size:13px;line-height:1.6;color:var(--fg-2);border-radius:var(--radius)}
+.mobile-editions a[aria-current=page]{background:var(--bg-subtle);color:var(--link)}
+
+@media(max-width:1240px){
+ .edition-layout{grid-template-columns:176px minmax(0,720px);max-width:1000px}
+ .edition-toc{display:none}
+}
+@media(max-width:1024px){
+ .edition-layout{display:block;max-width:784px;padding:0 20px 48px}
+ .edition-rail{display:none}
+ .edition-article{max-width:720px;margin:0 auto;padding-top:24px}
+ .edition-mobile-toc{display:block;position:sticky;top:var(--header-h);z-index:10;background:var(--bg);border-bottom:1px solid var(--border);margin:0 0 28px}
+ .edition-mobile-toc summary{display:flex;align-items:center;justify-content:space-between;min-height:52px;cursor:pointer;list-style:none;font-size:14px;font-weight:500}
+ .edition-mobile-toc summary::-webkit-details-marker{display:none}
+ .edition-mobile-toc svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.5;transition:transform 200ms cubic-bezier(.16,1,.3,1)}
+ .edition-mobile-toc[open] svg{transform:rotate(180deg)}
+ .edition-mobile-toc .article-toc{max-height:40dvh;overflow:auto;padding:0 0 12px}
+ .edition-mobile-toc .article-toc-list a{display:flex;align-items:center;min-height:44px;padding:8px 12px;font-size:14px;border-radius:var(--radius)}
+ .edition-mobile-toc .article-toc-list .toc-d3 a{padding-left:24px;font-size:13px;color:var(--fg-3)}
+ .edition-mobile-toc .article-toc-list a[aria-current=location]{background:var(--bg-subtle);color:var(--link)}
+ .edition-article .prose h2,.edition-article .prose h3{scroll-margin-top:calc(var(--header-h) + 76px)}
+}
+@media(max-width:600px){
+ .day-issue{padding:32px 16px 24px}
+ .day-header h1{font-size:30px}
+ .day-highlights{padding:18px;margin-top:24px}
+ .edition-row{grid-template-columns:1fr;gap:6px;padding:22px 0}
+ .edition-label{padding-top:0}
+ .edition-open{display:none}
+ .edition-copy h2{font-size:22px}
+ .edition-copy p{font-size:15px}
+ .edition-header h1{font-size:28px;line-height:1.45}
+ .edition-summary{font-size:16px;line-height:1.85}
+ .edition-meta{font-size:11px}
+ .edition-pagination{grid-template-columns:1fr;gap:16px}
+ .edition-pagination a[rel=next]{grid-column:1}
+ .edition-article{padding-top:16px}
 }

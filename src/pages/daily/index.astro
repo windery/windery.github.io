@@ -1,27 +1,29 @@
 ---
 import Site from '../../layouts/Site.astro';
 import '../../styles/daily.css';
-import {dailies,dailyTitle,dailySummary,dailyTags,formatDailyDate} from '../../lib/content';
+import {dailyIssues,issueSummary,issueTags,issueUrl,issueTitle,formatDailyDate} from '../../lib/content';
+const headline=(issue:any)=>issue.legacy?issueTitle(issue):(issue.editions.find((edition:any)=>edition.meta.kind==='news')?.meta.title || issue.editions[0]?.meta.title || formatDailyDate(issue.date));
 ---
-<Site title="AI 日报" description="每天读一批 AI 工程更新，只留下值得花时间的几件事。每条都附原文与边界。" footerNote="内容以原文链接为准">
+<Site title="AI 日报" description="每天读一批 AI 工程更新，拆成新闻、工具、方法和口播选题四篇，只留下值得花时间的内容。" footerNote="内容以原文链接为准">
 <div class="daily-index" data-pagefind-ignore>
  <header class="page-header">
   <h1>AI 日报</h1>
-  <p class="lead">每天读一批 AI 工程更新，只留下值得花时间的几件事。每条都附原文与边界，不追热度。</p>
+  <p class="lead">每天读一批 AI 工程更新，拆成新闻、工具、方法和口播选题四篇。只留下值得花时间的，每条都附原文与边界。</p>
  </header>
- {dailies.length ? <div class="daily-index-grid">
+ {dailyIssues.length ? <div class="daily-index-grid">
   <aside class="daily-date-rail" aria-label="按日期浏览">
    <p>按日期浏览</p>
-   <nav>{dailies.map(({frontmatter:d},i)=><a href={`#issue-${d.date}`} aria-current={i===0?'date':undefined}><time datetime={d.date}>{d.date}</time></a>)}</nav>
+   <nav>{dailyIssues.map((issue,i)=><a href={`#issue-${issue.date}`} aria-current={i===0?'date':undefined}><time datetime={issue.date}>{issue.date}</time></a>)}</nav>
   </aside>
   <div class="daily-issue-list">
-   {dailies.map(({frontmatter:d},i)=><article class="daily-issue" id={`issue-${d.date}`}>
-    <div class="daily-issue-date"><time datetime={d.date}>{formatDailyDate(d.date)}</time></div>
+   {dailyIssues.map((issue,i)=><article class="daily-issue" id={`issue-${issue.date}`}>
+    <div class="daily-issue-date"><time datetime={issue.date}>{formatDailyDate(issue.date)}</time><span>{issue.legacy?'1 篇合刊':`${issue.editions.length} 篇`}</span></div>
     <div>
-     <h2><a href={`/daily/${d.date}/`}>{dailyTitle(d)}</a>{i===0 && <span class="daily-latest">最新</span>}</h2>
-     <p>{dailySummary(d)}</p>
-     {dailyTags(d).length>0 && <div class="daily-issue-tags">{dailyTags(d).map(tag=><span>{tag}</span>)}</div>}
-     <a class="daily-issue-read" href={`/daily/${d.date}/`}>阅读全文 →</a>
+     <h2><a href={issueUrl(issue)}>{headline(issue)}</a>{i===0 && <span class="daily-latest">最新</span>}</h2>
+     <p>{issueSummary(issue)}</p>
+     {!issue.legacy && <div class="daily-issue-editions">{issue.editions.map((edition:any)=><span>{edition.meta.label}</span>)}</div>}
+     {issueTags(issue).length>0 && <div class="daily-issue-tags">{issueTags(issue).map(tag=><span>{tag}</span>)}</div>}
+     <a class="daily-issue-read" href={issueUrl(issue)}>阅读本期 →</a>
     </div>
    </article>)}
   </div>

@@ -1,0 +1,42 @@
+---
+import ArticleToc from './ArticleToc.astro';
+import ReaderScripts from './ReaderScripts.astro';
+import Site from '../layouts/Site.astro';
+import {issueUrl,issueSummary,issueHighlights,issueTitle,formatDailyDate} from '../lib/content';
+const {issue,older,newer}=Astro.props;
+const daily=issue.legacy;
+const {frontmatter:data,Content}=daily;
+const title=issue.legacyTitle || data.title;
+const summary=issueSummary(issue);
+const highlights=issueHighlights(issue).slice(0,3);
+const headings=daily.getHeadings().filter((h:any)=>h.depth===2||h.depth===3).map((h:any)=>({...h,label:h.text}));
+---
+<Site title={title} description={summary} type="article" publishedTime={data.generatedAt || `${issue.date}T08:00:00+08:00`} footerNote="内容以原文链接为准">
+<div class="daily-layout">
+ <article class="daily-article" id="daily-top" data-pagefind-body>
+  <div class="daily-meta" data-pagefind-ignore>
+   <nav class="breadcrumb" aria-label="位置"><a href="/daily/">全部日报</a><span aria-hidden="true">/</span><span>{formatDailyDate(issue.date)}</span></nav>
+  </div>
+  <header class="daily-header">
+   <p class="daily-eyebrow"><span>WINDERY / AI DAILY · 合刊</span><time datetime={issue.date}>{formatDailyDate(issue.date)}</time></p>
+   <h1>{title}</h1>
+   <p class="daily-summary">{summary}</p>
+  </header>
+  <details class="daily-mobile-toc" data-pagefind-ignore><summary>本期目录 <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></summary><ArticleToc headings={headings}/></details>
+  <div class="daily-prose prose"><Content/></div>
+  <section class="daily-key-points-bottom" data-pagefind-ignore><h2>本期要点</h2><ol>{highlights.map(item=><li>{item}</li>)}</ol></section>
+  <nav class="daily-pagination" aria-label="相邻日报" data-pagefind-ignore>
+   {older && <a rel="prev" href={issueUrl(older)}><span>上一期 · {formatDailyDate(older.date)}</span><strong>{issueTitle(older)}</strong></a>}
+   {newer && <a rel="next" href={issueUrl(newer)}><span>下一期 · {formatDailyDate(newer.date)}</span><strong>{issueTitle(newer)}</strong></a>}
+  </nav>
+  <footer class="daily-end" data-pagefind-ignore><a href="/daily/">← 阅读往期日报</a><a href="#daily-top">回到本期顶部 <span aria-hidden="true">↑</span></a></footer>
+ </article>
+ <aside class="daily-sidebar" aria-label="本期导航" data-pagefind-ignore>
+  <p class="toc-label">本期目录</p>
+  <ArticleToc headings={headings}/>
+  <div class="daily-key-points"><h2>本期要点</h2><ol>{highlights.map(item=><li>{item}</li>)}</ol></div>
+  <a class="daily-back-top" href="#daily-top">回到顶部 <span aria-hidden="true">↑</span></a>
+ </aside>
+</div>
+<ReaderScripts/>
+</Site>

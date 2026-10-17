@@ -423,6 +423,49 @@ test('精选版少讯日可只刊一条，页面首屏呈现结论和摘要', as
   assert.match(archive, /一次接口更新，如何转成有证据/);
 });
 
+test('四篇拆分目录可演练，并按日期生成当日页与文章页', async () => {
+  const work = await checkout();
+  const dir = join(work, 'src/content/daily/2026-10-12');
+  await mkdir(dir, { recursive: true });
+  await writeFile(join(dir, '_issue.md'), `---
+date: "2026-10-12"
+summary: "样例四篇拆分。"
+highlights: ["样例要点一", "样例要点二"]
+tags: ["样例", "测试"]
+windowStart: "2026-10-11T08:00:00+08:00"
+windowEnd: "2026-10-12T08:00:00+08:00"
+generatedAt: "2026-10-12T08:10:00+08:00"
+x: {"status":"ok"}
+coverage: [{"source":"样例源","status":"ok","note":"仅测试样例"}]
+---
+`);
+  await writeFile(join(dir, 'news.md'), `---
+date: "2026-10-12"
+slug: "news"
+kind: "news"
+label: "AI 新闻"
+order: 1
+title: "样例新闻"
+summary: "样例新闻摘要。"
+tags: ["样例"]
+---
+
+## 样例变化
+
+这是一段样例正文。[样例原文](https://example.com/news)
+`);
+  const result = run(work, '--date', '2026-10-12', '--dry-run', '--config', sampleConfig);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /AI 日报 2026-10-12/);
+  assert.match(result.stdout, /样例新闻/);
+  const day = await readFile(join(work, 'dist/daily/2026-10-12/index.html'), 'utf8');
+  assert.match(day, /样例新闻/);
+  assert.match(day, /2026 年 10 月 12 日/);
+  const article = await readFile(join(work, 'dist/daily/2026-10-12/news/index.html'), 'utf8');
+  assert.match(article, /样例变化/);
+  assert.match(article, /同日其他文章/);
+});
+
 test('精选版拒绝没有原始证据、重复事件和缺覆盖记录的日报', async () => {
   const source = await editorialSample();
   await rejectsFormat(source.replace('[虚构的官方 release，仅作格式演示](https://example.com/agent/releases/v1)', '虚构的官方 release'), /缺少.*证据|缺少原始证据/);

@@ -1,6 +1,7 @@
 // AI 日报发布命令。真实模式只在显式传入 --publish 时启用。
 import { parseArgs } from 'node:util';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -62,6 +63,105 @@ const abort = (step, reason) => {
   }
   fail(reason);
 };
+
+// 四篇拆分：日期目录下 _issue.md + 若干篇独立文章。
+const issueDir = join(root, 'src/content/daily', date);
+if (existsSync(issueDir)) {
+  const names = ['_issue.md', ...(await readdir(issueDir)).filter(name => name.endsWith('.md') && name !== '_issue.md').sort()];
+  const targets = names.map(name => `src/content/daily/${date}/${name}`);
+  const issuePath = targets[0];
+  const parse = raw => {
+    const head = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+    if (!head) fail(`日报格式不合格（${issuePath}），没有构建：\n- 开头没有用 --- 包起来的 frontmatter`);
+    const data = {};
+    for (const line of head[1].split('\n')) {
+      if (!line.trim()) continue;
+      const pair = line.match(/^(\w+):\s*(.*)$/);
+      try { data[pair[1]] = JSON.parse(pair[2]); }
+      catch { fail(`frontmatter 不是「键: JSON 值」：${line}`); }
+    }
+    return { data, body: head[2] };
+  };
+  const issueRaw = await readFile(join(root, issuePath), 'utf8');
+  const issue = parse(issueRaw);
+  const editions = [];
+  for (const name of names.slice(1)) {
+    const raw = await readFile(join(root, `src/content/daily/${date}/${name}`), 'utf8');
+    editions.push({ name, slug: name.replace(/\.md$/, ''), ...parse(raw) });
+  }
+  try { run(process.execPath, ['scripts/check-daily.mjs']); }
+  catch (error) { abort('校验格式', `日报格式不合格（${date}/）：\n${error.stderr?.toString() || error.message}`); }
+
+  const published = spawnSync('git', ['cat-file', '-e', `origin/main:${issuePath}`], { cwd: root }).status === 0;
+  if (values.mode === 'daily' && published && !values.force) fail(`${date} 这一期已经发布过（origin/main 里已有 ${issuePath}），拒绝重复发布。确实要重新发布，加 --force。`);
+  if (values.mode === 'backfill' && !published) abort('检查补抓目标', `${date} 这一期尚未发布，不能补抓。`);
+  if (values.mode === 'backfill') {
+    const previous = run('git', ['show', `origin/main:${issuePath}`]);
+    if (!/^x: .*"status"\s*:\s*"pending"/m.test(previous)) abort('检查补抓目标', '线上这一期的 X 状态不是 pending，无需补抓。');
+    if (issue.data.x?.status !== 'ok') abort('检查补抓内容', '补抓后的 X 状态必须是 ok。');
+    const withoutX = text => text.replace(/^x: .*$/m, '').replace(/^coverage: .*$/m, '');
+    if (withoutX(previous) !== withoutX(issueRaw)) abort('检查补抓内容', '补抓只能改 x 状态和 coverage 的 X 记录。');
+  }
+
+  if (values.publish) {
+    try { run('git', ['fetch', 'origin']); }
+    catch { abort('更新远端状态', 'git fetch origin 失败。'); }
+    if (run('git', ['rev-parse', 'HEAD']).trim() !== run('git', ['rev-parse', 'origin/main']).trim()) abort('检查分支', '专用 clone 的 HEAD 与 origin/main 不一致，请先同步再发布。');
+  }
+  const others = run('git', ['status', '--porcelain=v1', '-z', '--untracked-files=all', '--no-renames']).split('\0').filter(Boolean).map(item => item.slice(3)).filter(path => !targets.includes(path));
+  if (others.length) abort('检查工作区', `工作区里除了这一期还有别的改动，拒绝发布：\n${others.map(path => `- ${path}`).join('\n')}`);
+
+  try { execFileSync('npm', ['run', 'build'], { cwd: root, stdio: ['ignore', 2, 2] }); }
+  catch { abort('构建', '构建失败（npm run build），没有发布。原因见上面的构建输出。'); }
+
+  const url = `${SITE}/daily/${date}/`;
+  const links = editions.map(edition => `· ${edition.data.label}：${edition.data.title}\n  ${SITE}/daily/${date}/${edition.slug}/`).join('\n');
+  const dailyMessage = [`AI 日报 ${date}`, '', '今日要点', ...issue.data.highlights.map((item, index) => `${index + 1}. ${item}`), '', '本期文章', links, '', `当日入口：${url}`].join('\n');
+  const messages = values.mode === 'backfill' ? [{ kind: 'X 已补上', text: `AI 日报 ${date} 的 X 内容已补上：${url}` }] : [{ kind: '日报', text: dailyMessage }];
+
+  if (values['dry-run']) {
+    console.log(`演练模式：校验和构建已真实执行，下面的步骤只打印，不执行。\n\n1. 提交，只提交这一期的文件：\n   git add -- ${targets.join(' ')}\n   git commit -m "${values.mode === 'backfill' ? 'Backfill X in AI daily' : 'Publish AI daily'} ${date}"\n2. 推送：git push origin main\n3. 等部署：找到这次提交触发的 Pages 部署（Publish learning site），等它成功\n4. 发飞书私聊，机器人身份，接收人 ${receiver}，共 ${messages.length} 条，每条：\n   lark-cli ${profileArgs.join(' ')} ${receiverType === 'union_id' ? 'api POST /open-apis/im/v1/messages (receive_id_type=union_id)' : 'im +messages-send'} --as bot <接收人及消息全文>\n`);
+    messages.forEach((message, index) => console.log(`----- 飞书消息 ${index + 1}/${messages.length}：${message.kind} -----\n${message.text}\n`));
+    process.exit(0);
+  }
+
+  const changed = run('git', ['status', '--porcelain=v1', '--', ...targets]).trim() !== '';
+  if (!changed) abort('提交', `${date} 这一期没有待发布的改动。`);
+  try {
+    run('git', ['add', '--', ...targets]);
+    run('git', ['commit', '-m', `${values.mode === 'backfill' ? 'Backfill X in AI daily' : 'Publish AI daily'} ${date}`, '--', ...targets]);
+  } catch { abort('提交', `只提交 ${date} 这一期失败。`); }
+  const sha = run('git', ['rev-parse', 'HEAD']).trim();
+  try { run('git', ['push', 'origin', 'main']); }
+  catch { abort('推送', `提交 ${sha} 未能推送到 origin/main。`); }
+
+  let runId;
+  for (let attempt = 0; attempt < 20 && !runId; attempt++) {
+    try {
+      const runs = JSON.parse(run('gh', ['run', 'list', '--repo', 'windery/windery.github.io', '--workflow', 'deploy.yml', '--commit', sha, '--json', 'databaseId,headSha,status,conclusion', '--limit', '5']));
+      runId = runs.find(item => item.headSha === sha)?.databaseId;
+    } catch { /* GitHub may not have indexed the new run yet. */ }
+    if (!runId) await new Promise(resolve => setTimeout(resolve, 3000));
+  }
+  if (!runId) abort('等待部署', `找不到提交 ${sha} 对应的 Pages 部署。`);
+  const watched = spawnSync('gh', ['run', 'watch', String(runId), '--repo', 'windery/windery.github.io', '--exit-status', '--interval', '5'], { cwd: root, encoding: 'utf8', timeout: 15 * 60 * 1000 });
+  if (watched.status !== 0) abort('等待部署', `Pages 部署 ${runId} 未成功，请查看该 GitHub Actions 运行。`);
+
+  let reachable = false;
+  for (let attempt = 0; attempt < 20 && !reachable; attempt++) {
+    try { reachable = (await fetch(`${url}?v=${sha}`, { signal: AbortSignal.timeout(10000) })).status === 200; }
+    catch { /* Wait for Pages propagation. */ }
+    if (!reachable) await new Promise(resolve => setTimeout(resolve, 3000));
+  }
+  if (!reachable) abort('检查页面', `部署 ${runId} 成功，但 ${url} 尚未返回 200。`);
+  for (const [index, message] of messages.entries()) {
+    try { send(values.mode === 'backfill' ? 'backfill' : `message-${index + 1}`, message.text); }
+    catch { abort('发送飞书', `第 ${index + 1} 条飞书私聊发送失败。`); }
+  }
+  console.log(`已发布：${url}\n提交：${sha}\nPages 部署：${runId}\n飞书消息：${messages.length} 条`);
+  process.exit(0);
+}
+
 
 const FIELDS = ['date', 'title', 'windowStart', 'windowEnd', 'generatedAt', 'highlights', 'topics', 'deepRead', 'x'];
 const LEGACY_SECTIONS = ['GitHub 热门 AI 项目', '模型与产品发布', '大 V 经验与技术博客', '深读推荐', '口播选题'];

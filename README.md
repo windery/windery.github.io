@@ -31,16 +31,33 @@ npm run preview
 
 ## AI 日报
 
-`/daily/` 按日期倒序展示日期、短标题、一句摘要和 2–3 个标签；首页有「最新日报」入口。详情页是 720px 单栏正文加右侧目录，首屏直接进入第一条故事；手机端目录折叠，正文全宽。旧日报保留原有正文，只补摘要与标签。
+日报按日期组织，每天是一个独立目录：
 
-新版文件使用 `editorialVersion: 2`，完整虚构格式样例见 `scripts/test/fixtures/daily-editorial.md`：
+```
+src/content/daily/YYYY-MM-DD/
+├── _issue.md    当天摘要、要点、覆盖与 X 状态
+├── news.md      AI 新闻
+├── tools.md     工具与实践（最多一个项目）
+├── method.md    方法（一篇具名文章）
+└── topics.md    口播选题（三张卡，公开）
+```
 
-- frontmatter 每行「键: JSON 值」。必需 `date`、`title`、`summary`、窗口与生成时间、`highlights`、`topics`、`deepRead`、`x`、`coverage`；`highlights` 1–3 条（一句结论，60 字内），`tags` 2–3 个，`topics` 0–2 个，`deepRead` 可为 null。
-- H2 依次是重点解读、工具与实践、简讯、深读推荐、采集说明；只有重点解读必需，其余无材料就省略。全刊通常 3–6 个事件，不设固定条数。
-- 每条故事用 H3，正文写 2–4 个自然段：先给主体和变化，再给机制、数字或影响，限制写在相关结论旁。**不要使用「变化／影响／建议／限制／证据／发布时间」字段表**；证据链接贴在事实附近，用 `<!-- event: slug -->` 记录稳定事件 ID。
-- 标题只讲一件事，不带日期前缀，不用「；」拼两件事。摘要一句话；`highlights` 是结论，不是条目名。
-- `topics` 只供飞书口播使用，公开正文不写「口播选题」；采集窗口、逐源 `coverage` 与失败记录只放 frontmatter，公开正文不写「采集说明」。X 状态 `pending` 时在 `coverage` 说明，补抓只改 x 状态和对应记录。
-- 未指定 editorialVersion 的历史版本继续按旧规则验证，旧样例保留在 `daily-sample.md`。不得把旧刊伪装成重新采集的新刊。
+`/daily/` 列出日期与当天主线，`/daily/YYYY-MM-DD/` 是当日文章页，`/daily/YYYY-MM-DD/<slug>/` 是四篇独立文章。首页有「最新日报」入口，详情页带同日活动列表、上一篇/下一篇和 H2/H3 目录。没有合格材料的篇目可以省略，但不能用空话凑数。
+
+每篇 frontmatter 每行「键: JSON 值」：`date`、`slug`、`kind`（news/tools/method/topics）、`label`、`title`、`summary`、`order`、`tags`。`_issue.md` 另有 `summary`、`highlights` 1–3 条、`tags` 2–3 个、窗口与生成时间、`x`、逐源 `coverage`。coverage 只放这里，公开正文不写「采集说明」。
+
+写作约束：标题只讲一件事、不带日期前缀；摘要一句；正文 2–4 个自然段，证据链接贴事实；禁止「变化／影响／建议／限制／证据／发布时间」字段表，也不要「本地审阅稿」「编辑判断：」「值得关注」。新闻、工具、方法和口播选题的选材与写作细节见 `.agents/skills/ai-daily/SKILL.md`。
+
+旧格式 `src/content/daily/YYYY-MM-DD.md`（合刊）继续可读；旧两期保留原文与链接，只补摘要与标签。发布器同时支持旧合刊与新的日期目录。
+
+先运行校验与发布演练：
+
+```sh
+npm run check:daily
+npm run publish:daily -- --date 2026-10-16 --dry-run
+```
+
+发布器会校验整个日期目录、确认工作区只有这一期改动、完整构建，然后打印提交/推送/等部署/发飞书的计划。`--publish` 才会提交四篇与 `_issue.md`、推送、等待 Pages 成功并发送一条汇总飞书消息。X 补抓只改 `_issue.md` 的 x 状态与 coverage 的 X 记录。
 
 Codex 项目 skill 在 `.agents/skills/ai-daily/SKILL.md`，信息源配置在同目录的 `sources.md`。本机定时任务调用该 skill，读取公开信息源，并通过 `scripts/fetch-daily-x.mjs` 只读抓取私密 X List。X 包装器从钥匙串取 cookie，只把它们交给 `twitter-cli` 子进程；用法是 `node scripts/fetch-daily-x.mjs --start <ISO时间> --end <ISO时间>`。包装器最多读取 500 条，并检查时间线末尾是否早于窗口起点；覆盖不足时返回 `fetch-failed`。
 
@@ -56,7 +73,7 @@ npm run publish:daily -- --date 2026-10-11 --dry-run
 
 `.codex/rules/ai-daily.rules` 会在项目信任后拦截直接运行 `twitter`、`security` 和 `lark-cli` 的命令。Codex 命令规则仅约束所匹配的工具调用，不能作为脚本及私有配置不可修改的完整安全边界；定时任务的权限还须在本机 Codex 设置中收紧。
 
-`npm run build` 会先运行 `scripts/check-daily.mjs` 检查日报源文件，再构建、生成 Pagefind 和站内链接检查；`npm test` 在临时仓库里用样例日报和样例配置跑演练模式的各个场景。CI 的 `deploy.yml` 也会运行 `npm test`，另有 `daily-freshness.yml` 每天检查线上最新一期是否超过 2 天。
+`npm run build` 会先运行 `scripts/check-daily.mjs` 检查旧合刊与四篇目录，再构建、生成 Pagefind 和站内链接检查；`npm test` 覆盖旧合刊与四篇目录的发布演练。CI 的 `deploy.yml` 运行 `npm test`，`daily-freshness.yml` 每天检查线上最新一期是否超过 2 天。
 
 ## 添加项目文章
 
