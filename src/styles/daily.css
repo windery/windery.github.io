@@ -1,0 +1,143 @@
+/* AI 日报：单刊阅读 + 索引。正文 720px / 17px，与项目文章共用 --measure。 */
+body:has(.daily-layout,.daily-index) .site-brand,
+body:has(.daily-layout,.daily-index) .site-nav a{display:inline-flex;align-items:center;min-height:44px}
+body:has(.daily-layout,.daily-index) .search-trigger{min-height:44px}
+html:has(.daily-layout,.daily-index){scroll-padding-top:calc(var(--header-h) + 24px)}
+.daily-layout{display:grid;grid-template-columns:minmax(0,var(--measure)) 184px;gap:64px;max-width:1032px;margin:auto;padding:0 32px}
+.daily-article{min-width:0;max-width:var(--measure);padding-top:40px}
+.daily-meta{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px;color:var(--fg-3);font-size:13px}
+.daily-meta .breadcrumb{margin:0;gap:12px}
+.daily-meta a{display:inline-flex;align-items:center;min-height:44px}
+.daily-eyebrow{display:flex;justify-content:space-between;gap:16px;font:500 12px/1.6 var(--mono);letter-spacing:.08em;color:var(--fg-3);margin:0 0 20px}
+.daily-header h1{font-size:clamp(28px,3.4vw,38px);line-height:1.35;letter-spacing:-.02em;margin:0 0 18px;text-wrap:pretty}
+.daily-summary{font-size:18px;line-height:1.85;color:var(--fg-2);margin:0 0 32px}
+.daily-prose{font-size:17px;line-height:1.8;overflow-wrap:anywhere}
+.daily-prose h2{font-size:24px;line-height:1.4;border-top:1px solid var(--border);padding-top:28px;margin:56px 0 20px;letter-spacing:-.015em}
+.daily-prose h2:first-child{border:0;padding-top:0;margin-top:0}
+.daily-prose h3{font-size:21px;line-height:1.55;margin:36px 0 16px;letter-spacing:-.01em;scroll-margin-top:calc(var(--header-h) + 24px)}
+.daily-prose h2{scroll-margin-top:calc(var(--header-h) + 24px)}
+.daily-prose p{margin-bottom:20px}
+.daily-prose a{text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--link) 40%,transparent);text-underline-offset:3px}
+.daily-prose a:hover{text-decoration-color:currentColor}
+.daily-prose ul,.daily-prose ol{padding-left:1.4em;margin:0 0 20px}
+.daily-prose li{margin:6px 0}
+.daily-prose blockquote{margin:24px 0;padding:16px 20px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-subtle);color:var(--fg-2)}
+.daily-prose table{display:block;overflow:auto;border-collapse:collapse;width:100%;font-size:14px;line-height:1.6;margin:24px 0;border:1px solid var(--border);border-radius:var(--radius)}
+.daily-prose th,.daily-prose td{border-bottom:1px solid var(--border);padding:10px 14px;text-align:left;vertical-align:top;min-width:120px}
+.daily-prose th{background:var(--bg-subtle);font-weight:500;color:var(--fg-2);font-size:13px}
+.daily-prose code{font-family:var(--mono);font-size:.875em;background:var(--bg-hover);border:1px solid var(--border);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+.daily-prose pre{margin:24px 0;padding:16px 20px;overflow:auto;border:1px solid var(--border);border-radius:var(--radius);font:13.5px/1.7 var(--mono);background:var(--bg-subtle)!important;scrollbar-width:thin}
+.daily-prose pre code{font:inherit;padding:0;background:transparent;border:0;overflow-wrap:normal}
+
+
+.daily-key-points-bottom{display:none;margin-top:48px;padding-top:24px;border-top:1px solid var(--border)}
+.daily-key-points-bottom h2{font-size:15px;color:var(--fg-3);font-weight:500;margin:0 0 12px}
+.daily-key-points-bottom ol{margin:0;padding-left:1.2em;display:grid;gap:10px;font-size:15px;line-height:1.8;color:var(--fg-2)}
+.daily-key-points-bottom li::marker{color:var(--link)}
+
+.daily-sidebar{position:sticky;top:calc(var(--header-h) + 40px);align-self:start;margin-top:48px;max-height:calc(100dvh - var(--header-h) - 64px);overflow:auto;scrollbar-width:thin}
+.daily-sidebar .toc-label{margin-bottom:12px;color:var(--fg-3);font-weight:400}
+.daily-sidebar .article-toc-list{gap:4px;border-left:1px solid var(--border)}
+.daily-sidebar .article-toc-list a{position:relative;padding:10px 16px;font-size:14px;min-height:44px;display:flex;align-items:center;color:var(--fg-2)}
+.daily-sidebar .article-toc-list .toc-d3 a{padding-left:28px;font-size:13px;color:var(--fg-3)}
+.daily-sidebar .article-toc-list a[aria-current=location]{color:var(--link);background:var(--bg-subtle);font-weight:600}
+.daily-sidebar .article-toc-list a[aria-current=location]::before{content:"";position:absolute;left:-1px;top:12px;bottom:12px;width:2px;background:var(--link)}
+.daily-sidebar .article-toc-list a:hover{color:var(--link);background:var(--bg-hover)}
+.daily-sidebar .daily-key-points{margin-top:28px;padding-top:20px;border-top:1px solid var(--border)}
+.daily-sidebar .daily-key-points h2{font-size:13px;color:var(--fg-3);font-weight:500;margin:0 0 10px}
+.daily-sidebar .daily-key-points ol{margin:0;padding-left:1.2em;display:grid;gap:10px;font-size:12px;line-height:1.7;color:var(--fg-2)}
+.daily-key-points li::marker{color:var(--link)}
+.daily-back-top{display:flex;justify-content:space-between;align-items:center;min-height:44px;margin:20px 16px 0;font-size:13px;color:var(--fg-3)}
+.daily-mobile-toc{display:none}
+.daily-pagination{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;border-top:1px solid var(--border);margin-top:56px;padding-top:24px}
+.daily-pagination a{display:flex;flex-direction:column;gap:8px;padding:12px 0;color:var(--fg);min-height:44px}
+.daily-pagination a[rel=next]{grid-column:2;text-align:right}
+.daily-pagination span{font-size:13px;color:var(--fg-3)}
+.daily-pagination strong{font-size:15px;line-height:1.7;font-weight:500}
+.daily-pagination a:hover strong{color:var(--link)}
+.daily-end{display:flex;justify-content:space-between;gap:16px;margin:24px 0 0;padding:20px 0 40px;border-top:1px solid var(--border);font-size:14px}
+.daily-end a{display:inline-flex;align-items:center;gap:8px;min-height:44px;color:var(--fg-2)}
+.daily-end a:hover,.daily-back-top:hover{color:var(--link)}
+
+/* 索引 */
+.daily-index{max-width:1080px;margin:auto;padding:64px 24px 32px}
+.daily-index .page-header h1{font-size:clamp(32px,4vw,42px)}
+.daily-index-grid{display:grid;grid-template-columns:176px minmax(0,1fr);gap:48px;align-items:start}
+.daily-date-rail{position:sticky;top:calc(var(--header-h) + 40px);align-self:start;padding:0 20px 24px 0;border-right:1px solid var(--border);max-height:calc(100dvh - var(--header-h) - 64px);overflow:auto}
+.daily-date-rail p{font-size:12px;color:var(--fg-3);margin:0 0 12px}
+.daily-date-rail nav{display:grid;gap:2px}
+.daily-date-rail a{display:flex;align-items:center;min-height:40px;padding:6px 10px;border-radius:var(--radius);font:13px/1.5 var(--mono);color:var(--fg-3)}
+.daily-date-rail a:hover{background:var(--bg-hover);color:var(--fg)}
+.daily-date-rail a[aria-current=date]{background:var(--bg-hover);color:var(--fg);font-weight:600;box-shadow:inset 2px 0 var(--link)}
+.daily-issue-list{display:grid;border-top:1px solid var(--border)}
+.daily-issue{padding:32px 0;border-bottom:1px solid var(--border);display:grid;grid-template-columns:112px minmax(0,1fr);gap:24px;align-items:start}
+.daily-issue-date{font:12px/1.6 var(--mono);color:var(--fg-3);display:flex;align-items:center;gap:8px;padding-top:5px}
+.daily-issue h2{font-size:24px;line-height:1.45;margin:0 0 8px;letter-spacing:-.02em}
+.daily-issue h2 a{color:var(--fg)}
+.daily-issue h2 a:hover{color:var(--link)}
+.daily-issue p{font-size:15px;line-height:1.8;color:var(--fg-2);margin:0;max-width:44em}
+.daily-issue-tags{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
+.daily-issue-tags span{font-size:12px;line-height:1.6;border:1px solid var(--border-strong);border-radius:999px;padding:1px 8px;color:var(--fg-3)}
+.daily-issue-read{display:inline-flex;align-items:center;gap:6px;min-height:44px;font-size:13px;color:var(--fg-3);margin-top:2px}
+.daily-issue-read:hover{color:var(--link)}
+.daily-latest{font-size:11px;font-weight:500;color:var(--link);border:1px solid color-mix(in srgb,var(--link) 35%,transparent);border-radius:999px;padding:1px 7px;margin-left:8px;vertical-align:2px;letter-spacing:0}
+.daily-empty{font-size:15px;color:var(--fg-2);padding:32px 0}
+
+/* 首页最新一期 */
+.latest-daily{border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:0 0 40px;padding:24px 0}
+.latest-daily .section-kicker{font-size:12px;letter-spacing:.08em;color:var(--fg-3);margin:0 0 10px}
+.latest-daily-inner{display:grid;grid-template-columns:112px minmax(0,1fr);gap:24px;align-items:baseline}
+.latest-daily time{font:12px/1.6 var(--mono);color:var(--fg-3)}
+.latest-daily h2{font-size:22px;line-height:1.45;margin:0 0 6px}
+.latest-daily p{font-size:15px;line-height:1.75;color:var(--fg-2);margin:0 0 8px;max-width:44em}
+.latest-daily a{display:inline-flex;align-items:center;gap:6px;min-height:44px;font-size:13px;color:var(--fg-3)}
+.latest-daily a:hover{color:var(--link)}
+
+@media(max-width:1024px){
+ .daily-layout{display:block;max-width:784px;padding:0 20px}
+ .daily-article{max-width:var(--measure);margin:0 auto;padding-top:24px}
+ .daily-sidebar{display:none}
+ .daily-mobile-toc{display:block;position:sticky;top:var(--header-h);z-index:10;background:var(--bg);border-bottom:1px solid var(--border);margin:0 0 28px}
+ .daily-mobile-toc summary{display:flex;align-items:center;justify-content:space-between;min-height:52px;cursor:pointer;list-style:none;font-size:14px;font-weight:500}
+ .daily-mobile-toc summary::-webkit-details-marker{display:none}
+ .daily-mobile-toc svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.5;transition:transform 200ms cubic-bezier(.16,1,.3,1)}
+ .daily-mobile-toc[open] svg{transform:rotate(180deg)}
+ .daily-mobile-toc .article-toc{max-height:50dvh;overflow:auto;padding:0 0 12px}
+ .daily-mobile-toc .article-toc-list a{display:flex;align-items:center;min-height:44px;padding:8px 12px;font-size:14px;border-radius:var(--radius)}
+ .daily-mobile-toc .article-toc-list .toc-d3 a{padding-left:24px;font-size:13px;color:var(--fg-3)}
+ .daily-mobile-toc .article-toc-list a[aria-current=location]{background:var(--bg-subtle);color:var(--link)}
+ .daily-key-points-bottom{display:block}
+ .daily-index-grid{display:block}
+ .daily-date-rail{display:none}
+ .daily-issue{grid-template-columns:96px minmax(0,1fr);gap:20px}
+}
+@media(max-width:600px){
+ .daily-index{padding:40px 16px 24px}
+ .daily-article{padding-top:16px}
+ .daily-meta{font-size:12px;margin-bottom:16px}
+ .daily-eyebrow{font-size:10px;letter-spacing:.05em;margin-bottom:14px}
+ .daily-header h1{font-size:28px;line-height:1.45;margin-bottom:14px}
+ .daily-summary{font-size:16px;line-height:1.85;margin-bottom:24px}
+ .daily-prose{font-size:16px;line-height:1.85}
+ .daily-prose h2{font-size:22px;margin-top:40px;padding-top:24px}
+ .daily-prose h3{font-size:20px;line-height:1.6;margin-top:30px}
+ .daily-pagination{gap:16px;grid-template-columns:1fr}
+ .daily-pagination a[rel=next]{grid-column:1}
+ .daily-issue{grid-template-columns:1fr;gap:8px;padding:24px 0}
+ .daily-issue-date{padding-top:0}
+ .daily-issue h2{font-size:22px}
+ .daily-issue p{font-size:15px}
+ .latest-daily-inner{grid-template-columns:1fr;gap:8px}
+ .latest-daily h2{font-size:20px}
+ .daily-end{flex-direction:column;gap:4px}
+}
+@media(max-width:360px){.daily-issue h2{font-size:20px}}
+@media(prefers-reduced-motion:reduce){
+ html:has(.daily-layout,.daily-index){scroll-behavior:auto}
+ .daily-mobile-toc svg{transition:none}
+}
+@media print{
+ .daily-sidebar,.daily-mobile-toc,.daily-pagination,.daily-end,.daily-date-rail,.daily-issue-read{display:none}
+ .daily-layout{display:block;padding:0}.daily-article{max-width:none}
+ .daily-prose{font-size:10.5pt}.daily-prose h2,.daily-prose h3{break-after:avoid}
+}

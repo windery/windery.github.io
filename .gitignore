@@ -9,3 +9,7 @@ dist/
 .impeccable/
 .claude/skills/impeccable/scripts/bin/
 .claude/settings.local.json
+
+# 本地日报专用配置与 .review 原型工作区
+ai-daily.local.json
+.review/

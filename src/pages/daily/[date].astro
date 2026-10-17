@@ -2,50 +2,51 @@
 import ArticleToc from '../../components/ArticleToc.astro';
 import ReaderScripts from '../../components/ReaderScripts.astro';
 import Site from '../../layouts/Site.astro';
-import {dailies} from '../../lib/content';
+import '../../styles/daily.css';
+import {dailies,dailyTitle,dailySummary,dailyHighlights,formatDailyDate} from '../../lib/content';
 export function getStaticPaths(){return dailies.map(daily=>({params:{date:daily.frontmatter.date},props:{daily}}));}
 const {daily}=Astro.props;
 const {frontmatter:data,Content}=daily;
-const headings=daily.getHeadings().filter(h=>h.depth===2).map(h=>({...h,label:h.text}));
+const title=dailyTitle(data);
+const summary=dailySummary(data);
+const highlights=dailyHighlights(data);
+const index=dailies.findIndex(item=>item.frontmatter.date===data.date);
+const older=dailies[index+1];
+const newer=dailies[index-1];
+const headings=daily.getHeadings().filter(h=>h.depth===2||h.depth===3).map(h=>({...h,label:h.text}));
 ---
-<Site title={data.title} description={data.summary || data.highlights.slice(0,3).join('；')}>
+<Site title={title} description={summary} type="article" publishedTime={data.generatedAt || `${data.date}T08:00:00+08:00`} footerNote="内容以原文链接为准">
 <div class="daily-layout">
-<article class="reader-article daily-article" data-pagefind-body>
- <nav class="breadcrumb" aria-label="位置" data-pagefind-ignore><a href="/daily/">← 全部日报</a></nav>
- <header class="daily-header">
-  <p class="daily-eyebrow">WINDERY / AI DAILY <time datetime={data.date}>{data.date}</time></p>
-  <h1>{data.title}</h1>
-  <p class="daily-summary">{data.summary || '从模型、工具和一线实践中，找出值得关注的变化。'}</p>
-  <section class="daily-brief" aria-label="今日重点"><h2>先看这几件事</h2><ol>{data.highlights.slice(0,3).map(h=><li>{h}</li>)}</ol></section>
- </header>
- <nav class="daily-navigation" aria-label="本期目录" data-pagefind-ignore><ArticleToc headings={headings}/></nav>
- <div class="prose"><Content/></div>
- <footer class="daily-end" data-pagefind-ignore><a href="/daily/">← 阅读往期日报</a><span>精选变化 · 追溯原文 · 保留判断</span></footer>
-</article>
+ <article class="daily-article" id="daily-top" data-pagefind-body>
+  <div class="daily-meta" data-pagefind-ignore>
+   <nav class="breadcrumb" aria-label="位置"><a href="/daily/">全部日报</a><span aria-hidden="true">/</span><span>{formatDailyDate(data.date)}</span></nav>
+  </div>
+  <header class="daily-header">
+   <p class="daily-eyebrow"><span>WINDERY / AI DAILY</span><time datetime={data.date}>{formatDailyDate(data.date)}</time></p>
+   <h1>{title}</h1>
+   <p class="daily-summary">{summary}</p>
+  </header>
+  <details class="daily-mobile-toc" data-pagefind-ignore><summary>本期目录 <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></summary><ArticleToc headings={headings}/></details>
+  <div class="daily-prose prose"><Content/></div>
+
+  <section class="daily-key-points-bottom" id="daily-key-points" data-pagefind-ignore>
+   <h2>本期要点</h2>
+   <ol>{highlights.map(item=><li>{item}</li>)}</ol>
+  </section>
+
+  <nav class="daily-pagination" aria-label="相邻日报" data-pagefind-ignore>
+   {older && <a rel="prev" href={`/daily/${older.frontmatter.date}/`}><span>上一期 · {formatDailyDate(older.frontmatter.date)}</span><strong>{dailyTitle(older.frontmatter)}</strong></a>}
+   {newer && <a rel="next" href={`/daily/${newer.frontmatter.date}/`}><span>下一期 · {formatDailyDate(newer.frontmatter.date)}</span><strong>{dailyTitle(newer.frontmatter)}</strong></a>}
+  </nav>
+  <footer class="daily-end" data-pagefind-ignore><a href="/daily/">← 阅读往期日报</a><a href="#daily-top">回到本期顶部 <span aria-hidden="true">↑</span></a></footer>
+ </article>
+
+ <aside class="daily-sidebar" aria-label="本期导航" data-pagefind-ignore>
+  <p class="toc-label">本期目录</p>
+  <ArticleToc headings={headings}/>
+  <div class="daily-key-points"><h2>本期要点</h2><ol>{highlights.map(item=><li>{item}</li>)}</ol></div>
+  <a class="daily-back-top" href="#daily-top">回到顶部 <span aria-hidden="true">↑</span></a>
+ </aside>
 </div>
 <ReaderScripts/>
 </Site>
-<style>
-.daily-layout{max-width:880px;margin:auto;padding:0 28px}
-.daily-article{max-width:760px;padding-top:36px}
-.daily-header{padding:12px 0 28px;border-bottom:1px solid var(--border)}
-.daily-eyebrow{font:500 12px/1.6 var(--mono);letter-spacing:.12em;color:var(--fg-3);display:flex;justify-content:space-between;gap:16px;margin-bottom:24px}
-.daily-header h1{font-size:clamp(30px,4.5vw,46px);line-height:1.25;letter-spacing:-.04em;margin-bottom:20px}
-.daily-summary{font-size:18px;color:var(--fg-2);line-height:1.8;margin-bottom:28px}
-.daily-brief{background:var(--bg-subtle);border-left:3px solid var(--link);padding:22px 26px}
-.daily-brief h2{font-size:13px;letter-spacing:.08em;margin:0 0 12px;color:var(--link)}
-.daily-brief ol{padding-left:1.3em;margin:0;display:grid;gap:12px;font-size:16px;line-height:1.8}
-.daily-brief li::marker{color:var(--link);font-weight:600}
-.daily-navigation{padding:18px 0;border-bottom:1px solid var(--border);margin-bottom:32px}
-.daily-navigation :global(.article-toc-list){display:flex;flex-wrap:wrap;gap:8px 22px}
-.daily-navigation :global(.article-toc-list a){font-size:13px;min-height:28px}
-.daily-article :global(.prose){font-size:16px;line-height:1.95;overflow-wrap:anywhere}
-.daily-article :global(.prose h2){font-size:23px;border-top:1px solid var(--border);padding-top:28px;margin-top:48px}
-.daily-article :global(.prose h2:first-of-type){border:0;padding:0;margin-top:0}
-.daily-article :global(.prose h3){font-size:21px;margin-top:32px;line-height:1.5;scroll-margin-top:100px}
-.daily-article :global(.prose h3 a){color:var(--fg);text-decoration:underline;text-decoration-color:var(--border-strong);text-underline-offset:5px}
-.daily-article :global(.prose h3 a:hover){color:var(--link)}
-.daily-article :global(.prose p){margin-bottom:16px}
-.daily-end{border-top:1px solid var(--border);margin-top:48px;padding:24px 0 48px;display:flex;justify-content:space-between;gap:16px;font-size:13px;color:var(--fg-3)}
-@media(max-width:600px){.daily-layout{padding:0 20px}.daily-article{padding-top:24px}.daily-eyebrow{font-size:10px;letter-spacing:.06em}.daily-brief{padding:18px}.daily-summary{font-size:16px}.daily-end{flex-direction:column}}
-</style>

@@ -1,0 +1,73 @@
+name: AI daily freshness
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: daily-freshness
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const site = 'https://windery.github.io/daily/';
+            const marker = '<!-- daily-freshness -->';
+            const prefix = 'AI 日报可能停更';
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              ...context.repo, state: 'open', per_page: 100,
+            });
+            const existing = issues.find(issue => issue.title.startsWith(prefix));
+
+            let latest = null;
+            let fetchError = null;
+            try {
+              const response = await fetch(site, { headers: { 'cache-control': 'no-cache' } });
+              if (!response.ok) throw new Error(`HTTP ${response.status}`);
+              const html = await response.text();
+              const dates = [...html.matchAll(/<time[^>]*datetime="(\d{4}-\d{2}-\d{2})"/g)].map(match => match[1]);
+              latest = dates.sort().at(-1) ?? null;
+            } catch (error) {
+              fetchError = error.message;
+            }
+
+            const shanghai = new Date(Date.now() + 8 * 60 * 60 * 1000);
+            const today = shanghai.toISOString().slice(0, 10);
+            const days = latest ? Math.round((Date.parse(today) - Date.parse(latest)) / 86400000) : null;
+            const stale = fetchError || latest === null || days > 2;
+
+            if (!stale) {
+              if (existing) {
+                await github.rest.issues.createComment({
+                  ...context.repo, issue_number: existing.number,
+                  body: `${marker}\n已恢复：最新一期 ${latest}，网站可正常读取。`,
+                });
+                await github.rest.issues.update({ ...context.repo, issue_number: existing.number, state: 'closed' });
+              }
+              core.info(`Fresh: latest ${latest}`);
+              return;
+            }
+
+            const reason = fetchError ? `无法读取 ${site}：${fetchError}` : latest ? `最新一期是 ${latest}，距今天 ${days} 天。` : `没有从 ${site} 读到任何日期。`;
+            const body = `${marker}\n${reason}\n\n请检查定时任务、发布链路和站点缓存：\n- 定时任务：~/.codex/automations/ai/automation.toml\n- 发布：npm run publish:daily -- --date YYYY-MM-DD --dry-run\n- 线上：${site}`;
+            const title = `${prefix}（最新 ${latest ?? '无'}）`;
+
+            if (existing) {
+              if (existing.body !== body) {
+                await github.rest.issues.update({ ...context.repo, issue_number: existing.number, body });
+              }
+              core.info(`Existing issue #${existing.number} still stale`);
+            } else {
+              const created = await github.rest.issues.create({ ...context.repo, title, body });
+              core.info(`Created issue #${created.data.number}`);
+            }
+            core.setFailed(reason);

@@ -31,14 +31,15 @@ npm run preview
 
 ## AI 日报
 
-`/daily/` 按日期倒序展示标题、摘要和最多三条结论。每期页面使用独立的居中正文和轻目录，首屏直接呈现重点；纳入站内搜索，不进首页库。旧日报保持原正文与链接。
+`/daily/` 按日期倒序展示日期、短标题、一句摘要和 2–3 个标签；首页有「最新日报」入口。详情页是 720px 单栏正文加右侧目录，首屏直接进入第一条故事；手机端目录折叠，正文全宽。旧日报保留原有正文，只补摘要与标签。
 
 新版文件使用 `editorialVersion: 2`，完整虚构格式样例见 `scripts/test/fixtures/daily-editorial.md`：
 
-- frontmatter 每行「键: JSON 值」。保留 `date`、`title`、窗口与生成时间、`x`；增加 `summary` 与逐源 `coverage`（source/status/note）。`highlights` 1–3 条，`topics` 0–2 个，`deepRead` 可为 null。
-- H2 依次是重点解读、工具与实践、简讯、深读推荐、口播选题、采集说明。重点解读与采集说明必需，其余可省略；重点 1–3 条，不设全刊条数配额。
-- 正文事件用 H3，写明变化、影响、建议、限制、原始证据链接、可靠发布时间与稳定事件 ID。CLI 检查字段、窗口不超过 72 小时、本期事件/规范化证据 URL 去重；原文真实性、跨 14 天去重与覆盖完整性由生成流程核对，CLI 不代替编辑核实。
-- 采集说明在文末，包含窗口、覆盖与失败；`### X 动态` 置于该节末尾，pending 时写「X 内容待补充」。补抓仍只允许修改该小节与 x 状态。
+- frontmatter 每行「键: JSON 值」。必需 `date`、`title`、`summary`、窗口与生成时间、`highlights`、`topics`、`deepRead`、`x`、`coverage`；`highlights` 1–3 条（一句结论，60 字内），`tags` 2–3 个，`topics` 0–2 个，`deepRead` 可为 null。
+- H2 依次是重点解读、工具与实践、简讯、深读推荐、采集说明；只有重点解读必需，其余无材料就省略。全刊通常 3–6 个事件，不设固定条数。
+- 每条故事用 H3，正文写 2–4 个自然段：先给主体和变化，再给机制、数字或影响，限制写在相关结论旁。**不要使用「变化／影响／建议／限制／证据／发布时间」字段表**；证据链接贴在事实附近，用 `<!-- event: slug -->` 记录稳定事件 ID。
+- 标题只讲一件事，不带日期前缀，不用「；」拼两件事。摘要一句话；`highlights` 是结论，不是条目名。
+- `topics` 只供飞书口播使用，公开正文不写「口播选题」；采集窗口、逐源 `coverage` 与失败记录只放 frontmatter，公开正文不写「采集说明」。X 状态 `pending` 时在 `coverage` 说明，补抓只改 x 状态和对应记录。
 - 未指定 editorialVersion 的历史版本继续按旧规则验证，旧样例保留在 `daily-sample.md`。不得把旧刊伪装成重新采集的新刊。
 
 Codex 项目 skill 在 `.agents/skills/ai-daily/SKILL.md`，信息源配置在同目录的 `sources.md`。本机定时任务调用该 skill，读取公开信息源，并通过 `scripts/fetch-daily-x.mjs` 只读抓取私密 X List。X 包装器从钥匙串取 cookie，只把它们交给 `twitter-cli` 子进程；用法是 `node scripts/fetch-daily-x.mjs --start <ISO时间> --end <ISO时间>`。包装器最多读取 500 条，并检查时间线末尾是否早于窗口起点；覆盖不足时返回 `fetch-failed`。
@@ -55,7 +56,7 @@ npm run publish:daily -- --date 2026-10-11 --dry-run
 
 `.codex/rules/ai-daily.rules` 会在项目信任后拦截直接运行 `twitter`、`security` 和 `lark-cli` 的命令。Codex 命令规则仅约束所匹配的工具调用，不能作为脚本及私有配置不可修改的完整安全边界；定时任务的权限还须在本机 Codex 设置中收紧。
 
-`npm test` 在临时仓库里用样例日报和样例配置跑演练模式的各个场景。
+`npm run build` 会先运行 `scripts/check-daily.mjs` 检查日报源文件，再构建、生成 Pagefind 和站内链接检查；`npm test` 在临时仓库里用样例日报和样例配置跑演练模式的各个场景。CI 的 `deploy.yml` 也会运行 `npm test`，另有 `daily-freshness.yml` 每天检查线上最新一期是否超过 2 天。
 
 ## 添加项目文章
 

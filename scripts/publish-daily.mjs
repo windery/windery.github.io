@@ -114,15 +114,16 @@ if (has('deepRead')) {
 }
 
 const sections = [...body.matchAll(/^## (.+)$/gm)].map(m => m[1].trim());
-const EDITORIAL_SECTIONS = ['重点解读', '工具与实践', '简讯', '深读推荐', '口播选题', '采集说明'];
+const EDITORIAL_SECTIONS = ['重点解读', '工具与实践', '简讯', '深读推荐', '采集说明'];
 const SECTIONS = editorial ? EDITORIAL_SECTIONS : LEGACY_SECTIONS;
-const required = editorial ? ['重点解读', '采集说明'] : SECTIONS;
+const required = editorial ? ['重点解读'] : SECTIONS;
 const missing = required.filter(s => !sections.includes(s));
 if (missing.length) problems.push(`缺少板块：${missing.join('、')}`);
 if (sections.join('、') !== SECTIONS.filter(s => sections.includes(s)).join('、')) problems.push(`板块顺序要是：${SECTIONS.join('、')}；现在是：${sections.join('、')}`);
 if (editorial) {
   if (front.deepRead && !sections.includes('深读推荐')) problems.push('deepRead 与深读推荐正文不一致');
-  if (front.topics?.length && !sections.includes('口播选题')) problems.push('topics 与口播选题正文不一致');
+  if (/\*\*(变化|影响|建议|限制|证据|发布时间)[：:]\*\*/.test(body)) problems.push('新版正文不要使用「变化/影响/建议/限制/证据/发布时间」字段表');
+  if (/本地审阅稿|\*\*编辑判断：\*\*/.test(body)) problems.push('读者正文不要出现「本地审阅稿」或「编辑判断：」');
   const coverage = front.coverage;
   if (!Array.isArray(coverage) || !coverage.length || !coverage.every(c => nonEmpty(c?.source) && ['ok','failed','paused'].includes(c?.status) && nonEmpty(c?.note))) problems.push('coverage 要逐源记录 source、status（ok/failed/paused）和 note');
   const seen = new Set();
@@ -134,8 +135,9 @@ if (editorial) {
     for (const story of stories) {
       items++;
       const text = story[2];
-      for (const label of ['变化','影响','建议','限制','证据','发布时间']) if (!new RegExp(`\\*\\*${label}：\\*\\*[ \t]*\\S`).test(text)) problems.push(`「${story[1]}」缺少 ${label}`);
-      const evidence = text.match(/\*\*证据：\*\*[^\n]*\[[^\]]+\]\((https?:\/\/[^)]+)\)/)?.[1];
+      const paragraphs = text.split(/\n\s*\n/).filter(par => par.trim() && !par.trim().startsWith('<!--'));
+      if (!paragraphs.length) problems.push(`「${story[1]}」没有正文段落`);
+      const evidence = text.match(/\[[^\]]+\]\((https?:\/\/[^)]+)\)/)?.[1];
       const event = text.match(/<!-- event: ([a-z0-9][a-z0-9-]+) -->/)?.[1];
       if (!event) problems.push(`「${story[1]}」缺少稳定事件 ID（<!-- event: slug -->）`);
       if (!evidence) problems.push(`「${story[1]}」缺少原始证据链接`);
@@ -162,12 +164,10 @@ if (!editorial && voices !== undefined && subsections.join('、') !== SUBSECTION
 const xFeed = (voices ?? '').match(/^### X 动态[ \t]*\n([\s\S]*?)(?=^### |(?![\s\S]))/m)?.[1].trim() ?? '';
 if (has('x')) {
   const { status, reason } = front.x ?? {};
-  if (status === 'ok') { if (!xFeed) problems.push('「X 动态」小节没有内容。抓取失败时要把 X 状态写成 pending 并注明原因'); }
-  else if (status === 'pending') {
-    if (!(reason in X_REASONS)) problems.push(`X 状态是 pending 时，原因要是 login-expired 或 fetch-failed，现在是 ${JSON.stringify(reason)}`);
-    if (!xFeed.includes(X_PENDING_MARK)) problems.push(`X 状态是 pending，「X 动态」小节里要写明「${X_PENDING_MARK}」`);
-  }
-  else problems.push(`X 状态要是 ok 或 pending，现在是 ${JSON.stringify(status)}`);
+  if (!['ok','pending'].includes(status)) problems.push(`X 状态要是 ok 或 pending，现在是 ${JSON.stringify(status)}`);
+  if (status === 'pending' && !(reason in X_REASONS)) problems.push(`X 状态是 pending 时，原因要是 login-expired 或 fetch-failed，现在是 ${JSON.stringify(reason)}`);
+  if (!editorial && status === 'ok' && !xFeed) problems.push('「X 动态」小节没有内容。抓取失败时要把 X 状态写成 pending 并注明原因');
+  if (!editorial && status === 'pending' && !xFeed.includes(X_PENDING_MARK)) problems.push(`X 状态是 pending，「X 动态」小节里要写明「${X_PENDING_MARK}」`);
 }
 if (problems.length) abort('校验格式', `日报格式不合格（${file}），没有构建：\n${problems.map(p => `- ${p}`).join('\n')}`);
 

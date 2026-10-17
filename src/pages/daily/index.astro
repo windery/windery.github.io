@@ -1,12 +1,30 @@
 ---
 import Site from '../../layouts/Site.astro';
-import {dailies} from '../../lib/content';
+import '../../styles/daily.css';
+import {dailies,dailyTitle,dailySummary,dailyTags,formatDailyDate} from '../../lib/content';
 ---
-<Site title="AI 日报" description="面向 AI 开发者的编辑精选。变化是什么、影响谁、接下来值得做什么。">
-<div class="page" data-pagefind-ignore>
-<header class="page-header"><h1>AI 日报</h1><p class="lead">面向 AI 开发者的编辑精选。变化是什么、影响谁、接下来值得做什么。</p></header>
-{dailies.length?<div class="entry-list">{dailies.map(({frontmatter:d})=><section class="entry"><time class="issue-date" datetime={d.date}>{d.date}</time><div class="entry-head"><h2 class="entry-title"><a href={`/daily/${d.date}/`}>{d.title}</a></h2></div>{d.summary && <p class="entry-desc">{d.summary}</p>}<ul class="daily-highlights">{d.highlights.slice(0,3).map(h=><li>{h}</li>)}</ul></section>)}</div>:<p class="entry-desc">还没有日报。</p>}
+<Site title="AI 日报" description="每天读一批 AI 工程更新，只留下值得花时间的几件事。每条都附原文与边界。" footerNote="内容以原文链接为准">
+<div class="daily-index" data-pagefind-ignore>
+ <header class="page-header">
+  <h1>AI 日报</h1>
+  <p class="lead">每天读一批 AI 工程更新，只留下值得花时间的几件事。每条都附原文与边界，不追热度。</p>
+ </header>
+ {dailies.length ? <div class="daily-index-grid">
+  <aside class="daily-date-rail" aria-label="按日期浏览">
+   <p>按日期浏览</p>
+   <nav>{dailies.map(({frontmatter:d},i)=><a href={`#issue-${d.date}`} aria-current={i===0?'date':undefined}><time datetime={d.date}>{d.date}</time></a>)}</nav>
+  </aside>
+  <div class="daily-issue-list">
+   {dailies.map(({frontmatter:d},i)=><article class="daily-issue" id={`issue-${d.date}`}>
+    <div class="daily-issue-date"><time datetime={d.date}>{formatDailyDate(d.date)}</time></div>
+    <div>
+     <h2><a href={`/daily/${d.date}/`}>{dailyTitle(d)}</a>{i===0 && <span class="daily-latest">最新</span>}</h2>
+     <p>{dailySummary(d)}</p>
+     {dailyTags(d).length>0 && <div class="daily-issue-tags">{dailyTags(d).map(tag=><span>{tag}</span>)}</div>}
+     <a class="daily-issue-read" href={`/daily/${d.date}/`}>阅读全文 →</a>
+    </div>
+   </article>)}
+  </div>
+ </div> : <p class="daily-empty">还没有日报。</p>}
 </div>
 </Site>
-
-<style>.page{max-width:860px}.issue-date{font:12px var(--mono);color:var(--fg-3);display:block;margin-bottom:10px}.entry-title{font-size:24px;line-height:1.5}.entry{padding:32px 0}</style>

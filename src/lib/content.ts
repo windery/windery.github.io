@@ -13,8 +13,33 @@ export const readingSummary=(a:MarkdownInstance<Article>)=>presentation[a.frontm
 export const articleHeadings=(a:MarkdownInstance<Article>)=>a.getHeadings().filter(h=>h.depth===2).map(h=>({...h,label:presentation[a.frontmatter.project]?.[a.frontmatter.articleSlug]?.headings[h.text] || h.text}));
 
 // AI 日报：每期一个 src/content/daily/YYYY-MM-DD.md，格式由 scripts/publish-daily.mjs 校验；按日期从新到旧
-type Daily = {date:string;title:string;summary?:string;editorialVersion?:2;highlights:string[]};
+export type Daily = {
+ date:string;
+ title:string;
+ summary?:string;
+ editorialVersion?:2;
+ generatedAt?:string;
+ windowStart?:string;
+ windowEnd?:string;
+ highlights:string[];
+ tags?:string[];
+ topics?:{title:string;angle:string}[];
+ deepRead?:{title:string;url:string;reason:string}|null;
+ x?:{status:'ok'|'pending';reason?:string};
+ coverage?:{source:string;status:'ok'|'failed'|'paused';note:string}[];
+};
 export const dailies=Object.values(import.meta.glob<MarkdownInstance<Daily>>('../content/daily/*.md',{eager:true})).sort((a,b)=>b.frontmatter.date.localeCompare(a.frontmatter.date));
+
+// 旧刊标题带「AI 日报 YYYY-MM-DD｜」，页面统一只显示后半句，日期放回 eyebrow。
+export const dailyTitle=(d:Daily)=>d.title
+ .replace(/^AI 日报\s*\d{4}-\d{2}-\d{2}\s*[｜|]\s*/u,'')
+ .replace(/^AI 日报\s*\d{4}-\d{2}-\d{2}\s*/u,'')
+ .trim();
+export const dailySummary=(d:Daily)=>d.summary?.trim() || d.highlights?.[0]?.trim() || '这一期还没有写摘要。';
+export const dailyTags=(d:Daily)=>d.tags ?? [];
+export const dailyHighlights=(d:Daily)=>d.highlights.slice(0,3);
+export const formatDailyDate=(date:string)=>{const [y,m,d]=date.split('-');return `${y} 年 ${Number(m)} 月 ${Number(d)} 日`;};
+export const latestDaily=dailies[0];
 
 // Reverse insertion order breaks ties for entries first recorded in the same commit.
 export const libraryEntries=[

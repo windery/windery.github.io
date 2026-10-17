@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev --host 127.0.0.1",
-    "build": "astro build && pagefind --site dist && node scripts/check-site.mjs",
+    "build": "node scripts/check-daily.mjs && astro build && pagefind --site dist && node scripts/check-site.mjs",
     "preview": "astro preview --host 127.0.0.1",
     "import:project": "node scripts/import-project.mjs",
     "publish:daily": "node scripts/publish-daily.mjs",
+    "check:daily": "node scripts/check-daily.mjs",
     "test": "node --test scripts/test/*.test.mjs"
   },
   "dependencies": { "astro": "7.3.5" },

@@ -32,6 +32,7 @@ jobs:
           node-version: '24'
       - run: npm ci
       - run: node --test .github/preview/*.test.mjs
+      - run: npm test
       - run: npm run build
       - name: Snapshot open PRs (trusted API data only)
         uses: actions/github-script@v7

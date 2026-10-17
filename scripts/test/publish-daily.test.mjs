@@ -413,7 +413,8 @@ test('精选版少讯日可只刊一条，页面首屏呈现结论和摘要', as
   const result = publish(work);
   assert.equal(result.status, 0, result.stderr);
   const html = await readFile(join(work, `dist/daily/${DATE}/index.html`), 'utf8');
-  assert.ok(html.indexOf('先看这几件事') < html.indexOf('id="重点解读"'));
+  assert.ok(html.indexOf('daily-summary') < html.indexOf('id="重点解读"'));
+  assert.doesNotMatch(html, /先看这几件事|daily-brief/);
   assert.match(html, /已有调用链应先验证幂等性/);
   assert.doesNotMatch(html, /docs-sidebar/);
   assert.doesNotMatch(messages(result.stdout)[0].text, /口播选题/);
@@ -424,9 +425,9 @@ test('精选版少讯日可只刊一条，页面首屏呈现结论和摘要', as
 
 test('精选版拒绝没有原始证据、重复事件和缺覆盖记录的日报', async () => {
   const source = await editorialSample();
-  await rejectsFormat(source.replace('**证据：**', '**参考：**'), /缺少.*证据|缺少原始证据/);
-  const story = source.match(/### 工具重试[\s\S]*?(?=## 采集说明)/)[0];
-  await rejectsFormat(source.replace('## 采集说明', `## 工具与实践\n\n${story}\n## 采集说明`), /重复事件或 URL/);
+  await rejectsFormat(source.replace('[虚构的官方 release，仅作格式演示](https://example.com/agent/releases/v1)', '虚构的官方 release'), /缺少.*证据|缺少原始证据/);
+  const story = source.match(/### 工具重试[\s\S]*?(?=## 工具与实践)/)[0];
+  await rejectsFormat(source.replace('## 工具与实践', `## 工具与实践\n\n${story}\n`), /重复事件或 URL/);
   await rejectsFormat(source.replace(/^coverage: .*$/m, 'coverage: []'), /coverage/);
   await rejectsFormat(source.replace('2026-10-10T08:00:00+08:00', '2026-10-12T08:00:00+08:00'), /采集窗口/);
 });
@@ -434,12 +435,12 @@ test('精选版拒绝没有原始证据、重复事件和缺覆盖记录的日�
 test('精选版 X 补抓仍只能更改 X 状态和文末 X 小节', async () => {
   const work = await checkout();
   const original = await editorialSample();
-  const pending = original.replace('x: {"status":"ok"}', 'x: {"status":"pending","reason":"fetch-failed"}').replace(/(### X 动态\n)[\s\S]*/, '$1\nX 内容待补充。\n');
+  const pending = original.replace('x: {"status":"ok"}', 'x: {"status":"pending","reason":"fetch-failed"}');
   await writeDaily(work, pending);
   git(work, 'add', '-A'); git(work, 'commit', '-q', '-m', 'pending editorial'); git(work, 'push', '-q', 'origin', 'main');
   await writeDaily(work, original);
   assert.equal(publish(work, '--mode', 'backfill').status, 0);
-  await writeDaily(work, original.replace('**建议：** 编辑判断', '**建议：** 偷改正文'));
+  await writeDaily(work, original.replace('虚构的样例框架增加按工具配置重试的接口', '虚构的样例框架增加按工具配置重试的开关'));
   const rejected = publish(work, '--mode', 'backfill');
   assert.notEqual(rejected.status, 0);
   assert.match(rejected.stderr, /补抓只能改/);

@@ -4,7 +4,7 @@
 <script>
 // 给代码块加语言条和复制按钮；脚本失效时代码块照常显示
 const copyIcon='<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="7" y="7" width="9" height="9" rx="1.5"/><path d="M13 4.5H5.5a1 1 0 0 0-1 1V13"/></svg>';
-for(const pre of document.querySelectorAll<HTMLPreElement>('.reader-article .prose pre')){
+for(const pre of document.querySelectorAll<HTMLPreElement>('.reader-article .prose pre, .daily-article .prose pre')){
  const block=document.createElement('div');block.className='code-block';
  const bar=document.createElement('div');bar.className='code-block-bar';
  const lang=document.createElement('span');lang.textContent=pre.dataset.language&&pre.dataset.language!=='plaintext'?pre.dataset.language:'text';
@@ -18,8 +18,8 @@ for(const pre of document.querySelectorAll<HTMLPreElement>('.reader-article .pro
  bar.append(lang,button);pre.before(block);block.append(bar,pre);
 }
 // 表格放进可横向滚动的外框，让表格撑满栏宽
-for(const table of document.querySelectorAll('.reader-article .prose table')){const wrap=document.createElement('div');wrap.className='table-wrap';table.before(wrap);wrap.append(table);}
-const headings=[...document.querySelectorAll<HTMLElement>('.reader-article .prose h2')];
+for(const table of document.querySelectorAll('.reader-article .prose table, .daily-article .prose table')){const wrap=document.createElement('div');wrap.className='table-wrap';table.before(wrap);wrap.append(table);}
+const headings=[...document.querySelectorAll<HTMLElement>('.reader-article .prose h2, .daily-article .prose h2, .daily-article .prose h3')];
 const links=[...document.querySelectorAll<HTMLAnchorElement>('[data-reading-anchor]')];
 let scheduled=false;
 function update(){
