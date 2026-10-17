@@ -89,6 +89,7 @@ if (existsSync(issueDir)) {
     const raw = await readFile(join(root, `src/content/daily/${date}/${name}`), 'utf8');
     editions.push({ name, slug: name.replace(/\.md$/, ''), ...parse(raw) });
   }
+  editions.sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99));
   try { run(process.execPath, ['scripts/check-daily.mjs']); }
   catch (error) { abort('校验格式', `日报格式不合格（${date}/）：\n${error.stderr?.toString() || error.message}`); }
 
