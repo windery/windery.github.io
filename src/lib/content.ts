@@ -64,6 +64,7 @@ export const issueHighlights=(issue:DailyIssue)=>issue.meta.highlights ?? issue.
 export const issueTags=(issue:DailyIssue)=>issue.meta.tags ?? issue.legacy?.frontmatter.tags ?? [];
 export const issueUrl=(issue:DailyIssue)=>`/daily/${issue.date}/`;
 export const editionUrl=(issue:DailyIssue,edition:Edition)=>`/daily/${issue.date}/${edition.meta.slug}/`;
+export const issueEntryUrl=(issue:DailyIssue)=>issue.legacy?issueUrl(issue):(issue.editions[0]?editionUrl(issue,issue.editions[0]):issueUrl(issue));
 export const issueTitle=(issue:DailyIssue)=>issue.legacy ? (issue.legacyTitle || stripLegacyTitle(issue.legacy.frontmatter.title)) : `${formatDailyDate(issue.date)} · ${issue.editions.length} 篇`;
 export const issueCount=(issue:DailyIssue)=>issue.legacy ? 1 : issue.editions.length;
 

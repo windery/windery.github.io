@@ -1,0 +1,16 @@
+---
+import {issueUrl,editionUrl,formatDailyDate} from '../lib/content';
+const {issues,currentDate,currentSlug}=Astro.props;
+---
+<aside class="daily-tree" aria-label="按日期浏览日报">
+ <p class="tree-heading">按日期浏览</p>
+ <nav>
+  {issues.map((issue:any,index:number)=>issue.legacy
+   ? <a class="tree-legacy" href={issueUrl(issue)} aria-current={issue.date===currentDate&&!currentSlug?'page':undefined}><time datetime={issue.date}>{formatDailyDate(issue.date)}</time><span>合刊</span></a>
+   : <details class="tree-group" open={issue.date===currentDate || (!currentDate && index===0)}>
+      <summary><time datetime={issue.date}>{formatDailyDate(issue.date)}</time><span>{issue.editions.length} 篇</span></summary>
+      <div class="tree-children">{issue.editions.map((edition:any)=><a href={editionUrl(issue,edition)} aria-current={issue.date===currentDate&&edition.meta.slug===currentSlug?'page':undefined}><span>{edition.meta.label}</span>{edition.meta.title}</a>)}</div>
+     </details>
+  )}
+ </nav>
+</aside>

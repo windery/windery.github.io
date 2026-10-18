@@ -2,7 +2,7 @@
 import ArticleToc from './ArticleToc.astro';
 import ReaderScripts from './ReaderScripts.astro';
 import Site from '../layouts/Site.astro';
-import {issueUrl,issueSummary,issueHighlights,issueTitle,formatDailyDate} from '../lib/content';
+import {issueEntryUrl,issueSummary,issueHighlights,issueTitle,formatDailyDate} from '../lib/content';
 const {issue,older,newer}=Astro.props;
 const daily=issue.legacy;
 const {frontmatter:data,Content}=daily;
@@ -26,8 +26,8 @@ const headings=daily.getHeadings().filter((h:any)=>h.depth===2||h.depth===3).map
   <div class="daily-prose prose"><Content/></div>
   <section class="daily-key-points-bottom" data-pagefind-ignore><h2>本期要点</h2><ol>{highlights.map(item=><li>{item}</li>)}</ol></section>
   <nav class="daily-pagination" aria-label="相邻日报" data-pagefind-ignore>
-   {older && <a rel="prev" href={issueUrl(older)}><span>上一期 · {formatDailyDate(older.date)}</span><strong>{issueTitle(older)}</strong></a>}
-   {newer && <a rel="next" href={issueUrl(newer)}><span>下一期 · {formatDailyDate(newer.date)}</span><strong>{issueTitle(newer)}</strong></a>}
+   {older && <a rel="prev" href={issueEntryUrl(older)}><span>上一期 · {formatDailyDate(older.date)}</span><strong>{issueTitle(older)}</strong></a>}
+   {newer && <a rel="next" href={issueEntryUrl(newer)}><span>下一期 · {formatDailyDate(newer.date)}</span><strong>{issueTitle(newer)}</strong></a>}
   </nav>
   <footer class="daily-end" data-pagefind-ignore><a href="/daily/">← 阅读往期日报</a><a href="#daily-top">回到本期顶部 <span aria-hidden="true">↑</span></a></footer>
  </article>

@@ -42,7 +42,7 @@ src/content/daily/YYYY-MM-DD/
 └── topics.md    口播选题（三张卡，公开）
 ```
 
-`/daily/` 列出日期与当天主线，`/daily/YYYY-MM-DD/` 是当日文章页，`/daily/YYYY-MM-DD/<slug>/` 是四篇独立文章。首页有「最新日报」入口，详情页带同日活动列表、上一篇/下一篇和 H2/H3 目录。没有合格材料的篇目可以省略，但不能用空话凑数。
+`/daily/` 左侧是日期树：日期可以展开四篇，点文章直达；主列按日期列出当天主线和四篇链接。文章地址是 `/daily/YYYY-MM-DD/<slug>/`；旧的 `/daily/YYYY-MM-DD/` 只做跳转，跳到当天首篇。首页有「最新日报」入口，文章页带日期树、同日上一篇/下一篇和 H2/H3 目录。没有合格材料的篇目可以省略，但不能用空话凑数。
 
 每篇 frontmatter 每行「键: JSON 值」：`date`、`slug`、`kind`（news/tools/method/topics）、`label`、`title`、`summary`、`order`、`tags`。`_issue.md` 另有 `summary`、`highlights` 1–3 条、`tags` 2–3 个、窗口与生成时间、`x`、逐源 `coverage`。coverage 只放这里，公开正文不写「采集说明」。
 

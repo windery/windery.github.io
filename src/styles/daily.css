@@ -235,3 +235,40 @@ html:has(.daily-layout,.daily-index,.day-issue,.edition-layout){scroll-padding-t
  .edition-pagination a[rel=next]{grid-column:1}
  .edition-article{padding-top:16px}
 }
+
+/* 左侧日期树：日期可展开四篇，直接进文章 */
+.daily-tree{position:sticky;top:calc(var(--header-h) + 40px);align-self:start;max-height:calc(100dvh - var(--header-h) - 64px);overflow:auto;padding:0 20px 24px 0;border-right:1px solid var(--border);scrollbar-width:thin}
+.tree-heading{font-size:12px;color:var(--fg-3);margin:0 0 12px}
+.daily-tree nav{display:grid;gap:2px}
+.tree-group summary{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:40px;padding:7px 10px;border-radius:var(--radius);cursor:pointer;font:13px/1.5 var(--mono);color:var(--fg-2);list-style:none}
+.tree-group summary::-webkit-details-marker{display:none}
+.tree-group summary:hover{background:var(--bg-hover);color:var(--fg)}
+.tree-group summary span{font-size:11px;color:var(--fg-3);font-family:var(--sans)}
+.tree-group[open] summary{color:var(--fg);font-weight:600}
+.tree-children{display:grid;gap:1px;margin:2px 0 8px 10px;padding-left:10px;border-left:1px solid var(--border)}
+.tree-children a{display:grid;gap:1px;padding:8px 8px;border-radius:var(--radius);font-size:12px;line-height:1.55;color:var(--fg-2);min-height:42px}
+.tree-children a span{font-size:10px;color:var(--fg-3)}
+.tree-children a:hover{background:var(--bg-hover);color:var(--fg)}
+.tree-children a[aria-current=page]{background:var(--bg-hover);color:var(--fg)}
+.tree-children a[aria-current=page] span{color:var(--link)}
+.tree-legacy{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:40px;padding:7px 10px;border-radius:var(--radius);font:13px/1.5 var(--mono);color:var(--fg-2)}
+.tree-legacy span{font-size:11px;color:var(--fg-3);font-family:var(--sans)}
+.tree-legacy:hover{background:var(--bg-hover);color:var(--fg)}
+.tree-legacy[aria-current=page]{background:var(--bg-hover);color:var(--fg);font-weight:600}
+
+/* 索引里的四篇直达链接 */
+.daily-issue-articles{display:grid;gap:1px;margin-top:12px;border-top:1px solid var(--border);padding-top:6px}
+.daily-issue-articles a{display:grid;grid-template-columns:96px minmax(0,1fr) 16px;gap:10px;align-items:baseline;padding:8px 0;min-height:40px;font-size:14px;line-height:1.7;color:var(--fg-2)}
+.daily-issue-articles a span:first-child{font-size:12px;color:var(--fg-3)}
+.daily-issue-articles a strong{font-weight:500;color:var(--fg)}
+.daily-issue-articles a span:last-child{color:var(--fg-3);text-align:right}
+.daily-issue-articles a:hover strong,.daily-issue-articles a:hover span:last-child{color:var(--link)}
+@media(max-width:1024px){
+ .daily-tree{display:none}
+}
+@media(max-width:600px){
+ .daily-issue-articles a{grid-template-columns:1fr 16px;gap:2px 8px}
+ .daily-issue-articles a span:first-child{grid-column:1}
+ .daily-issue-articles a strong{grid-column:1}
+ .daily-issue-articles a span:last-child{grid-column:2;grid-row:1 / span 2;align-self:center}
+}

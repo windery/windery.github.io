@@ -1,42 +1,25 @@
 ---
-import Site from '../../../layouts/Site.astro';
 import LegacyDaily from '../../../components/LegacyDaily.astro';
-import '../../../styles/daily.css';
-import {dailyIssues,issueSummary,issueHighlights,issueTags,formatDailyDate,issueUrl,issueTitle,editionUrl} from '../../../lib/content';
+import {dailyIssues,editionUrl,formatDailyDate} from '../../../lib/content';
 export function getStaticPaths(){return dailyIssues.map(issue=>({params:{date:issue.date},props:{issue}}));}
 const {issue}=Astro.props;
 const index=dailyIssues.findIndex(item=>item.date===issue.date);
 const older=dailyIssues[index+1];
 const newer=dailyIssues[index-1];
-const summary=issueSummary(issue);
-const highlights=issueHighlights(issue).slice(0,3);
-const tags=issueTags(issue);
+const target=issue.editions[0]?editionUrl(issue,issue.editions[0]):'/daily/';
+const title=issue.editions[0]?.meta.title || 'AI 日报';
 ---
-{issue.legacy ? <LegacyDaily issue={issue} older={older} newer={newer}/> : <Site title={`AI 日报 ${formatDailyDate(issue.date)}`} description={summary} footerNote="内容以原文链接为准">
-<div class="day-issue" id="top" data-pagefind-ignore>
- <nav class="breadcrumb" aria-label="位置"><a href="/daily/">全部日报</a><span aria-hidden="true">/</span><span>{formatDailyDate(issue.date)}</span></nav>
- <header class="day-header">
-  <p class="daily-eyebrow"><span>WINDERY / AI DAILY</span><time datetime={issue.date}>{formatDailyDate(issue.date)}</time></p>
-  <h1>{formatDailyDate(issue.date)}</h1>
-  <p class="daily-summary">{summary}</p>
-  {tags.length>0 && <div class="daily-issue-tags">{tags.map(tag=><span>{tag}</span>)}</div>}
- </header>
- {highlights.length>0 && <section class="day-highlights"><h2>本期要点</h2><ol>{highlights.map(item=><li>{item}</li>)}</ol></section>}
- <div class="edition-list">
-  {issue.editions.map(edition=><article class="edition-row">
-   <p class="edition-label">{edition.meta.label}</p>
-   <div class="edition-copy">
-    <h2><a href={editionUrl(issue,edition)}>{edition.meta.title}</a></h2>
-    <p>{edition.meta.summary}</p>
-    {edition.meta.tags?.length ? <div class="daily-issue-tags">{edition.meta.tags.map(tag=><span>{tag}</span>)}</div> : null}
-   </div>
-   <a class="edition-open" href={editionUrl(issue,edition)} aria-label={`阅读${edition.meta.title}`}>→</a>
-  </article>)}
- </div>
- <nav class="daily-pagination" aria-label="相邻日报">
-  {older && <a rel="prev" href={issueUrl(older)}><span>上一期 · {formatDailyDate(older.date)}</span><strong>{issueTitle(older)}</strong></a>}
-  {newer && <a rel="next" href={issueUrl(newer)}><span>下一期 · {formatDailyDate(newer.date)}</span><strong>{issueTitle(newer)}</strong></a>}
- </nav>
- <footer class="daily-end"><a href="/daily/">← 阅读往期日报</a><a href="#top">回到顶部 <span aria-hidden="true">↑</span></a></footer>
-</div>
-</Site>}
+{issue.legacy ? <LegacyDaily issue={issue} older={older} newer={newer}/> : (
+<html lang="zh-CN">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1"/>
+ <meta name="robots" content="noindex"/>
+ <title>AI 日报 {formatDailyDate(issue.date)}</title>
+ <meta http-equiv="refresh" content={`0;url=${target}`}/>
+ <link rel="canonical" href={`https://windery.github.io${target}`}/>
+ <script is:inline set:html={`location.replace(${JSON.stringify(target)})`}></script>
+</head>
+<body><p>正在前往 <a href={target}>{title}</a></p></body>
+</html>
+)}

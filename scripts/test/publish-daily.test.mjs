@@ -423,7 +423,7 @@ test('精选版少讯日可只刊一条，页面首屏呈现结论和摘要', as
   assert.match(archive, /一次接口更新，如何转成有证据/);
 });
 
-test('四篇拆分目录可演练，并按日期生成当日页与文章页', async () => {
+test('四篇拆分目录可演练，首页直达文章', async () => {
   const work = await checkout();
   const dir = join(work, 'src/content/daily/2026-10-12');
   await mkdir(dir, { recursive: true });
@@ -459,8 +459,11 @@ tags: ["样例"]
   assert.match(result.stdout, /AI 日报 2026-10-12/);
   assert.match(result.stdout, /样例新闻/);
   const day = await readFile(join(work, 'dist/daily/2026-10-12/index.html'), 'utf8');
-  assert.match(day, /样例新闻/);
-  assert.match(day, /2026 年 10 月 12 日/);
+  assert.match(day, /\/daily\/2026-10-12\/news\//);
+  assert.match(day, /noindex/);
+  const archive = await readFile(join(work, 'dist/daily/index.html'), 'utf8');
+  assert.match(archive, /样例新闻/);
+  assert.match(archive, /href="\/daily\/2026-10-12\/news\/"/);
   const article = await readFile(join(work, 'dist/daily/2026-10-12/news/index.html'), 'utf8');
   assert.match(article, /样例变化/);
   assert.match(article, /同日其他文章/);

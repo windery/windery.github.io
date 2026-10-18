@@ -18,7 +18,7 @@ export async function GET({site}){
   add(`projects/${project}/${articleSlug}/`,updated);
  }
  for(const issue of dailyIssues){
-  add(issueUrl(issue),issue.date);
+  if(issue.legacy) add(issueUrl(issue),issue.date);
   for(const edition of issue.editions) add(editionUrl(issue,edition),issue.date);
  }
  const body=[...urls.entries()].map(([url,{lastmod}])=>`<url><loc>${escapeXml(url)}</loc>${lastmod?`<lastmod>${lastmod}</lastmod>`:''}</url>`).join('\n');

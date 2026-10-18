@@ -1,9 +1,10 @@
 ---
 import ArticleToc from '../../../components/ArticleToc.astro';
+import DailyTree from '../../../components/DailyTree.astro';
 import ReaderScripts from '../../../components/ReaderScripts.astro';
 import Site from '../../../layouts/Site.astro';
 import '../../../styles/daily.css';
-import {dailyIssues,formatDailyDate,issueUrl,editionUrl} from '../../../lib/content';
+import {dailyIssues,formatDailyDate,editionUrl} from '../../../lib/content';
 export function getStaticPaths(){
  return dailyIssues.flatMap(issue=>issue.legacy?[]:issue.editions.map((edition,index)=>({params:{date:issue.date,slug:edition.meta.slug},props:{issue,edition,previous:issue.editions[index-1],next:issue.editions[index+1]}})));
 }
@@ -15,15 +16,10 @@ const publishedTime=issue.meta.generatedAt || `${issue.date}T08:00:00+08:00`;
 ---
 <Site title={edition.meta.title} description={edition.meta.summary} type="article" publishedTime={publishedTime} footerNote="内容以原文链接为准">
 <div class="edition-layout">
- <aside class="edition-rail" aria-label="本期文章" data-pagefind-ignore>
-  <a class="rail-back" href="/daily/">← 全部日报</a>
-  <p class="rail-date"><time datetime={issue.date}>{formatDailyDate(issue.date)}</time></p>
-  <nav class="rail-editions" aria-label="本期文章列表">{issue.editions.map(item=><a href={editionUrl(issue,item)} aria-current={item.meta.slug===edition.meta.slug?'page':undefined}><span>{item.meta.label}</span>{item.meta.title}</a>)}</nav>
-  <a class="rail-back rail-issue" href={issueUrl(issue)}>返回当日文章 →</a>
- </aside>
+ <DailyTree issues={dailyIssues} currentDate={issue.date} currentSlug={edition.meta.slug}/>
 
  <article class="edition-article" id="top" data-pagefind-body>
-  <nav class="breadcrumb" aria-label="位置"><a href="/daily/">全部日报</a><span aria-hidden="true">/</span><a href={issueUrl(issue)}>{formatDailyDate(issue.date)}</a></nav>
+  <nav class="breadcrumb" aria-label="位置"><a href="/daily/">全部日报</a><span aria-hidden="true">/</span><span>{formatDailyDate(issue.date)}</span></nav>
   <header class="edition-header">
    <p class="edition-meta"><span>{edition.meta.label}</span><time datetime={issue.date}>{formatDailyDate(issue.date)}</time></p>
    <h1>{edition.meta.title}</h1>
@@ -46,10 +42,10 @@ const publishedTime=issue.meta.generatedAt || `${issue.date}T08:00:00+08:00`;
   <section class="related" aria-label="同日其他文章" data-pagefind-ignore>
    <h2>同日其他文章</h2>
    {others.map(item=><a href={editionUrl(issue,item)}>{item.meta.label} · {item.meta.title} →</a>)}
-   <a href={issueUrl(issue)}>返回 {formatDailyDate(issue.date)} 的当日文章 →</a>
+   <a href="/daily/">返回全部日报 →</a>
   </section>
 
-  <footer class="daily-end" data-pagefind-ignore><a href={issueUrl(issue)}>← 当日文章</a><a href="#top">回到顶部 <span aria-hidden="true">↑</span></a></footer>
+  <footer class="daily-end" data-pagefind-ignore><a href="/daily/">← 全部日报</a><a href="#top">回到顶部 <span aria-hidden="true">↑</span></a></footer>
  </article>
 
  <aside class="edition-toc" aria-label="本文导航" data-pagefind-ignore>

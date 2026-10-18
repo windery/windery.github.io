@@ -115,9 +115,9 @@ if (existsSync(issueDir)) {
   try { execFileSync('npm', ['run', 'build'], { cwd: root, stdio: ['ignore', 2, 2] }); }
   catch { abort('构建', '构建失败（npm run build），没有发布。原因见上面的构建输出。'); }
 
-  const url = `${SITE}/daily/${date}/`;
+  const url = `${SITE}/daily/${date}/${editions[0].slug}/`;
   const links = editions.map(edition => `· ${edition.data.label}：${edition.data.title}\n  ${SITE}/daily/${date}/${edition.slug}/`).join('\n');
-  const dailyMessage = [`AI 日报 ${date}`, '', '今日要点', ...issue.data.highlights.map((item, index) => `${index + 1}. ${item}`), '', '本期文章', links, '', `当日入口：${url}`].join('\n');
+  const dailyMessage = [`AI 日报 ${date}`, '', '今日要点', ...issue.data.highlights.map((item, index) => `${index + 1}. ${item}`), '', '本期文章', links, '', `阅读：${url}`].join('\n');
   const messages = values.mode === 'backfill' ? [{ kind: 'X 已补上', text: `AI 日报 ${date} 的 X 内容已补上：${url}` }] : [{ kind: '日报', text: dailyMessage }];
 
   if (values['dry-run']) {
