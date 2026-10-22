@@ -3,6 +3,7 @@ import starlight from '@astrojs/starlight';
 import starlightSidebarTopics from 'starlight-sidebar-topics';
 import starlightLinksValidator from 'starlight-links-validator';
 import starlightGiscus from 'starlight-giscus';
+import starlightThemeFlexoki from 'starlight-theme-flexoki';
 
 // 项目深读：目录名 → 侧栏显示的仓库名
 const projects = [
@@ -25,7 +26,11 @@ export default defineConfig({
 			locales: { root: { label: '简体中文', lang: 'zh-CN' } },
 			favicon: '/favicon.svg',
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/windery' }],
-			components: { PageTitle: './src/components/PageTitle.astro' },
+			components: {
+				PageTitle: './src/components/PageTitle.astro',
+				// 顶栏栏目标签
+				SiteTitle: './src/components/SiteTitle.astro',
+			},
 			plugins: [
 				starlightSidebarTopics(
 					[
@@ -59,6 +64,8 @@ export default defineConfig({
 					categoryId: 'DIC_kwDOUzRbB84DJVSY',
 					lazy: true,
 				}),
+				// 主题放最后：它只在没人覆盖 Pagination 时才覆盖，放前面会挤掉 Giscus 评论
+				starlightThemeFlexoki(),
 			],
 		}),
 	],

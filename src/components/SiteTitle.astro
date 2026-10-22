@@ -1,0 +1,32 @@
+---
+import Default from '@astrojs/starlight/components/SiteTitle.astro';
+
+// 顶栏横向栏目标签；手机宽度下隐藏，改用侧栏菜单里的栏目列表
+const topics = [
+	['AI 快讯', '/news/'],
+	['AI 工具箱', '/tools/'],
+	['AI 实践', '/practice/'],
+	['项目深读', '/projects/'],
+	['系统课程', '/courses/'],
+];
+const path = Astro.url.pathname;
+---
+
+<div class="title-and-tabs">
+	<Default />
+	<nav class="topic-tabs" aria-label="栏目">
+		{topics.map(([label, href]) => (
+			<a href={href} aria-current={path.startsWith(href) ? 'page' : undefined}>{label}</a>
+		))}
+	</nav>
+</div>
+
+<style>
+	.title-and-tabs { display: flex; align-items: center; gap: 2rem; min-width: 0; }
+	.topic-tabs { display: none; gap: 1.25rem; white-space: nowrap; }
+	.topic-tabs a { color: var(--sl-color-gray-2); text-decoration: none; font-size: var(--sl-text-sm); padding-block: 0.25rem; border-bottom: 2px solid transparent; }
+	.topic-tabs a:hover { color: var(--sl-color-white); }
+	.topic-tabs a[aria-current='page'] { color: var(--sl-color-white); font-weight: 600; border-bottom-color: var(--sl-color-accent); }
+	@media (min-width: 72rem) { .topic-tabs { display: flex; } }
+	@media (min-width: 72rem) { :global(.starlight-sidebar-topics) { display: none; } }
+</style>
