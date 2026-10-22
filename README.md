@@ -1,121 +1,30 @@
-# Windery 学习笔记
+# Windery
 
-公开学习站，包含系统课程与获授权公开的项目解读。网页以 Astro 生成静态 HTML，全文搜索使用 Pagefind，GitHub Actions 发布到 GitHub Pages。
+个人博客，部署在 https://windery.github.io 。用 Astro 的文档主题 Starlight 生成静态网站，GitHub Actions 发布到 GitHub Pages。
 
-## 本地阅读与预览
+本仓库只存已发布的文章；选题、写稿、审稿在私有的内容仓库里进行。
 
-需要 Node.js 24 或满足 package.json 的工具链。
+## 本地预览
+
+需要 Node.js 24。
 
 ```sh
 npm ci
-npm run build
-npm run preview
+npm run dev       # 编辑预览
+npm run build     # 构建，含站内链接检查和搜索索引
+npm run preview   # 看构建结果；全文搜索只在这里可用
 ```
 
-`npm run dev` 用于编辑预览；搜索索引在 build 后生成，请用 preview 验证全文搜索。
+## 栏目
 
-## 内容如何组织
-
-- `content/catalog.json`：明确的公开目录。项目的 `articles` 列表控制发布篇目；课程与项目的 `createdAt` 记录创建时间，供首页排序。
-- `content/reading.json`：按项目 slug、文章 slug 维护目录短摘要 `summary` 与 H2 显示标签 `headings`；导入器不会覆盖该文件。
-- `src/content/projects/<项目>/<编号>.md`：项目文章的可编辑源文件；记录来源仓库、commit 和阅读日期。
-- `src/content/daily/<YYYY-MM-DD>.md`：AI 日报，每期一个文件，见下文「AI 日报」。
-- `public/courses/rust/`：已导出的 Rust 课程、练习和示例下载。
-- `src/layouts/`、`src/styles/`：共享页面与教材式样式。
-
-首页将课程与项目合并为一个列表，按 `createdAt` 倒序排列，同时间条目采用反向插入顺序。旧条目的创建时间已根据首次入库的 Git commit 时间补齐；项目导入器在首次导入时生成 `createdAt`，后续更新保留该值。排序仅作用于首页，项目目录、课程目录及其他入口保持原有组织方式。
-
-项目阅读只有两层：从 `/projects/` 的纵向篇目进入 `/projects/:slug/:article/`。项目名称直接打开首篇，旧 `/projects/:slug/` 静态重定向到首篇，不再展示独立落地页。文章侧栏仅显示本文 H2 目录；桌面本文目录上方、手机文章顶部的“返回”固定回到项目总目录并恢复列表滚动位置与焦点，文末提供具名的上一篇／下一篇。手机端的本文目录位于标题下方，默认折叠，点击章节锚点后自动关闭。
-
-编辑 `content/reading.json` 时，`headings` 的键必须与正文原始 H2 文本一致，值是目录中显示的短标签；正文标题与原有锚点保持不变。没有配置 `summary` 时回退到文章的 `description`，没有配置 H2 标签时显示原始标题。导入更新文章后，如 H2 有变化，应同步检查这些显示标签。
-
-## AI 日报
-
-日报按日期组织，每天是一个独立目录：
-
-```
-src/content/daily/YYYY-MM-DD/
-├── _issue.md    当天摘要、要点、覆盖与 X 状态
-├── news.md      AI 新闻
-├── tools.md     工具与实践（最多一个项目）
-├── method.md    方法（一篇具名文章）
-└── topics.md    口播选题（三张卡，公开）
-```
-
-`/daily/` 左侧是日期树：日期可以展开四篇，点文章直达；主列按日期列出当天主线和四篇链接。文章地址是 `/daily/YYYY-MM-DD/<slug>/`；旧的 `/daily/YYYY-MM-DD/` 只做跳转，跳到当天首篇。首页有「最新日报」入口，文章页带日期树、同日上一篇/下一篇和 H2/H3 目录。没有合格材料的篇目可以省略，但不能用空话凑数。
-
-每篇 frontmatter 每行「键: JSON 值」：`date`、`slug`、`kind`（news/tools/method/topics）、`label`、`title`、`summary`、`order`、`tags`。`_issue.md` 另有 `summary`、`highlights` 1–3 条、`tags` 2–3 个、窗口与生成时间、`x`、逐源 `coverage`。coverage 只放这里，公开正文不写「采集说明」。
-
-写作约束：标题只讲一件事、不带日期前缀；摘要一句；正文 2–4 个自然段，证据链接贴事实；禁止「变化／影响／建议／限制／证据／发布时间」字段表，也不要「本地审阅稿」「编辑判断：」「值得关注」。新闻、工具、方法和口播选题的选材与写作细节见 `.agents/skills/ai-daily/SKILL.md`。
-
-旧格式 `src/content/daily/YYYY-MM-DD.md`（合刊）继续可读；旧两期保留原文与链接，只补摘要与标签。发布器同时支持旧合刊与新的日期目录。
-
-先运行校验与发布演练：
-
-```sh
-npm run check:daily
-npm run publish:daily -- --date 2026-10-16 --dry-run
-```
-
-发布器会校验整个日期目录、确认工作区只有这一期改动、完整构建，然后打印提交/推送/等部署/发飞书的计划。`--publish` 才会提交四篇与 `_issue.md`、推送、等待 Pages 成功并发送一条汇总飞书消息。X 补抓只改 `_issue.md` 的 x 状态与 coverage 的 X 记录。
-
-Codex 项目 skill 在 `.agents/skills/ai-daily/SKILL.md`，信息源配置在同目录的 `sources.md`。本机定时任务调用该 skill，读取公开信息源，并通过 `scripts/fetch-daily-x.mjs` 只读抓取私密 X List。X 包装器从钥匙串取 cookie，只把它们交给 `twitter-cli` 子进程；用法是 `node scripts/fetch-daily-x.mjs --start <ISO时间> --end <ISO时间>`。包装器最多读取 500 条，并检查时间线末尾是否早于窗口起点；覆盖不足时返回 `fetch-failed`。
-
-先运行发布演练：
-
-```sh
-npm run publish:daily -- --date 2026-10-11 --dry-run
-```
-
-它依次校验格式、确认这一期没有推上过 `origin/main`（`--force` 跳过）、确认工作区只有这一期的改动、完整构建，然后打印提交、推送、等部署、发飞书的计划。`--publish` 才会真实执行这些步骤：先更新 `origin/main`，只提交当期文件，推送后等待对应的 Pages 部署成功且页面可访问，再发飞书私聊。X 状态为 `pending` 时多一条 X 失效提醒。
-
-补抓 X 在这个 Codex 项目会话中手动触发，按 skill 的 X backfill 步骤执行；发布命令使用 `--mode backfill`，先演练再用 `--publish`。失败通知用 `--mode failure --step <步骤> --reason <原因>`。两种模式同样需要 `--dry-run` 或 `--publish`。飞书接收人和 X 钥匙串条目名读自不入库的 `ai-daily.local.json`，只放在任务专用 clone 里，并用该 clone 的 `.git/info/exclude` 忽略；`--config` 可以指定别的文件。
-
-`.codex/rules/ai-daily.rules` 会在项目信任后拦截直接运行 `twitter`、`security` 和 `lark-cli` 的命令。Codex 命令规则仅约束所匹配的工具调用，不能作为脚本及私有配置不可修改的完整安全边界；定时任务的权限还须在本机 Codex 设置中收紧。
-
-`npm run build` 会先运行 `scripts/check-daily.mjs` 检查旧合刊与四篇目录，再构建、生成 Pagefind 和站内链接检查；`npm test` 覆盖旧合刊与四篇目录的发布演练。CI 的 `deploy.yml` 运行 `npm test`，`daily-freshness.yml` 每天检查线上最新一期是否超过 2 天。
-
-## 添加项目文章
-
-使用独立的 `project-to-pages` 技能从源码生成文章，也可导入 `project-to-feishu` 的已有 Markdown。飞书和本站各自发布。GitHub 项目默认以 `owner/repository` 展示，新项目路径采用 `owner-repository`；更新已有项目保留网址。发布前应用本地配置中用户指定的排除项。
-
-1. 明确要公开的项目和篇目。文档须获公开授权，并检查草稿不含本机路径、密钥、内部链接或私人笔记。
-2. 把选中的编号 Markdown 文件放入一个独立目录，如 `01-项目概览.md`、`02-使用指南.md`。
-3. 使用已登录的 GitHub CLI 导入。命令会核实源仓库公开、commit 存在，并拦截部分明显敏感信息；仍需人工审阅。
-
-```sh
-npm run import:project -- \
-  --dir /path/to/reviewed-public-drafts \
-  --slug owner-repository \
-  --name 'owner/repository' \
-  --repo owner/repository \
-  --commit FULL_40_CHARACTER_COMMIT_SHA \
-  --date 2026-09-29 \
-  --description '这个项目解决什么问题。'
-```
-
-私有仓库的文档已获公开授权时，在上述命令增加 `--allow-private-source`；页面标注「私有源码 · 文档公开」，不生成不可访问的源码按钮，也不改变源仓库权限。导入器会拒绝用另一来源覆盖已有项目路径。
-
-4. 运行 build 与 preview，核对文章、来源、代码块和链接；检查 Git diff。
-5. 确认内容后提交并推送到 main，网站自动重新发布。
-
-导入只写本地文件，不自动提交、不推送、不更新飞书。同项目按文章编号覆盖选定稿件，因此先保留人工修改。目录未列出的旧稿不会生成公开网页。网页构建阶段不调用飞书，也不保存飞书凭证。
-
-若文章只存在于飞书，先通过 `lark-cli docs +fetch --doc <指定文档> --doc-format markdown` 读取选定文档，将正文整理成上述草稿格式，检查后再导入。不要把 CLI 返回的身份、评论、权限或配置元数据发布到网站。
-
-## 更新 Rust 课程
-
-在原课程工作区完成内容生成与核验，再导出公开副本：
-
-```sh
-python3 scripts/import-rust.py /path/to/rust-course
-npm run build
-```
-
-导出器只复制课程页、样式、交互和 Rust 示例；不复制学习记录、个人目标、临时截图、工具状态、完整本地 README 或凭证。站内下载包括可运行的 Rust 示例包。浏览器已读标记属于当前设备，不跨设备同步。
+| 栏目 | 网址 | 目录 |
+|---|---|---|
+| AI 快讯 | /news/ | `src/content/docs/news/` |
+| AI 工具箱 | /tools/ | `src/content/docs/tools/` |
+| AI 实践 | /practice/ | `src/content/docs/practice/` |
+| 项目深读 | /projects/ | `src/content/docs/projects/<项目>/<文章>.md` |
+| 系统课程 | /courses/ | `src/content/docs/courses/<课>/<章>/<节>.md` |
 
 ## 发布
 
-main 分支推送触发 `.github/workflows/deploy.yml`。Pages 设置使用 GitHub Actions。发布产物只包含 `dist/`；无需服务器、数据库或飞书 token。
-
-本仓库和网站均公开。不要放入私人课程记录或尚未批准公开的内容。
+推送到 main 触发 `.github/workflows/deploy.yml`，构建后发布 `dist/`。

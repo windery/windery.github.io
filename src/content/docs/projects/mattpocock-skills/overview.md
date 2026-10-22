@@ -1,0 +1,113 @@
+---
+title: "项目概览"
+description: "mattpocock/skills 是 27 个小而可组合的 Agent 技能，针对四类常见失败：没对齐需求、术语啰嗦、代码跑不通、代码库变成泥球。它不接管流程，而是给每个阶段一个可选的入口。"
+source: "https://github.com/mattpocock/skills"
+date: 2026-09-30
+sidebar:
+  order: 1
+---
+
+TL;DR：mattpocock/skills 是 27 个小而可组合的 Agent 技能，针对四类常见失败：没对齐需求、术语啰嗦、代码跑不通、代码库变成泥球。它不接管流程，而是给每个阶段一个可选的入口。
+
+## 四类失败与对应技能
+
+README 用四个失败模式解释这套技能为什么存在。每个模式都对应一到两个入口，而不是一条必须走完的流水线。
+
+| 失败模式 | 症状 | 对应技能 |
+| --- | --- | --- |
+| Agent 做的不是我要的 | 你以为它懂了，看到结果才发现根本没对齐 | grill-me、grill-with-docs：先被追问，再动手 |
+| Agent 太啰嗦 | 项目黑话没人解释，它用二十个词描述一个概念 | grill-with-docs、domain-modeling：维护 `GLOSSARY.md` 与 ADR |
+| 代码跑不通 | 缺少反馈回路，Agent 在盲飞 | tdd：红绿循环；diagnosing-bugs：先建立能复现的反馈回路 |
+| 代码库成了泥球 | Agent 加速了写代码，也加速了熵增 | to-spec 先问触碰哪些模块；improve-codebase-architecture 定期巡检 |
+
+作者把 GSD、BMAD、Spec-Kit 之类的方案归为“接管流程”，代价是失去控制，出了问题难以定位。这套技能反其道而行：每个技能都小、可改、可组合，任何模型都能用。
+
+## 一条主流程
+
+ask-matt 技能是整套仓库的路线图。它把大多数工作归为一条“想法到交付”的主流程：
+
+```text
+grill-with-docs   追问想法，沉淀术语与决策
+      ↓
+to-spec           把对话整理成规格，发到 issue tracker
+      ↓
+to-tickets        拆成互相声明阻塞关系的 tracer-bullet 票
+      ↓
+implement         逐票实现；或 implement-spec 一次跑完整份规格
+  （内部驱动 tdd 与 code-review）
+      ↓
+pr → retro        写 PR 正文；回顾这次会话，改进 Agent 的工作环境
+```
+
+小改动可以直接从 implement 进入；需要看得见的答案时，用 prototype 绕一段再回来。三条“匝道”会汇入主流程：triage 处理堆积的外部 issue，diagnosing-bugs 处理难缠的 bug，wayfinder 处理大到一个会话装不下的模糊工程。
+
+## 全部 27 个技能
+
+插件清单列出的正式技能如下，按类别与调用方式分组。仓库里另有 `in-progress`、`misc`、`deprecated` 目录，它们不在插件里。
+
+**Engineering，由用户发起**
+
+| 技能 | 用途 |
+| --- | --- |
+| ask-matt | 问“现在该用哪个技能”，是整套技能的路由 |
+| setup-matt-pocock-skills | 每个仓库运行一次，配置 issue tracker、分诊标签与领域文档位置 |
+| grill-with-docs | 追问式访谈，同时更新 `GLOSSARY.md` 和 ADR |
+| to-spec | 把当前对话整理成规格并发布到 tracker，不再访谈 |
+| to-tickets | 把规格拆成 tracer-bullet 票，每张票声明阻塞关系 |
+| implement | 按规格或票实现，内部驱动 tdd，收尾跑 code-review |
+| implement-spec | 在一条集成分支上把整份规格当任务图跑完，实现者子代理并行 |
+| triage | 让外部 issue 和 PR 走过分诊状态机，产出 Agent 可直接执行的简报 |
+| wayfinder | 把超出单会话的大工程规划成 tracker 上的决策票地图，逐个解决 |
+| improve-codebase-architecture | 扫描代码库找“加深模块”的机会，生成 HTML 报告，再追问你选中的一项 |
+| retro | 会话结束后回顾，按严重程度建议改进 Agent 的环境而不是代码 |
+
+**Engineering，模型可自动调用**
+
+| 技能 | 用途 |
+| --- | --- |
+| tdd | 红绿循环的测试驱动开发，一次一个纵向切片 |
+| code-review | 从固定基点审查 diff，规范与规格两条轴并行 |
+| diagnosing-bugs | 难 bug 与性能回退的诊断回路：复现、最小化、假设、埋点、修复、回归测试 |
+| domain-modeling | 主动打磨领域模型，用边界场景压测术语 |
+| codebase-design | 设计“深模块”的共享词汇：小接口、多行为、干净接缝 |
+| prototype | 用一次性原型回答设计问题，状态逻辑或多个 UI 变体 |
+| research | 后台代理对照一手资料调研，留下带引用的 Markdown |
+| pr | PR 正文的形状：最小可视化摘要、前后证据、合并风险判断 |
+| wizard | 生成交互式 bash 向导，引导人完成只有人能做的步骤 |
+
+**Productivity，由用户发起**
+
+| 技能 | 用途 |
+| --- | --- |
+| grill-me | 无状态的追问访谈，适合没有工作目录的场景 |
+| handoff | 把当前对话压缩成交接文档 |
+| teach | 用当前目录做有状态的教学工作区，跨多次会话学一个概念 |
+| to-questionnaire | 把自己答不了的决定写成问卷，交给能答的人 |
+| wait-what | 上一条消息没听懂时，让 Agent 用词汇表重新解释 |
+
+**Productivity，模型可自动调用**
+
+| 技能 | 用途 |
+| --- | --- |
+| grilling | 追问访谈的原语，grill-me、grill-with-docs、triage、wayfinder 都在内部调用它 |
+| writing-for-agents | 写给 Agent 看的文档：技能、AGENTS.md、CLAUDE.md |
+
+## 谁决定何时调用
+
+技能只沿一条轴划分：谁能调用。用户发起的技能只有你输入时才可达，负责编排流程；模型可调用的技能你能用，Agent 也能在任务匹配时自动取用，它们承载可复用的方法。
+
+规则是：用户发起的技能可以调用模型可调用的技能，但永远不调用另一个用户发起的技能。这保证了“开始一个流程”始终是人的决定，而流程内部的方法可以自由复用。
+
+## 这个项目值得学习的地方
+
+最值得读的是技能正文里的判断规则，而不是提示词措辞。to-tickets 按贯穿各层的可验证行为拆票，而不是按数据库、接口、前端机械切分；code-review 把“遵守规范”和“满足需求”分成两个并行判断；tdd 明确把重构排除在红绿循环之外，交给审查阶段。
+
+另一个值得学的是 ask-matt 对“阶段边界”的处理。它给出继续、清空、交接、子代理、压缩五个选项，并说明先排除哪个。这把上下文管理从直觉变成了可以讨论的决策。
+
+## 阅读入口
+
+[使用指南](/projects/mattpocock-skills/usage/)说明两种安装方式、项目初始化和按问题选入口；[工作原理](/projects/mattpocock-skills/internals/)解释技能发现、上下文引用、任务图与反馈回路。
+
+## 来源与版本
+
+依据 [README](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/README.md)、[插件清单](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/.claude-plugin/plugin.json) 和 [ask-matt](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/ask-matt/SKILL.md) 重新编写。阅读 commit `d81f3a18`（v1.3 发布合并），2026-09-30 核对为当前默认分支最新提交。本文是中文解读，不是逐字翻译。

@@ -1,0 +1,29 @@
+---
+import Default from '@astrojs/starlight/components/PageTitle.astro';
+
+const { id, data } = Astro.locals.starlightRoute.entry;
+// 项目深读的文章（projects/<项目>/<文章>）必须写明来源仓库和日期，缺了就让构建失败
+const isProjectArticle = /^projects\/[^/]+\/[^/]+$/.test(id);
+if (isProjectArticle && (!data.source || !data.date)) {
+	throw new Error(`项目深读文章 ${id} 缺少 source 或 date`);
+}
+const repo = data.source?.replace(/^https:\/\/github\.com\//, '');
+const date = data.date?.toISOString().slice(0, 10);
+---
+
+<Default />
+{
+	isProjectArticle && (
+		<p class="source-line">
+			<a href={data.source}>{repo}</a> · {date}
+		</p>
+	)
+}
+
+<style>
+	.source-line {
+		margin-top: 0.5rem;
+		font-size: var(--sl-text-sm);
+		color: var(--sl-color-gray-3);
+	}
+</style>

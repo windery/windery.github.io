@@ -1,7 +1,0 @@
----
-import {catalog,projectArticles} from '../../../lib/content';
-export function getStaticPaths(){return catalog.projects.map(project=>({params:{project:project.slug},props:{project}}));}
-const {project}=Astro.props;
-const first=projectArticles(project.slug)[0];
-return Astro.redirect(`/projects/${project.slug}/${first.frontmatter.articleSlug}/`,301);
----

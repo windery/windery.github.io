@@ -1,0 +1,18 @@
+---
+title: Windery
+description: AI 快讯、工具、实践，以及开源项目深读和系统课程。
+template: splash
+giscus: false
+hero:
+  tagline: AI 快讯、工具、实践，以及开源项目深读和系统课程。
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+<CardGrid>
+	<LinkCard title="AI 快讯" description="每天筛选出的 AI 新闻。" href="/news/" />
+	<LinkCard title="AI 工具箱" description="好用的工具，看完就能拿来用。" href="/tools/" />
+	<LinkCard title="AI 实践" description="用 AI 把事做成的经验和做法。" href="/practice/" />
+	<LinkCard title="项目深读" description="围绕开源项目讲怎么用、怎么实现。" href="/projects/" />
+	<LinkCard title="系统课程" description="从头到尾成体系的技术课程。" href="/courses/" />
+</CardGrid>

@@ -1,0 +1,113 @@
+---
+title: "使用指南"
+description: "先在插件与可编辑安装之间选一种，再对每个仓库运行一次 setup-matt-pocock-skills。之后按“需要澄清、需要规格、需要实现还是需要检查”选入口，不必每次走完整条流程。"
+source: "https://github.com/mattpocock/skills"
+date: 2026-09-30
+sidebar:
+  order: 2
+---
+
+TL;DR：先在插件与可编辑安装之间选一种，再对每个仓库运行一次 setup-matt-pocock-skills。之后按“需要澄清、需要规格、需要实现还是需要检查”选入口，不必每次走完整条流程。
+
+## 两种安装方式，只选一种
+
+README 提供两条路，对应两种态度。Claude Code 插件是受管理的只读整包，作者发布即自动更新，你是订阅者；skills.sh 安装器把技能文件复制进你的项目，你可以随意修改，你是维护者。两种都装会让每个技能出现两次。
+
+Claude Code 用户：
+
+```sh
+claude plugins install mattpocock-skills
+```
+
+或在会话内输入 `/plugin install mattpocock-skills`。插件在官方 marketplace 里，不需要先添加源。
+
+Codex 与其他 Agent，以及想自己改文件的 Claude Code 用户：
+
+```sh
+npx skills@latest add mattpocock/skills
+```
+
+安装器会让你挑选技能和目标 Agent。准备使用工程流程时，务必勾选 `setup-matt-pocock-skills`。以后想同步作者的更新，运行 `npx skills update`。
+
+仓库里的 `scripts/link-skills.sh` 是维护者的开发工具，不是安装方式。
+
+## 初始化究竟配置什么
+
+在目标仓库里运行一次：
+
+```text
+/setup-matt-pocock-skills
+```
+
+它会先探索仓库现状，再展示拟写入的内容，不覆盖已有的项目规则。配置分三块：
+
+| 配置 | 为什么需要 | 写到哪里 |
+| --- | --- | --- |
+| Issue tracker | to-spec、to-tickets、triage 要知道往 GitHub、GitLab 还是本地文件写票 | `docs/agents/issue-tracker.md` |
+| 分诊标签 | triage 要把状态映射到项目真实使用的标签 | `docs/agents/triage-labels.md`，仅当装了 triage |
+| 领域文档 | 统一术语，找到已有 ADR | `docs/agents/domain.md` |
+
+Tracker 的默认判断来自 `git remote`：指向 GitHub 就建议 GitHub，指向 GitLab 就建议 GitLab（依赖 `glab` CLI），否则可选本地文件，或用一段话描述 Jira、Linear 之类的自定义流程。
+
+领域文档默认是单上下文：仓库根目录一个 `GLOSSARY.md` 加 `docs/adr/`。只有发现 monorepo 信号时才会提议多上下文布局，用根目录的 `GLOSSARY-MAP.md` 指向各子域的词汇表。较早版本把词汇表叫 `CONTEXT.md`，读旧项目时以它自己的配置为准。
+
+## 按当前问题选择入口
+
+这是一张选择表，不是强制流水线：
+
+```text
+需求还不清楚，且在仓库里      → grill-with-docs
+需求还不清楚，没有工作目录    → grill-me
+不知道该用哪个技能            → ask-matt
+讨论已经够清楚                → to-spec
+规格要变成可执行任务          → to-tickets
+实现一张票或一小块工作        → implement
+一次跑完整份规格              → implement-spec
+只想测试先行地写一个行为      → tdd
+审查一条分支或 PR             → code-review
+外部 issue 堆积               → triage
+有个难缠的 bug                → diagnosing-bugs
+工程大到一个会话装不下        → wayfinder
+设计问题在纸上说不清          → prototype
+要调研资料                    → research
+有空想整理代码库              → improve-codebase-architecture
+某一步只有人能做              → wizard
+写 PR 正文                    → pr（模型会自动取用）
+会话结束想改进环境            → retro
+```
+
+小修改不必先建完整规划；大实现则需要真实的规格、阻塞关系与测试边界。
+
+## 一次完整的功能开发怎么走
+
+ask-matt 建议把追问、规格、拆票放在同一个未被清空的上下文里完成，这样三步建立在同一份思考上。之后每张票用 implement 单独开始，票之间 `/clear`，因为每张票是自包含的。
+
+实现内部会驱动 tdd：先约定测试的公开接口，再逐个行为做失败测试与最小实现，不一次性写全部测试。收尾跑 code-review，从固定 Git 基点分别检查规范与规格。retro 要在被回顾的那个会话里运行，清空之后只能指向会话日志。
+
+如果会话在拆票前就逼近“smart zone”，也就是模型还能清晰推理的窗口上限，作者建议在最近的阶段边界 `/compact`，不要带着退化的上下文硬推。
+
+## 阶段边界的五个选项
+
+追问、实现、QA 是会话里的不同阶段。到了两个阶段之间，你有五个选择：
+
+| 选项 | 什么时候用 |
+| --- | --- |
+| 继续 | 默认先考虑，零成本零损失 |
+| `/clear` | 当前内容对下一步毫无用处 |
+| handoff | 换宿主、换目录、交给同事，或在阶段中途分出一条支线 |
+| 子代理 | 把范围明确的任务丢到独立窗口，拿回报告 |
+| `/compact` | 压缩后播种新会话，是决策树底部的默认项，不是第一反应 |
+
+ask-matt 附带的 PHASE-BOUNDARIES.md 给出了排序后的判断树。要点是决策要在边界上做，阶段中途要么继续，要么拆成子代理。
+
+## 学习、调研与交接
+
+teach 用当前目录做有状态的教学工作区，给出具体的学习目的后，它会保存学习状态和独立的 HTML 课程页，跨会话续学。research 把阅读交给后台代理，产出带引用的 Markdown，再拿回主流程当输入。
+
+handoff 把当前对话压缩成另一个 Agent 能接手的文档。wait-what 用于对话中途某句话没听懂，Agent 会用 `GLOSSARY.md` 的词汇重新解释；作者提醒它是事后补救，事前的解药是 grill-with-docs。
+
+调用写法因宿主而异：Claude Code 文档常用斜杠命令；其他支持技能的 Agent 可以直接点名技能。模型能否自动匹配，取决于当前安装与宿主支持。
+
+## 来源与版本
+
+依据 [README](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/README.md)、[setup-matt-pocock-skills](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/setup-matt-pocock-skills/SKILL.md)、[ask-matt](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/ask-matt/SKILL.md) 和 [tdd](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/tdd/SKILL.md)。版本 `d81f3a18`，2026-09-30 核对。本文只核对了文档命令，没有在本机重新安装。

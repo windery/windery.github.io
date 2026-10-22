@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://windery.github.io/sitemap.xml
+Sitemap: https://windery.github.io/sitemap-index.xml
