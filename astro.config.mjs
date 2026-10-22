@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import starlightSidebarTopics from 'starlight-sidebar-topics';
 import starlightLinksValidator from 'starlight-links-validator';
+import starlightGiscus from 'starlight-giscus';
 
 // 项目深读：目录名 → 侧栏显示的仓库名
 const projects = [
@@ -50,6 +51,14 @@ export default defineConfig({
 					{ exclude: ['/'] },
 				),
 				starlightLinksValidator(),
+				// 评论存在本仓库 Discussions 的 Announcements 分类：只有维护者和 giscus 能新建讨论
+				starlightGiscus({
+					repo: 'windery/windery.github.io',
+					repoId: 'R_kgDOUzRbBw',
+					category: 'Announcements',
+					categoryId: 'DIC_kwDOUzRbB84DJVSY',
+					lazy: true,
+				}),
 			],
 		}),
 	],

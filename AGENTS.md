@@ -27,7 +27,7 @@ npm run preview   # 看搜索和完整效果：先 build 再 preview
 
 - `starlight` 分支是重写后的新站，还没合并进 main。线上仍是旧站。
 - AI 快讯、工具箱、实践和系统课程只有「即将上线」页。新 Rust 课程另外做。
-- Giscus 评论还没接上：仓库要先开 Discussions、装 Giscus App。
+- Giscus 评论存在本仓库 Discussions 的 Announcements 分类，配置在 `astro.config.mjs`。
 
 ## 规则
 
