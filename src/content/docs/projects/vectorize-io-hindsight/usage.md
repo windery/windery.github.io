@@ -23,7 +23,7 @@ TL;DR：最快的上手方式是用一条 `docker run` 启动官方镜像，只�
 
 README 的平台表显示，Linux（x86_64/ARM64）、Apple Silicon macOS、Windows 都支持 Docker、pip 和内嵌三种方式；Intel Mac 走 pip 路线时应安装 `hindsight-all-slim`。
 
-依据：[README.md](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/README.md)、[hindsight-api-slim/hindsight_api/config.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/config.py)、[hindsight-api-slim/hindsight_api/engine/provider_auth.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/provider_auth.py)。
+依据：[README.md](https://github.com/vectorize-io/hindsight/blob/main/README.md)、[hindsight-api-slim/hindsight_api/config.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/config.py)、[hindsight-api-slim/hindsight_api/provider_auth.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/provider_auth.py)。
 
 ## 安装与启动
 
@@ -56,7 +56,7 @@ docker compose up -d
 
 compose 文件会启动 `pgvector/pgvector:pg18` 数据库容器和 Hindsight 容器，并自动拼好 `HINDSIGHT_API_DATABASE_URL`。数据库端口默认不对宿主机开放。
 
-注意：README 中写的是 `cd docker/docker-compose`，但在该 commit 中这一层只有子目录，没有 compose 文件；带外部 PostgreSQL 的配置在 `external-pg/` 下。同级还有 `cuda`、`tei`、`local-llm`、`vchord`、`pg_search` 等变体。
+注意：README 中写的是 `cd docker/docker-compose`，但在写作时这一层只有子目录，没有 compose 文件；带外部 PostgreSQL 的配置在 `external-pg/` 下。同级还有 `cuda`、`tei`、`local-llm`、`vchord`、`pg_search` 等变体。
 
 ### pip 安装（裸机）
 
@@ -88,7 +88,7 @@ with HindsightServer(
 
 需要先 `pip install hindsight-all`。`HindsightServer` 在当前进程的后台线程中启动 uvicorn，默认绑定 `127.0.0.1` 上的随机空闲端口，使用 `pg0` 数据库，MCP 默认关闭。注意它的构造参数默认值是 `groq` 和 `openai/gpt-oss-120b`，与服务端默认的 `openai` 不同，所以最好显式传入 `llm_provider`。
 
-依据：[README.md](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/README.md)、[docker/standalone/Dockerfile](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/docker/standalone/Dockerfile)、[docker/docker-compose/external-pg/docker-compose.yaml](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/docker/docker-compose/external-pg/docker-compose.yaml)、[hindsight-api-slim/hindsight_api/main.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/main.py)、[hindsight-api-slim/pyproject.toml](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/pyproject.toml)、[hindsight-all/hindsight/server.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-all/hindsight/server.py)。
+依据：[README.md](https://github.com/vectorize-io/hindsight/blob/main/README.md)、[docker/standalone/Dockerfile](https://github.com/vectorize-io/hindsight/blob/main/docker/standalone/Dockerfile)、[docker/docker-compose/external-pg/docker-compose.yaml](https://github.com/vectorize-io/hindsight/blob/main/docker/docker-compose/external-pg/docker-compose.yaml)、[hindsight-api-slim/hindsight_api/main.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/main.py)、[hindsight-api-slim/pyproject.toml](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/pyproject.toml)、[hindsight-all/hindsight/server.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-all/hindsight/server.py)。
 
 ## 最小可运行示例
 
@@ -139,7 +139,7 @@ print(client.reflect(bank_id="my-bank", query="给 Alice 推荐一个周末活�
 
 SDK 的同步方法内部会调用事件循环。在 `async` 代码中（FastAPI、LangGraph 等）应改用 `aretain`、`arecall`、`areflect`，否则会报错。
 
-依据：[hindsight-api-slim/hindsight_api/api/http.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/api/http.py)、[hindsight-clients/python/hindsight_client/hindsight_client.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-clients/python/hindsight_client/hindsight_client.py)、[hindsight-api-slim/hindsight_api/engine/memory_engine.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/memory_engine.py)。
+依据：[hindsight-api-slim/hindsight_api/api/http.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/api/http.py)、[hindsight-clients/python/hindsight_client/hindsight_client.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-clients/python/hindsight_client/hindsight_client.py)、[hindsight-api-slim/hindsight_api/engine/memory_engine.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/memory_engine.py)。
 
 ## 配置要点
 
@@ -167,7 +167,7 @@ HINDSIGHT_API_TENANT_API_KEY=<自定义密钥>
 
 配置是分层的：全局环境变量 → 租户配置（由扩展提供）→ bank 配置（存在数据库中，通过 `PATCH /v1/default/banks/{bank_id}/config` 修改）。抽取模式（`retain_extraction_mode`：`concise` 为默认值，另有 `verbose`、`verbatim`、`custom`、`chunks`）、是否生成观察（`enable_observations`）、disposition、mission 等都可以按 bank 单独设置，不需要重启服务。
 
-依据：[.env.example](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/.env.example)、[hindsight-api-slim/hindsight_api/config.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/config.py)、[hindsight-api-slim/hindsight_api/config_resolver.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/config_resolver.py)、[hindsight-api-slim/hindsight_api/extensions/builtin/tenant.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/extensions/builtin/tenant.py)、[scripts/dev/start-api.sh](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/scripts/dev/start-api.sh)。
+依据：[.env.example](https://github.com/vectorize-io/hindsight/blob/main/.env.example)、[hindsight-api-slim/hindsight_api/config.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/config.py)、[hindsight-api-slim/hindsight_api/config_resolver.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/config_resolver.py)、[hindsight-api-slim/hindsight_api/extensions/builtin/tenant.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/extensions/builtin/tenant.py)、[scripts/dev/start-api.sh](https://github.com/vectorize-io/hindsight/blob/main/scripts/dev/start-api.sh)。
 
 ## 接入 Agent 的其他方式
 
@@ -179,7 +179,7 @@ HINDSIGHT_API_TENANT_API_KEY=<自定义密钥>
 | 框架集成 | `hindsight-integrations/` 下的 LangGraph、CrewAI、Pydantic AI 等包 | 已经在使用这些框架 |
 | SDK / REST | 自己决定何时 retain、何时 recall | 需要精确控制写入和检索时机 |
 
-依据：[README.md](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/README.md)、[hindsight-api-slim/hindsight_api/api/mcp.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/api/mcp.py)。
+依据：[README.md](https://github.com/vectorize-io/hindsight/blob/main/README.md)、[hindsight-api-slim/hindsight_api/api/mcp.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/api/mcp.py)。
 
 ## 常见问题
 
@@ -188,18 +188,17 @@ HINDSIGHT_API_TENANT_API_KEY=<自定义密钥>
 | 启动报 `HINDSIGHT_API_LLM_API_KEY environment variable is required for provider '...'` | 当前 provider 需要 API Key 但没有设置。设置 Key，或改用 `ollama` 等不需要 Key 的 provider |
 | 首次启动很慢 | 默认要下载本地 embedding 和重排模型，还要执行数据库迁移。可以改用远程 embedding / reranker，或改装 `hindsight-api-slim` 精简依赖 |
 | 端口被占用时启动失败 | 启动前会先探测端口，短暂等待后仍然被占用就退出，避免完成整个初始化后才失败。换用 `--port` 或 `HINDSIGHT_API_PORT` |
-| `cd docker/docker-compose && docker compose up` 找不到配置文件 | 该目录在这个 commit 中没有 compose 文件，改用 `docker/docker-compose/external-pg/` |
+| `cd docker/docker-compose && docker compose up` 找不到配置文件 | 写作时该目录没有 compose 文件，改用 `docker/docker-compose/external-pg/` |
 | Intel Mac 上 pip 安装失败 | 按 README 改装 `hindsight-all-slim` |
 | retain 返回很快，但 recall 查不到观察 | 观察由 retain 之后的后台整合任务生成，有延迟。可以通过 operations 接口查看任务状态，或调用 `POST .../consolidate` 手动触发 |
 | reflect 很慢或超时 | reflect 最多进行 10 轮工具调用，整次操作的墙钟超时默认为 300 秒。可以降低 `budget`，或换用更快的模型 |
 | 在异步代码里调用 SDK 报事件循环错误 | 改用 `aretain` / `arecall` / `areflect` |
 | 服务暴露在公网上 | 默认不鉴权且监听所有网卡。启用 `ApiKeyTenantExtension`，或只绑定 `127.0.0.1` |
 
-依据：[hindsight-api-slim/hindsight_api/engine/llm_wrapper.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/llm_wrapper.py)、[hindsight-api-slim/hindsight_api/main.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/main.py)、[hindsight-api-slim/hindsight_api/config.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/config.py)、[README.md](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/README.md)。
+依据：[hindsight-api-slim/hindsight_api/engine/llm_wrapper.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/llm_wrapper.py)、[hindsight-api-slim/hindsight_api/main.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/main.py)、[hindsight-api-slim/hindsight_api/config.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/config.py)、[README.md](https://github.com/vectorize-io/hindsight/blob/main/README.md)。
 
-## 来源与版本
+## 来源
 
 - 仓库：[vectorize-io/hindsight](https://github.com/vectorize-io/hindsight)
-- commit：`6d8b096786df335fc2cc1e5d6662092f0e1b8694`（服务端与 Python SDK 版本 `0.10.3`）
 - 阅读日期：2026-10-08
 - 本文所有命令都没有实际执行。Docker、pip、内嵌三种启动方式的命令来自 README，默认值来自 `config.py` 等源码，接口路径和字段来自 `api/http.py` 与生成的 Python SDK。预期结果是根据源码推断的，没有观察真实的响应内容、启动耗时和模型下载过程。

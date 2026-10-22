@@ -52,6 +52,6 @@ Pages 采用同样的身份思路，但公开展示使用 `owner/repository`。�
 | 保存远端 ID 与来源 | 更新能复用既有文档 | 需要维护本地状态并核对远端 |
 | 独立发布技能 | 可单独选飞书或 Pages | 不提供自动双向同步 |
 
-## 来源与版本
+## 来源
 
-依据三个技能的状态、定位和写入流程，以及 `skills/project-to-pages/references/`。源版本 `71c0bc48b30d4b4faf0e2a6994e38f06918910fe`，2026-09-29；原飞书技能在新增 Pages 技能时未改动。
+依据三个技能的状态、定位和写入流程，以及 `skills/project-to-pages/references/`。阅读日期 2026-09-29；原飞书技能在新增 Pages 技能时未改动。

@@ -28,7 +28,7 @@ TL;DR：WebUI、API、CLI 三个入口都把参数整理成同一个 `VideoParam
 - WebUI：使用独立的 `InMemoryTaskManager`，并发数固定为 1，任务在后台线程执行。日志按 `task_id` 缓存，页面每 0.5 秒轮询一次。
 - CLI：在当前进程中同步调用 `tm.start(..., allow_server_file_input=True)`。只有 CLI 允许读取任务目录以外的本地音频；API 和 WebUI 默认把自备音频限制在任务目录内。
 
-依据：[app/controllers/v1/video.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/controllers/v1/video.py)、[app/services/webui_task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/webui_task.py)、[cli.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/cli.py)、[app/services/task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/task.py)。
+依据：[app/controllers/v1/video.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/controllers/v1/video.py)、[app/services/webui_task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/webui_task.py)、[cli.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/cli.py)、[app/services/task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/task.py)。
 
 ## 一次任务的完整流水线
 
@@ -47,7 +47,7 @@ TL;DR：WebUI、API、CLI 三个入口都把参数整理成同一个 `VideoParam
 
 预检放在最前面，是为了在调用任何收费服务之前，先拦下缺 Key、缺 FFmpeg 之类注定会失败的任务。源码注释说明了这样排序的原因：完整任务如果缺少配乐 Key，就不应该先消耗 LLM、TTS 和素材服务的额度。只生成文案或关键词的任务不需要 FFmpeg，因此跳过这项探测。
 
-依据：[app/services/task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/task.py)、[app/utils/utils.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/utils/utils.py)。
+依据：[app/services/task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/task.py)、[app/utils/utils.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/utils/utils.py)。
 
 ## 各阶段的关键实现
 
@@ -82,7 +82,7 @@ TL;DR：WebUI、API、CLI 三个入口都把参数整理成同一个 `VideoParam
 2. 每段在线程池中单独编码成临时 MP4，并发数由 `video_clip_concurrency` 控制。素材总时长不够时，循环复用已有片段；最后用 FFmpeg concat 拼接，超时时间由 `ffmpeg_concat_timeout_seconds` 控制。
 3. `generate_video()` 叠加旁白（按 `voice_volume` 调整音量）、用 `TextClip` 渲染的字幕，以及循环到成片时长的背景音乐（按 `bgm_volume` 调整音量）。编码器优先使用 `video_codec`，不可用时回退到 `libx264`。背景音乐处理失败时仍然输出只有旁白的成片，并在 `warnings` 中记录。
 
-依据：[app/services/llm.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/llm.py)、[app/models/llm_provider.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/models/llm_provider.py)、[app/services/voice.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/voice.py)、[app/services/subtitle.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/subtitle.py)、[app/services/material.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/material.py)、[app/services/material_cache.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/material_cache.py)、[app/services/video.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/video.py)。
+依据：[app/services/llm.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/llm.py)、[app/models/llm_provider.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/models/llm_provider.py)、[app/services/voice.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/voice.py)、[app/services/subtitle.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/subtitle.py)、[app/services/material.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/material.py)、[app/services/material_cache.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/material_cache.py)、[app/services/video.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/video.py)。
 
 ## 任务状态与存储
 
@@ -110,7 +110,7 @@ API 的 `TaskManager` 先预占并发名额再启动线程。名额用完的任�
 
 API 服务把 `storage/tasks` 挂载为静态路由 `/tasks`。查询任务时，返回的文件路径会根据 `endpoint` 配置转换成可下载的 URL；配置了 `api_key` 时，这条静态路由同样需要鉴权。
 
-依据：[app/models/const.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/models/const.py)、[app/services/state.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/state.py)、[app/controllers/manager/base_manager.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/controllers/manager/base_manager.py)、[app/controllers/manager/redis_manager.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/controllers/manager/redis_manager.py)、[app/asgi.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/asgi.py)、[app/utils/utils.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/utils/utils.py)。
+依据：[app/models/const.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/models/const.py)、[app/services/state.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/state.py)、[app/controllers/manager/base_manager.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/controllers/manager/base_manager.py)、[app/controllers/manager/redis_manager.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/controllers/manager/redis_manager.py)、[app/asgi.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/asgi.py)、[app/utils/utils.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/utils/utils.py)。
 
 ## 可扩展点
 
@@ -126,11 +126,10 @@ API 服务把 `storage/tasks` 挂载为静态路由 `/tasks`。查询任务时�
 
 另外，`app/services/video_project.py` 和 `docs/video-projects.md` 提供了一个可选的本地“视频工程”CLI，用于替换单个场景后增量重新渲染。它独立于主流水线，本文没有展开。
 
-依据：[app/models/llm_provider.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/models/llm_provider.py)、[app/services/llm.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/llm.py)、[app/services/voice.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/voice.py)、[app/services/material.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/material.py)、[app/services/task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/task.py)、[app/services/state.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/state.py)、[docs/video-projects.md](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/docs/video-projects.md)。
+依据：[app/models/llm_provider.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/models/llm_provider.py)、[app/services/llm.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/llm.py)、[app/services/voice.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/voice.py)、[app/services/material.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/material.py)、[app/services/task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/task.py)、[app/services/state.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/state.py)、[docs/video-projects.md](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/docs/video-projects.md)。
 
-## 来源与版本
+## 来源
 
 - 仓库：[harry0703/MoneyPrinterTurbo](https://github.com/harry0703/MoneyPrinterTurbo)
-- commit：`9887b459e754ee073c056d988499b91136af9662`（项目版本 `1.3.8`）
 - 阅读日期：2026-10-08
 - 本文中的调用关系、进度值和存储位置都来自静态阅读源码，未实际运行任务，也未观察真实的进度变化、Redis 行为或 FFmpeg 拼接过程。`combine_videos()` 中片段排序（`_prioritize_unique_source_clips`）和批量素材分配的细节只做了概括，没有逐行核对。

@@ -21,7 +21,7 @@ TL;DR：Hindsight 是一个给 AI Agent 用的长期记忆服务：Agent 把对�
 
 README 称它在 LongMemEval 基准上达到 SOTA，并说明部分分数由第三方复现；这类数据属于项目方声明，本文没有核实。
 
-依据：[README.md](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/README.md)、[hindsight-api-slim/hindsight_api/engine/retain/fact_extraction.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/retain/fact_extraction.py)、[hindsight-api-slim/hindsight_api/engine/consolidation/consolidator.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/consolidation/consolidator.py)。
+依据：[README.md](https://github.com/vectorize-io/hindsight/blob/main/README.md)、[hindsight-api-slim/hindsight_api/engine/retain/fact_extraction.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/retain/fact_extraction.py)、[hindsight-api-slim/hindsight_api/engine/consolidation/consolidator.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/consolidation/consolidator.py)。
 
 ## 核心概念
 
@@ -50,7 +50,7 @@ recall 默认在 `world`、`experience`、`observation` 三类中检索。knowle
 
 bank 还可以配置 mission（使命描述）和三项 disposition 特质（怀疑程度、字面程度、同理心，取值 1–5）。按项目说明，这些特质只影响 reflect，不影响 recall。
 
-依据：[hindsight-api-slim/hindsight_api/api/http.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/api/http.py)、[hindsight-api-slim/hindsight_api/engine/response_models.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/response_models.py)、[CLAUDE.md](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/CLAUDE.md)。
+依据：[hindsight-api-slim/hindsight_api/api/http.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/api/http.py)、[hindsight-api-slim/hindsight_api/engine/response_models.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/response_models.py)、[CLAUDE.md](https://github.com/vectorize-io/hindsight/blob/main/CLAUDE.md)。
 
 ## 功能边界
 
@@ -68,7 +68,7 @@ retain、reflect、consolidation 还可以分别配置不同的 LLM（`HINDSIGHT
 
 LLM provider 设为 `none` 时，retain 退化为只存文本块、不抽取事实，reflect 和整合不可用。这种模式只剩检索能力。
 
-依据：[hindsight-api-slim/hindsight_api/config.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/config.py)、[hindsight-api-slim/hindsight_api/engine/llm_wrapper.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/llm_wrapper.py)、[hindsight-api-slim/hindsight_api/engine/providers/none_llm.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/providers/none_llm.py)。
+依据：[hindsight-api-slim/hindsight_api/config.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/config.py)、[hindsight-api-slim/hindsight_api/engine/llm_wrapper.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/llm_wrapper.py)、[hindsight-api-slim/hindsight_api/engine/providers/none_llm.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/providers/none_llm.py)。
 
 ### 存储与部署形态
 
@@ -85,7 +85,7 @@ LLM provider 设为 `none` 时，retain 退化为只存文本块、不抽取事�
 
 `hindsight-api` 包本身只是 `hindsight-api-slim[all]` 的别名，`all` 包含 PyTorch、sentence-transformers、ONNX Runtime 和 pg0。只想调用远程 embedding、重排服务时，可以改装 `hindsight-api-slim`，按需选择 extras。
 
-依据：[hindsight-api-slim/pyproject.toml](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/pyproject.toml)、[hindsight-api/pyproject.toml](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api/pyproject.toml)、[docker/standalone/Dockerfile](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/docker/standalone/Dockerfile)、[hindsight-all/hindsight/server.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-all/hindsight/server.py)。
+依据：[hindsight-api-slim/pyproject.toml](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/pyproject.toml)、[hindsight-api/pyproject.toml](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api/pyproject.toml)、[docker/standalone/Dockerfile](https://github.com/vectorize-io/hindsight/blob/main/docker/standalone/Dockerfile)、[hindsight-all/hindsight/server.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-all/hindsight/server.py)。
 
 ### 接入方式
 
@@ -94,7 +94,7 @@ LLM provider 设为 `none` 时，retain 退化为只存文本块、不抽取事�
 - SDK：`hindsight-clients/` 下有 Python、TypeScript、Rust、Go 四种客户端，均由 OpenAPI 生成；另有 Rust 写的命令行工具 `hindsight-cli`。
 - 集成：`hindsight-integrations/` 下有 55 个目录，覆盖 LangGraph、CrewAI、LlamaIndex、Pydantic AI、LiteLLM 等框架，以及 Claude Code、Codex、Cursor 等编码 Agent。其中 `hindsight-litellm` 只需包装一次 OpenAI/Anthropic 客户端，就能在每次调用前后自动 recall 和 retain。
 
-依据：[hindsight-api-slim/hindsight_api/api/mcp.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/api/mcp.py)、[hindsight-api-slim/hindsight_api/mcp_tools.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/mcp_tools.py)、[README.md](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/README.md)。
+依据：[hindsight-api-slim/hindsight_api/api/mcp.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/api/mcp.py)、[hindsight-api-slim/hindsight_api/mcp_tools.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/mcp_tools.py)、[README.md](https://github.com/vectorize-io/hindsight/blob/main/README.md)。
 
 ## 适合与不适合的场景
 
@@ -112,7 +112,7 @@ LLM provider 设为 `none` 时，retain 退化为只存文本块、不抽取事�
 - 需要严格可复现检索结果的场景。事实抽取、整合和 reflect 都依赖 LLM 输出，同样的输入在不同模型、不同时间可能得到不同的记忆。
 - 资源受限的机器。默认的本地 embedding 和重排模型需要 PyTorch，首次运行要下载模型。
 
-依据：[README.md](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/README.md)、[hindsight-api-slim/hindsight_api/engine/memory_engine.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/memory_engine.py)。
+依据：[README.md](https://github.com/vectorize-io/hindsight/blob/main/README.md)、[hindsight-api-slim/hindsight_api/engine/memory_engine.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/memory_engine.py)。
 
 ## 许可、费用与安全提醒
 
@@ -123,11 +123,10 @@ LLM provider 设为 `none` 时，retain 退化为只存文本块、不抽取事�
 - 敏感信息：retain 会把原文和抽取结果写进数据库，并发给 LLM 提供方。项目提供可选的 Memory Defense 策略，按 bank 扫描密钥和个人信息，可以脱敏或拒收，但默认不开启。
 - README 中的基准成绩、“Fortune 500 在用”等表述属于项目方宣传，选型时应自己评估。
 
-依据：[LICENSE](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/LICENSE)、[README.md](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/README.md)、[hindsight-api-slim/hindsight_api/extensions/builtin/tenant.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/extensions/builtin/tenant.py)、[hindsight-api-slim/hindsight_api/extensions/memory_defense.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/extensions/memory_defense.py)。
+依据：[LICENSE](https://github.com/vectorize-io/hindsight/blob/main/LICENSE)、[README.md](https://github.com/vectorize-io/hindsight/blob/main/README.md)、[hindsight-api-slim/hindsight_api/extensions/builtin/tenant.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/extensions/builtin/tenant.py)、[hindsight-api-slim/hindsight_api/extensions/memory_defense.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/extensions/memory_defense.py)。
 
-## 来源与版本
+## 来源
 
 - 仓库：[vectorize-io/hindsight](https://github.com/vectorize-io/hindsight)
-- commit：`6d8b096786df335fc2cc1e5d6662092f0e1b8694`（2026-10-08 提交；`hindsight-api-slim`、`hindsight-api`、`hindsight-client` 版本均为 `0.10.3`）
 - 阅读日期：2026-10-08
 - 本文依据源码与 README 整理，两者不一致时以源码为准。LLM provider 数量来自 `llm_wrapper.py` 中的白名单计数，集成数量来自 `hindsight-integrations/` 的目录计数；基准成绩、托管价格、各 provider 的实际可用性都没有验证，也没有实际运行服务。

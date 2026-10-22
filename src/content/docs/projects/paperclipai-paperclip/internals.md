@@ -31,7 +31,7 @@ TL;DR：Paperclip 的核心是“唤醒请求 → 心跳运行 → 适配器执�
 
 `AGENTS.md` 要求改动保持“契约同步”：改了数据模型，就要同时更新 `packages/db`、`packages/shared`、服务端路由与服务、UI 客户端。
 
-依据：[AGENTS.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/AGENTS.md)、[docs/start/architecture.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/docs/start/architecture.md)、[server/src/app.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/app.ts)、[pnpm-workspace.yaml](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/pnpm-workspace.yaml)。
+依据：[AGENTS.md](https://github.com/paperclipai/paperclip/blob/master/AGENTS.md)、[docs/start/architecture.md](https://github.com/paperclipai/paperclip/blob/master/docs/start/architecture.md)、[server/src/app.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/app.ts)、[pnpm-workspace.yaml](https://github.com/paperclipai/paperclip/blob/master/pnpm-workspace.yaml)。
 
 ## 一次心跳的控制流
 
@@ -54,7 +54,7 @@ TL;DR：Paperclip 的核心是“唤醒请求 → 心跳运行 → 适配器执�
 - 只有被指派、被评审请求、负责人收到顶层评论等明确路径会唤醒 Agent。@ 提及在 `enqueueWakeup()` 开头就被忽略，文档评论默认也不唤醒。
 - Agent 侧的流程写在 `skills/paperclip/SKILL.md`：确认身份 → 处理审批结果 → 取收件箱 → 选任务 → 领取 → 读上下文 → 干活 → 更新状态。所有修改任务的请求都要带 `X-Paperclip-Run-Id` 头，把操作关联到本次运行。
 
-依据：[doc/spec/agent-runs.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/doc/spec/agent-runs.md)、[server/src/services/heartbeat.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/services/heartbeat.ts)、[server/src/index.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/index.ts)、[doc/execution-semantics.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/doc/execution-semantics.md)、[skills/paperclip/SKILL.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/skills/paperclip/SKILL.md)。
+依据：[doc/spec/agent-runs.md](https://github.com/paperclipai/paperclip/blob/master/doc/spec/agent-runs.md)、[server/src/services/heartbeat.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/services/heartbeat.ts)、[server/src/index.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/index.ts)、[doc/execution-semantics.md](https://github.com/paperclipai/paperclip/blob/master/doc/execution-semantics.md)、[skills/paperclip/SKILL.md](https://github.com/paperclipai/paperclip/blob/master/skills/paperclip/SKILL.md)。
 
 ## 关键实现
 
@@ -70,7 +70,7 @@ TL;DR：Paperclip 的核心是“唤醒请求 → 心跳运行 → 适配器执�
 
 两个字段的分工是：`checkoutRunId` 表示谁拥有这个任务的执行权，`executionRunId` 表示当前实际在跑的是哪个运行。
 
-依据：[server/src/services/issues.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/services/issues.ts)、[doc/execution-semantics.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/doc/execution-semantics.md)。
+依据：[server/src/services/issues.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/services/issues.ts)、[doc/execution-semantics.md](https://github.com/paperclipai/paperclip/blob/master/doc/execution-semantics.md)。
 
 ### 适配器契约
 
@@ -95,13 +95,13 @@ TL;DR：Paperclip 的核心是“唤醒请求 → 心跳运行 → 适配器执�
 
 复杂的适配器（如 `claude_local`）在此基础上处理更多细节：以 `--print --output-format stream-json` 启动 Claude CLI，用 `--resume` 续接会话，按配置加入模型、推理强度、最大轮数等参数，并解析流式输出得到用量与花费。
 
-依据：[packages/adapter-utils/src/types.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/adapter-utils/src/types.ts)、[server/src/adapters/process/execute.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/adapters/process/execute.ts)、[server/src/adapters/http/execute.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/adapters/http/execute.ts)、[packages/adapter-utils/src/server-utils.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/adapter-utils/src/server-utils.ts)、[packages/adapters/claude-local/src/server/execute.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/adapters/claude-local/src/server/execute.ts)。
+依据：[packages/adapter-utils/src/types.ts](https://github.com/paperclipai/paperclip/blob/master/packages/adapter-utils/src/types.ts)、[server/src/adapters/process/execute.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/adapters/process/execute.ts)、[server/src/adapters/http/execute.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/adapters/http/execute.ts)、[packages/adapter-utils/src/server-utils.ts](https://github.com/paperclipai/paperclip/blob/master/packages/adapter-utils/src/server-utils.ts)、[packages/adapters/claude-local/src/server/execute.ts](https://github.com/paperclipai/paperclip/blob/master/packages/adapters/claude-local/src/server/execute.ts)。
 
 ### 适配器注册表
 
 `registry.ts` 在模块加载时把 16 个内置适配器放进一个 `Map<type, ServerAdapterModule>`，随后异步加载外部适配器。外部适配器是安装在适配器插件目录 `node_modules` 下的 npm 包，必须导出 `createServerAdapter()`。如果外部适配器的 `type` 与内置类型重名，它会覆盖内置实现，原实现保存在 `builtinFallbacks` 中；暂停或卸载外部适配器时恢复内置版本。`process` 和 `http` 不能被卸载。启动时需要先等 `waitForExternalAdapters()` 完成，否则校验适配器类型时会误判外部类型不存在。
 
-依据：[server/src/adapters/registry.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/adapters/registry.ts)、[server/src/adapters/plugin-loader.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/adapters/plugin-loader.ts)。
+依据：[server/src/adapters/registry.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/adapters/registry.ts)、[server/src/adapters/plugin-loader.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/adapters/plugin-loader.ts)。
 
 ### 预算硬停
 
@@ -114,13 +114,13 @@ TL;DR：Paperclip 的核心是“唤醒请求 → 心跳运行 → 适配器执�
 
 `enqueueWakeup()` 在入队前调用 `budgets.getInvocationBlock()`，被阻断的唤醒写成 `budget.blocked` 记录并返回冲突。也就是说，预算拦截发生在“开始新运行”这个关口，已经在跑的运行要靠取消流程停下，这也是 README 说停止可能有延迟的原因。
 
-依据：[server/src/services/budgets.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/services/budgets.ts)、[packages/shared/src/constants.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/shared/src/constants.ts)。
+依据：[server/src/services/budgets.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/services/budgets.ts)、[packages/shared/src/constants.ts](https://github.com/paperclipai/paperclip/blob/master/packages/shared/src/constants.ts)。
 
 ### 原生 Paperclip Runner
 
 除了“服务端直接调适配器”，仓库还有一条独立的执行路径：`paperclip_runner` 适配器把会话交给单独的 Runner 进程。架构决策记录说明了动机：需要持久投递、重启恢复，以及受治理的动作调用，同时不能让 Runner 变成第二个控制平面；现有适配器的调用路径保持不变。在服务端注册表中，`paperclip_runner` 的 `execute()` 被直接调用时只会报错，必须由 Runner 协调器接手。实例设置 `enableNativeRunner` 在当前校验器中默认为 `true`，与这份 ADR 中“默认关闭”的描述不同，以源码为准。
 
-依据：[doc/architecture/paperclip-runner.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/doc/architecture/paperclip-runner.md)、[server/src/adapters/registry.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/adapters/registry.ts)、[packages/shared/src/validators/instance.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/shared/src/validators/instance.ts)。
+依据：[doc/architecture/paperclip-runner.md](https://github.com/paperclipai/paperclip/blob/master/doc/architecture/paperclip-runner.md)、[server/src/adapters/registry.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/adapters/registry.ts)、[packages/shared/src/validators/instance.ts](https://github.com/paperclipai/paperclip/blob/master/packages/shared/src/validators/instance.ts)。
 
 ## 数据与状态
 
@@ -138,7 +138,7 @@ TL;DR：Paperclip 的核心是“唤醒请求 → 心跳运行 → 适配器执�
 
 所有业务实体都带 `companyId`，路由和服务层负责校验公司边界。`AGENTS.md` 还区分了三条数据路径：首方遥测（默认开启，发往 Paperclip）、OpenTelemetry 可观测性（需运维者设置端点才生效）、运行日志（只留在本地数据库），改动时按路径决定审查级别。
 
-依据：[packages/db/src/schema/issues.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/db/src/schema/issues.ts)、[packages/db/src/schema/heartbeat_runs.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/db/src/schema/heartbeat_runs.ts)、[packages/db/src/schema/agent_wakeup_requests.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/db/src/schema/agent_wakeup_requests.ts)、[packages/db/src/schema/routines.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/db/src/schema/routines.ts)、[AGENTS.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/AGENTS.md)。
+依据：[packages/db/src/schema/issues.ts](https://github.com/paperclipai/paperclip/blob/master/packages/db/src/schema/issues.ts)、[packages/db/src/schema/heartbeat_runs.ts](https://github.com/paperclipai/paperclip/blob/master/packages/db/src/schema/heartbeat_runs.ts)、[packages/db/src/schema/agent_wakeup_requests.ts](https://github.com/paperclipai/paperclip/blob/master/packages/db/src/schema/agent_wakeup_requests.ts)、[packages/db/src/schema/routines.ts](https://github.com/paperclipai/paperclip/blob/master/packages/db/src/schema/routines.ts)、[AGENTS.md](https://github.com/paperclipai/paperclip/blob/master/AGENTS.md)。
 
 ## 扩展点
 
@@ -153,11 +153,10 @@ TL;DR：Paperclip 的核心是“唤醒请求 → 心跳运行 → 适配器执�
 
 插件 SDK 的 README 提醒：目前插件的 worker 和 UI 都应视为可信代码，UI 包与主应用同源运行，清单里声明的能力并不构成前端沙箱；动态安装插件更适合单节点持久化部署。
 
-依据：[packages/adapters/AUTHORING.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/adapters/AUTHORING.md)、[packages/plugins/sdk/README.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/plugins/sdk/README.md)、[packages/plugins/examples/plugin-hello-world-example/src/manifest.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/plugins/examples/plugin-hello-world-example/src/manifest.ts)、[packages/shared/src/constants.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/shared/src/constants.ts)。
+依据：[packages/adapters/AUTHORING.md](https://github.com/paperclipai/paperclip/blob/master/packages/adapters/AUTHORING.md)、[packages/plugins/sdk/README.md](https://github.com/paperclipai/paperclip/blob/master/packages/plugins/sdk/README.md)、[packages/plugins/examples/plugin-hello-world-example/src/manifest.ts](https://github.com/paperclipai/paperclip/blob/master/packages/plugins/examples/plugin-hello-world-example/src/manifest.ts)、[packages/shared/src/constants.ts](https://github.com/paperclipai/paperclip/blob/master/packages/shared/src/constants.ts)。
 
-## 来源与版本
+## 来源
 
 - 仓库：[paperclipai/paperclip](https://github.com/paperclipai/paperclip)
-- commit：`317ed367d4e7ef3221cccab2079018534b5be560`（最新发布说明 `v2026.1005.0`）
 - 阅读日期：2026-10-08
 - 本文中的调用关系和默认值来自静态阅读源码与 `doc/` 规格文档，未实际运行服务或观察真实运行。`heartbeat.ts` 约 2.7 万行、`issues.ts` 约 1.4 万行，本文只核对了 `enqueueWakeup()`、`parseHeartbeatPolicy()`、定时心跳认领、`checkout()` 和预算对账等主干函数；执行器内部的工作区实现、会话压缩、重试与恢复、聊天与外部连接等分支只做了概括或未涉及。

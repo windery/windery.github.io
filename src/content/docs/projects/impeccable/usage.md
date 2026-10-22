@@ -9,7 +9,7 @@ sidebar:
 
 TL;DR：在目标项目中运行 `npx impeccable install`，重载编程助手，然后调用 `impeccable init` 技能流程。先让它理解产品，再选择具体页面执行评审或修改；只想扫描文件时可以独立使用 `detect`。
 
-本文面向使用者，覆盖最小上手流程、命令选择、检测结果和 Live 模式。下列命令依据该 commit 的 README 与源码整理，未在用户项目中执行。
+本文面向使用者，覆盖最小上手流程、命令选择、检测结果和 Live 模式。下列命令依据 README 与源码整理，未在用户项目中执行。
 
 ## 最小上手流程
 
@@ -49,7 +49,7 @@ TL;DR：在目标项目中运行 `npx impeccable install`，重载编程助手�
 
 仓库 README 还要求 Codex 用户在安装或更新后打开 `/hooks`，按工具提示批准项目 Hook；这属于该仓库记载的安装步骤，本次未验证当前客户端的实际界面。
 
-依据：[README.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/README.md)、[package.json](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/package.json)、[scripts/lib/utils.js](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/scripts/lib/utils.js)、[crates/cli/src/main.rs](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/crates/cli/src/main.rs)、[skill/reference/init.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/skill/reference/init.md)。
+依据：[README.md](https://github.com/pbakaus/impeccable/blob/main/README.md)、[package.json](https://github.com/pbakaus/impeccable/blob/main/package.json)、[scripts/lib/utils.js](https://github.com/pbakaus/impeccable/blob/main/scripts/lib/utils.js)、[crates/cli/src/main.rs](https://github.com/pbakaus/impeccable/blob/main/crates/cli/src/main.rs)、[skill/reference/init.md](https://github.com/pbakaus/impeccable/blob/main/skill/reference/init.md)。
 
 ## 三种常用场景
 
@@ -74,7 +74,7 @@ TL;DR：在目标项目中运行 `npx impeccable install`，重载编程助手�
 
 该偏好保存在 `.impeccable/config.json` 的 `buildPath` 字段，本机可用 `.impeccable/config.local.json` 覆盖。它是工作流设置，不应复制进 `PRODUCT.md` 充当产品事实。
 
-依据：[skill/SKILL.src.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/skill/SKILL.src.md)、[skill/reference/init.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/skill/reference/init.md)。
+依据：[skill/SKILL.src.md](https://github.com/pbakaus/impeccable/blob/main/skill/SKILL.src.md)、[skill/reference/init.md](https://github.com/pbakaus/impeccable/blob/main/skill/reference/init.md)。
 
 ## 独立运行检测器
 
@@ -111,7 +111,7 @@ npx impeccable ignores list
 
 这表示声明已知例外，不能替代对命中项的判断。需要忽略项目配置进行原始扫描时，使用 `npx impeccable detect --no-config src/`。
 
-依据：[README.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/README.md)、[crates/detect/src/cli.rs](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/crates/detect/src/cli.rs)。
+依据：[README.md](https://github.com/pbakaus/impeccable/blob/main/README.md)、[crates/detect/src/cli.rs](https://github.com/pbakaus/impeccable/blob/main/crates/detect/src/cli.rs)。
 
 ## 用 Live 比较多个设计版本
 
@@ -124,7 +124,7 @@ npx impeccable ignores list
 
 Live 的辅助服务不是项目的开发服务器。生产 URL 检测也不是 Live 编辑：线上检查不会自动给你一个可回写的本地项目。
 
-依据：[skill/reference/live.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/skill/reference/live.md)、[skill/reference/generate.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/skill/reference/generate.md)、[README.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/README.md)。
+依据：[skill/reference/live.md](https://github.com/pbakaus/impeccable/blob/main/skill/reference/live.md)、[skill/reference/generate.md](https://github.com/pbakaus/impeccable/blob/main/skill/reference/generate.md)、[README.md](https://github.com/pbakaus/impeccable/blob/main/README.md)。
 
 ## 更新与已有项目接入
 
@@ -136,7 +136,7 @@ npx impeccable update
 
 如果项目已有视觉体系，调用 `document` 可以从现有实现整理 `DESIGN.md`。不要因为缺少这个文件，就让 AI 将成熟界面当成全新项目重做。产品事实过期时才更新 `PRODUCT.md` 中对应内容；视觉变更在视觉体系与页面 brief 中维护。
 
-依据：[README.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/README.md)、[skill/SKILL.src.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/skill/SKILL.src.md)。
+依据：[README.md](https://github.com/pbakaus/impeccable/blob/main/README.md)、[skill/SKILL.src.md](https://github.com/pbakaus/impeccable/blob/main/skill/SKILL.src.md)。
 
 ---
-来源：[pbakaus/impeccable](https://github.com/pbakaus/impeccable)，分支 `main`，commit `114ea1d3838fca73b253af45f873b9c4f5f213c8`。阅读日期：2026-09-29。基于干净的仓库快照；本次未安装技能、运行完整引擎或启动 Live。仓库 npm 清单版本为 `4.1.0`，固定引擎版本为 `0.1.6`，两者独立编号。
+来源：[pbakaus/impeccable](https://github.com/pbakaus/impeccable)。阅读日期：2026-09-29。基于干净的仓库快照；本次未安装技能、运行完整引擎或启动 Live。

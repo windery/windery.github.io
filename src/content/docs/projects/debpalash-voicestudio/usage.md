@@ -15,13 +15,13 @@ TL;DR：普通用户直接装 Release 里的桌面安装包，打开 Voice cloni
 
 | 用途 | 需要什么 | 依据 |
 | --- | --- | --- |
-| 运行硬件 | 推荐 6 GB 以上显存的 NVIDIA GPU，或 macOS 13.3 及以上的 Apple Silicon；没有 GPU 也能用 CPU 运行，但较慢 | [docs/engines/omnivoice.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/docs/engines/omnivoice.md)、[docs/install/macos.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/docs/install/macos.md) |
-| 磁盘 | 默认模型的权重文档写约 2.3–2.4 GB（docker-compose 注释写首次约 4 GB）；CPU 版 PyTorch 环境约 5 GB；可选引擎另需数 GB 到十几 GB | [docs/mcp.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/docs/mcp.md)、[deploy/docker-compose.yml](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/deploy/docker-compose.yml) |
-| 安装脚本 | `curl` 和一个 SHA-256 校验工具 | [README.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/README.md) |
-| 源码运行 | Git、Bun（仓库锁定 `bun@1.4.2`）、uv、Python 3.11（`.python-version`，`pyproject.toml` 要求 ≥3.11） | [package.json](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/package.json)、[scripts/setup-api.mjs](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/scripts/setup-api.mjs) |
+| 运行硬件 | 推荐 6 GB 以上显存的 NVIDIA GPU，或 macOS 13.3 及以上的 Apple Silicon；没有 GPU 也能用 CPU 运行，但较慢 | [docs/engines/omnivoice.md](https://github.com/debpalash/VoiceStudio/blob/main/docs/engines/omnivoice.md)、[docs/install/macos.md](https://github.com/debpalash/VoiceStudio/blob/main/docs/install/macos.md) |
+| 磁盘 | 默认模型的权重文档写约 2.3–2.4 GB（docker-compose 注释写首次约 4 GB）；CPU 版 PyTorch 环境约 5 GB；可选引擎另需数 GB 到十几 GB | [docs/mcp.md](https://github.com/debpalash/VoiceStudio/blob/main/docs/mcp.md)、[deploy/docker-compose.yml](https://github.com/debpalash/VoiceStudio/blob/main/deploy/docker-compose.yml) |
+| 安装脚本 | `curl` 和一个 SHA-256 校验工具 | [README.md](https://github.com/debpalash/VoiceStudio/blob/main/README.md) |
+| 源码运行 | Git、Bun（仓库锁定 `bun@1.4.2`）、uv、Python 3.11（`.python-version`，`pyproject.toml` 要求 ≥3.11） | [package.json](https://github.com/debpalash/VoiceStudio/blob/main/package.json)、[scripts/setup-api.mjs](https://github.com/debpalash/VoiceStudio/blob/main/scripts/setup-api.mjs) |
 | 从 main 构建安装包 | 额外需要 Node.js 22+、Rust/Cargo 和平台构建工具 | README |
-| Docker | 只提供 `linux/amd64` 镜像；NVIDIA 需要 NVIDIA Container Toolkit，AMD 需要宿主机 `amdgpu` 驱动 | [docs/install/docker.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/docs/install/docker.md) |
-| 说话人分离（可选） | Hugging Face Token，并在 `pyannote/speaker-diarization-3.1` 页面同意协议 | [docs/install/troubleshooting.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/docs/install/troubleshooting.md) |
+| Docker | 只提供 `linux/amd64` 镜像；NVIDIA 需要 NVIDIA Container Toolkit，AMD 需要宿主机 `amdgpu` 驱动 | [docs/install/docker.md](https://github.com/debpalash/VoiceStudio/blob/main/docs/install/docker.md) |
+| 说话人分离（可选） | Hugging Face Token，并在 `pyannote/speaker-diarization-3.1` 页面同意协议 | [docs/install/troubleshooting.md](https://github.com/debpalash/VoiceStudio/blob/main/docs/install/troubleshooting.md) |
 
 FFmpeg 不需要预先安装：首次运行向导会在用户确认后下载固定版本；已有 FFmpeg 时可以用 `FFMPEG_PATH` / `FFPROBE_PATH` 指定路径。
 
@@ -43,7 +43,7 @@ FFmpeg 不需要预先安装：首次运行向导会在用户确认后下载固�
    Windows 在 PowerShell 中运行 `irm https://voicestudio.sh/install | iex`。脚本源码就是仓库里的 `scripts/install.sh` 和 `scripts/install.ps1`，介意管道直接执行的话可以先读一遍再运行。
 3. 打开应用，按首次运行向导准备 Python 运行时和模型。
 
-升级时安装器会保留设置、项目和模型。旧的 Tauri 版本不会自动迁移到 Electron，需要按 [docs/electron-migration.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/docs/electron-migration.md) 单独安装。
+升级时安装器会保留设置、项目和模型。旧的 Tauri 版本不会自动迁移到 Electron，需要按 [docs/electron-migration.md](https://github.com/debpalash/VoiceStudio/blob/main/docs/electron-migration.md) 单独安装。
 
 ### 从源码运行
 
@@ -63,7 +63,7 @@ OMNIVOICE_TORCH_VARIANT=cpu bun run setup:api   # 可选 cpu / cuda / rocm（roc
 
 Electron 启动时会先探测 `http://127.0.0.1:3900`：已有后端就直接连上，没有就用准备好的 `.venv` 启动 Python 后端并持续守护（崩溃后重启，退出码 78 表示端口被占用）。第一次启动 Electron 时还要联网下载 Electron 二进制。
 
-依据：[electron/README.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/electron/README.md)。
+依据：[electron/README.md](https://github.com/debpalash/VoiceStudio/blob/main/electron/README.md)。
 
 ### 只跑后端
 
@@ -125,9 +125,9 @@ NVIDIA GPU 加 `--gpus all`；AMD 改用 `:stable-rocm` 镜像，并加 `--devic
 | `OMNIVOICE_MCP_DISABLE` | 设为 `1` 不挂载 `/mcp` | 挂载 |
 | `OMNIVOICE_ANALYTICS_DISABLED` | 设为 `1` 彻底关闭产品分析 | 未设置（仍需用户在首次运行时同意才会上报） |
 
-可选引擎多数通过“指向上游仓库目录”的变量启用，例如 `OMNIVOICE_INDEXTTS_DIR`、`OMNIVOICE_MOSS_TTS_V15_DIR`、`OMNIVOICE_DOTS_TTS_DIR`、`OMNIVOICE_CONFUCIUS4_TTS_DIR`。完整的安装提示在 [backend/services/tts_backend.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/services/tts_backend.py) 的 `_INSTALL_HINTS` 和 `_SETUP_SNIPPETS` 里，应用的 Model Catalogue 中也会显示。
+可选引擎多数通过“指向上游仓库目录”的变量启用，例如 `OMNIVOICE_INDEXTTS_DIR`、`OMNIVOICE_MOSS_TTS_V15_DIR`、`OMNIVOICE_DOTS_TTS_DIR`、`OMNIVOICE_CONFUCIUS4_TTS_DIR`。完整的安装提示在 [backend/services/tts_backend.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/services/tts_backend.py) 的 `_INSTALL_HINTS` 和 `_SETUP_SNIPPETS` 里，应用的 Model Catalogue 中也会显示。
 
-依据：[backend/core/config.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/core/config.py)、[backend/core/prefs.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/core/prefs.py)、[backend/services/model_manager.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/services/model_manager.py)、[docs/api-auth.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/docs/api-auth.md)。
+依据：[backend/core/config.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/core/config.py)、[backend/core/prefs.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/core/prefs.py)、[backend/services/model_manager.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/services/model_manager.py)、[docs/api-auth.md](https://github.com/debpalash/VoiceStudio/blob/main/docs/api-auth.md)。
 
 ## 生成第一段语音
 
@@ -151,7 +151,7 @@ curl http://127.0.0.1:3900/v1/audio/speech \
   --output speech.wav
 ```
 
-字段含义见 [backend/api/routers/openai_compat.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/api/routers/openai_compat.py) 中的 `SpeechRequest`：
+字段含义见 [backend/api/routers/openai_compat.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/api/routers/openai_compat.py) 中的 `SpeechRequest`：
 
 - `model` 填引擎 id；`tts-1`、`gpt-4o-mini-tts` 等 OpenAI 模型名会被当成当前激活引擎的别名。
 - `voice` 可以填声音档案的 ID 或名称；`alloy` 等 OpenAI 声音名会映射到引擎默认声音。
@@ -183,7 +183,7 @@ http_headers = { "X-OmniVoice-Client-Id" = "codex-cli" }
 
 `X-OmniVoice-Client-Id` 用来给不同 Agent 绑定不同的声音。工具包括 `generate_speech`、`clone_voice`、`design_voice`、`transcribe`、`list_voices`、`check_health` 等。默认情况下音频以 base64 内联返回，比较占 Agent 上下文；设置 `OMNIVOICE_MCP_OUTPUT_MODE=files` 和 `OMNIVOICE_MCP_BASE_PATH` 后改为写文件、返回路径。只支持 stdio 的客户端用 `python -m backend.mcp_shim`。
 
-依据：[docs/speech-platform.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/docs/speech-platform.md)、[docs/mcp.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/docs/mcp.md)、[backend/api/routers/generation.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/api/routers/generation.py)。
+依据：[docs/speech-platform.md](https://github.com/debpalash/VoiceStudio/blob/main/docs/speech-platform.md)、[docs/mcp.md](https://github.com/debpalash/VoiceStudio/blob/main/docs/mcp.md)、[backend/api/routers/generation.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/api/routers/generation.py)。
 
 ## 常见问题
 
@@ -206,11 +206,10 @@ uv run python backend/main.py --diagnose --deep   # 额外加载当前引擎并�
 | Apple Silicon 想用 Docker | 容器访问不到 Mac 的 GPU；用原生 macOS 应用 |
 | 提交 issue | Settings → About → Save diagnostic bundle 生成 zip，其中家目录路径和 Token 形式的字符串已脱敏 |
 
-依据：[docs/install/troubleshooting.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/docs/install/troubleshooting.md)、[backend/services/model_manager.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/services/model_manager.py)、[backend/main.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/main.py)。
+依据：[docs/install/troubleshooting.md](https://github.com/debpalash/VoiceStudio/blob/main/docs/install/troubleshooting.md)、[backend/services/model_manager.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/services/model_manager.py)、[backend/main.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/main.py)。
 
-## 来源与版本
+## 来源
 
 - 仓库：[debpalash/VoiceStudio](https://github.com/debpalash/VoiceStudio)
-- commit：`06c6e077f0fc35149efefc3561e9be5ae835d916`（版本 `0.5.7`）
 - 阅读日期：2026-10-08
 - 本文的所有命令、参数和预期结果都依据 README、`docs/install/*`、`electron/README.md` 和后端源码整理，未实际执行安装、桌面端、API、MCP 或 Docker。各文档给出的模型下载体积不一致（2.3 GB、2.4 GB、约 4 GB），这里如实列出。`curl` 调用 `/v1/audio/speech` 的请求体是按 `SpeechRequest` 的字段定义写的，没有跑过。

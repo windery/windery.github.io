@@ -15,7 +15,7 @@ TL;DR：VoiceStudio 是一个本地优先的语音工作台：声音克隆、声
 
 在线语音服务（README 和项目说明里对标的是 ElevenLabs 一类产品）通常需要账号、API Key，音频要上传到云端。VoiceStudio 的做法是把这些能力搬到本机：模型权重下载到本地，推理在本机的 CUDA、ROCm、Apple MPS 或 CPU 上执行，产物写在本地数据目录。项目的维护约定把这一点写成硬规则：不新增必需的网络请求，用户全部拒绝联网选项后应用仍要完整可用。
 
-主要工作区如下（来自 README 与 [docs/feature-catalog.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/docs/feature-catalog.md)）：
+主要工作区如下（来自 README 与 [docs/feature-catalog.md](https://github.com/debpalash/VoiceStudio/blob/main/docs/feature-catalog.md)）：
 
 | 工作区 | 做什么 |
 | --- | --- |
@@ -28,11 +28,11 @@ TL;DR：VoiceStudio 是一个本地优先的语音工作台：声音克隆、声
 
 此外还有人声分离、说话人分离（diarization）、发音词典、不可感知的 AI 水印、远程 GPU worker 等配套能力。
 
-依据：[README.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/README.md)、[CLAUDE.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/CLAUDE.md)、[backend/main.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/main.py)。
+依据：[README.md](https://github.com/debpalash/VoiceStudio/blob/main/README.md)、[CLAUDE.md](https://github.com/debpalash/VoiceStudio/blob/main/CLAUDE.md)、[backend/main.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/main.py)。
 
 ## 项目组成
 
-仓库是一个 monorepo，各目录职责见 [docs/STRUCTURE.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/docs/STRUCTURE.md)：
+仓库是一个 monorepo，各目录职责见 [docs/STRUCTURE.md](https://github.com/debpalash/VoiceStudio/blob/main/docs/STRUCTURE.md)：
 
 | 目录 | 职责 |
 | --- | --- |
@@ -44,13 +44,13 @@ TL;DR：VoiceStudio 是一个本地优先的语音工作台：声音克隆、声
 | `deploy/` | Dockerfile 和 docker-compose（CPU、NVIDIA、AMD ROCm、纯 worker 几种 profile） |
 | `skills/` | 仓库发布的 Agent Skill：`voicestudio`（音频工作流）和 `voicestudio-maintainer`（仓库维护） |
 
-当前版本号以根目录 `package.json` 为准，这个 commit 是 `0.5.7`。Electron 是唯一的桌面端：0.5.3 是最后一个 Tauri 版本，旧的 Tauri 外壳已经从仓库移除。
+当前版本号以根目录 `package.json` 为准，写作时是 `0.5.7`。Electron 是唯一的桌面端：0.5.3 是最后一个 Tauri 版本，旧的 Tauri 外壳已经从仓库移除。
 
 ## 能力边界
 
 ### TTS 引擎
 
-后端用一张注册表管理 TTS 引擎，共 17 个 id（[backend/services/tts_backend.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/services/tts_backend.py)）。按安装方式大致分三类：
+后端用一张注册表管理 TTS 引擎，共 17 个 id（[backend/services/tts_backend.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/services/tts_backend.py)）。按安装方式大致分三类：
 
 | 类别 | 引擎 | 说明 |
 | --- | --- | --- |
@@ -73,7 +73,7 @@ TL;DR：VoiceStudio 是一个本地优先的语音工作台：声音克隆、声
 | 流式转写 | `ws://127.0.0.1:3900/v1/audio/transcriptions/stream` | 编辑器插件或自建 GUI 推送音频、接收实时文字 |
 | MCP | `http://127.0.0.1:3900/mcp/`，或 stdio 方式 `python -m backend.mcp_shim` | 让 Claude Code、Cursor、Codex 等 Agent 生成语音、克隆声音、转写 |
 
-依据：[docs/speech-platform.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/docs/speech-platform.md)、[docs/mcp.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/docs/mcp.md)、[backend/api/routers/openai_compat.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/api/routers/openai_compat.py)。
+依据：[docs/speech-platform.md](https://github.com/debpalash/VoiceStudio/blob/main/docs/speech-platform.md)、[docs/mcp.md](https://github.com/debpalash/VoiceStudio/blob/main/docs/mcp.md)、[backend/api/routers/openai_compat.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/api/routers/openai_compat.py)。
 
 ### 硬件与平台
 
@@ -107,18 +107,17 @@ TL;DR：VoiceStudio 是一个本地优先的语音工作台：声音克隆、声
 
 - **应用代码**：AGPL-3.0-only。可以免费商用和内部使用；但修改后通过网络向他人提供服务时，必须向这些用户提供修改后的完整源码。想把它嵌入闭源产品而不承担 AGPL 义务，需要购买商业许可。
 - **`omnivoice/` 包**：上游以 Apache-2.0 发布，不随应用一起改为 AGPL。
-- **模型权重**：不受应用许可覆盖。[LICENSE-NOTICE.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/LICENSE-NOTICE.md) 写明默认模型 `k2-fsa/OmniVoice` 的预训练权重是 CC-BY-NC（非商用），其音频 tokenizer 还带有 Boson Higgs Audio 2 和 Meta Llama 社区条款。注册表里的安装提示也标出了其他引擎的许可，例如 audio.cpp 使用的 Breeze-TTS-2 权重仅限研究和非商用，Supertonic-3 是 OpenRAIL-M，PocketTTS 权重是 CC-BY-4.0 且需在 HF 上申请访问。仓库的 [backend/config/model_licenses.json](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/config/model_licenses.json) 记录了已审查和未审查的条目，项目方明确表示不对任何商用用途作出许可担保。
+- **模型权重**：不受应用许可覆盖。[LICENSE-NOTICE.md](https://github.com/debpalash/VoiceStudio/blob/main/LICENSE-NOTICE.md) 写明默认模型 `k2-fsa/OmniVoice` 的预训练权重是 CC-BY-NC（非商用），其音频 tokenizer 还带有 Boson Higgs Audio 2 和 Meta Llama 社区条款。注册表里的安装提示也标出了其他引擎的许可，例如 audio.cpp 使用的 Breeze-TTS-2 权重仅限研究和非商用，Supertonic-3 是 OpenRAIL-M，PocketTTS 权重是 CC-BY-4.0 且需在 HF 上申请访问。仓库的 [backend/config/model_licenses.json](https://github.com/debpalash/VoiceStudio/blob/main/backend/config/model_licenses.json) 记录了已审查和未审查的条目，项目方明确表示不对任何商用用途作出许可担保。
 - **付费部分**：应用本身免费；收费的是闭源嵌入用的商业许可和“VoiceStudio Pro”功能。Pro 许可证在用户输入密钥后才会联网校验。
 - **联网行为**：本地推理不需要账号或 API Key。会联网的场景都由用户触发或需要同意，包括首次运行时下载 ffmpeg 和模型、打开声音画廊、检查更新、点击更新 yt-dlp。产品分析使用 PostHog，首次运行时询问，默认关闭，只上报白名单内、不含内容的元数据。
 - **AI 水印**：生成的语音默认会嵌入 AudioSeal 不可感知水印，用于标记合成来源，可在设置中关闭。
 - **使用规范**：README 要求只在获得许可的情况下克隆他人声音。
 - **其他依赖**：锁定的 PyAV wheel 内含 FFmpeg / x264 / x265 二进制，项目自己的审计文档也列出了尚未解决的再分发问题；需要打包分发时要单独评估。
 
-依据：[LICENSE-NOTICE.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/LICENSE-NOTICE.md)、[pyproject.toml](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/pyproject.toml)、[backend/services/watermark.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/services/watermark.py)、[CLAUDE.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/CLAUDE.md)。
+依据：[LICENSE-NOTICE.md](https://github.com/debpalash/VoiceStudio/blob/main/LICENSE-NOTICE.md)、[pyproject.toml](https://github.com/debpalash/VoiceStudio/blob/main/pyproject.toml)、[backend/services/watermark.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/services/watermark.py)、[CLAUDE.md](https://github.com/debpalash/VoiceStudio/blob/main/CLAUDE.md)。
 
-## 来源与版本
+## 来源
 
 - 仓库：[debpalash/VoiceStudio](https://github.com/debpalash/VoiceStudio)
-- commit：`06c6e077f0fc35149efefc3561e9be5ae835d916`（根目录 `package.json` 与 `pyproject.toml` 中的版本为 `0.5.7`）
 - 阅读日期：2026-10-08
 - 本文依据 README、`docs/` 文档和后端源码整理。引擎数量和路由数量来自对源码中注册表和导入列表的计数；语言数量、硬件支持和性能描述是项目自己的声明，未经实测。各模型的许可以其模型卡和上游仓库当前的说明为准。

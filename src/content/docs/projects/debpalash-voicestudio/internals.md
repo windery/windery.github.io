@@ -25,13 +25,13 @@ TL;DR：VoiceStudio 分三层：Electron 外壳负责拉起和守护本地 FastA
 | 远程 worker | `backend/worker/` | 调度、路由、熔断、容量和传输协议 |
 | 模型包 | `omnivoice/` | 默认 TTS 模型本身，以及训练、评测、推理 CLI |
 
-渲染层不直接请求 `127.0.0.1:3900`。开发时由 Vite 开发服务器把 `/api` 代理到后端；打包后界面运行在特权协议 `app://voicestudio/` 下，由主进程用 `net.fetch` 代理 `/api/*`。这样界面和接口是同源的，不需要处理 CORS。后端反过来通过 `/ws/events` 推送“数据有变化”的信号（[backend/core/event_bus.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/core/event_bus.py)），界面收到后重新拉取数据，不再轮询。
+渲染层不直接请求 `127.0.0.1:3900`。开发时由 Vite 开发服务器把 `/api` 代理到后端；打包后界面运行在特权协议 `app://voicestudio/` 下，由主进程用 `net.fetch` 代理 `/api/*`。这样界面和接口是同源的，不需要处理 CORS。后端反过来通过 `/ws/events` 推送“数据有变化”的信号（[backend/core/event_bus.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/core/event_bus.py)），界面收到后重新拉取数据，不再轮询。
 
-依据：[docs/STRUCTURE.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/docs/STRUCTURE.md)、[electron/README.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/electron/README.md)。
+依据：[docs/STRUCTURE.md](https://github.com/debpalash/VoiceStudio/blob/main/docs/STRUCTURE.md)、[electron/README.md](https://github.com/debpalash/VoiceStudio/blob/main/electron/README.md)。
 
 ## 后端启动：先监听端口，再做重活
 
-[backend/main.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/main.py) 是唯一的后端入口。导入 torch 和几十个路由要十几秒以上，如果全放在模块导入阶段，桌面端在这段时间里连“后端是否还活着”都判断不了。所以启动分成了几个阶段：
+[backend/main.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/main.py) 是唯一的后端入口。导入 torch 和几十个路由要十几秒以上，如果全放在模块导入阶段，桌面端在这段时间里连“后端是否还活着”都判断不了。所以启动分成了几个阶段：
 
 1. **模块导入**：只做必须最早完成的事，比如开启 faulthandler、Windows 子进程补丁、`truststore`（让 Python 信任系统证书库）、HF 网络超时设置。
 2. **监听端口**：uvicorn 约 1 秒内绑定端口。`/health` 和 `/startup/progress` 已经可以访问，`StartupGateMiddleware` 让其他请求一律返回 503，WebSocket 直接关闭。
@@ -49,7 +49,7 @@ MCP 挂载也被设计成“尽力而为”：会话管理器在独立任务里�
 
 ## 一次生成的完整路径
 
-以桌面端的 `POST /generate` 为例（[backend/api/routers/generation.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/api/routers/generation.py)）：
+以桌面端的 `POST /generate` 为例（[backend/api/routers/generation.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/api/routers/generation.py)）：
 
 ```text
 请求 ─▶ NFC 规范化文本
@@ -75,13 +75,13 @@ MCP 挂载也被设计成“尽力而为”：会话管理器在独立任务里�
 - **丢失的文本会明确告知。** 某一块文本没有产生音频时，响应头 `X-OmniVoice-Dropped-Chunks` 会写明数量和内容，不会悄悄少一段。
 - **历史记录写失败不影响结果。** 音频已经保存后，如果写历史表失败，会先尝试修复表结构再重试，仍然失败也照样返回音频。
 
-MCP 的 `generate_speech` 不走单独的实现：它通过进程内的 httpx `ASGITransport` 直接调用 `/generate`，所以和桌面端走的是同一条路径。OpenAI 兼容接口 `/v1/audio/speech` 有自己的实现（[backend/api/routers/openai_compat.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/api/routers/openai_compat.py)），但用的是同一个引擎注册表和 GPU 池，同样先 `ensure_ready` 再生成，输出前同样调用 `mark_synthetic`。`/v1` 路由用自定义的 `OpenAIErrorRoute`，把错误统一渲染成 OpenAI 的错误结构。
+MCP 的 `generate_speech` 不走单独的实现：它通过进程内的 httpx `ASGITransport` 直接调用 `/generate`，所以和桌面端走的是同一条路径。OpenAI 兼容接口 `/v1/audio/speech` 有自己的实现（[backend/api/routers/openai_compat.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/api/routers/openai_compat.py)），但用的是同一个引擎注册表和 GPU 池，同样先 `ensure_ready` 再生成，输出前同样调用 `mark_synthetic`。`/v1` 路由用自定义的 `OpenAIErrorRoute`，把错误统一渲染成 OpenAI 的错误结构。
 
 ## 关键实现
 
 ### 引擎抽象与注册表
 
-[backend/services/tts_backend.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/services/tts_backend.py) 定义了抽象类 `TTSBackend`。每个引擎都要声明：
+[backend/services/tts_backend.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/services/tts_backend.py) 定义了抽象类 `TTSBackend`。每个引擎都要声明：
 
 - `sample_rate`、`supported_languages`
 - `is_available()`：返回 `(是否可用, 原因)`，在加载前就能快速失败
@@ -96,21 +96,21 @@ MCP 的 `generate_speech` 不走单独的实现：它通过进程内的 httpx `A
 
 ### 子进程隔离
 
-有些引擎锁定的依赖版本和主环境冲突，例如 IndexTTS 要求 `transformers<5`，主环境要求 `>=5.3`。[backend/services/subprocess_backend.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/services/subprocess_backend.py) 提供了长驻 sidecar 进程：子进程用引擎自己虚拟环境里的 Python 启动，父子进程之间通过 stdin/stdout 传递带长度前缀的 JSON。子类只需要实现 `venv_python()` 和 `sidecar_script()`；启动握手、GPU 槽位记账、stderr 中的 Token 脱敏、进程组清理都由基类负责。代码注释特意说明不能用 `multiprocessing`：它只能克隆当前解释器，起不到隔离依赖的作用。
+有些引擎锁定的依赖版本和主环境冲突，例如 IndexTTS 要求 `transformers<5`，主环境要求 `>=5.3`。[backend/services/subprocess_backend.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/services/subprocess_backend.py) 提供了长驻 sidecar 进程：子进程用引擎自己虚拟环境里的 Python 启动，父子进程之间通过 stdin/stdout 传递带长度前缀的 JSON。子类只需要实现 `venv_python()` 和 `sidecar_script()`；启动握手、GPU 槽位记账、stderr 中的 Token 脱敏、进程组清理都由基类负责。代码注释特意说明不能用 `multiprocessing`：它只能克隆当前解释器，起不到隔离依赖的作用。
 
 `omnivoice-subprocess` 是另一种用法：模型和依赖都与主进程相同，放进子进程只是为了出问题时能强制结束、回收显存。
 
 ### GPU 池与并发
 
-[backend/services/model_manager.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/services/model_manager.py) 维护一个 GPU 线程池。worker 数量按“空闲显存 ÷ 5 GB”计算，最少 1、最多 4；MPS 和 CPU 固定为 1；可以用 `OMNIVOICE_GPU_WORKERS` 覆盖。5 GB 这个数来自真实故障：克隆时 TTS 和 WhisperX 同时加载，单个任务约需 5 GB，原先按 2.5 GB 计算时 8 GB 显卡会开 2 个 worker，并发克隆超出显存，触发无法恢复的 CUDA 错误，整个后端崩溃。线程池还会把引擎抛出的裸 `StopIteration` 转成 `RuntimeError`，否则 asyncio 的 Future 永远不会完成，请求会无声地挂住。
+[backend/services/model_manager.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/services/model_manager.py) 维护一个 GPU 线程池。worker 数量按“空闲显存 ÷ 5 GB”计算，最少 1、最多 4；MPS 和 CPU 固定为 1；可以用 `OMNIVOICE_GPU_WORKERS` 覆盖。5 GB 这个数来自真实故障：克隆时 TTS 和 WhisperX 同时加载，单个任务约需 5 GB，原先按 2.5 GB 计算时 8 GB 显卡会开 2 个 worker，并发克隆超出显存，触发无法恢复的 CUDA 错误，整个后端崩溃。线程池还会把引擎抛出的裸 `StopIteration` 转成 `RuntimeError`，否则 asyncio 的 Future 永远不会完成，请求会无声地挂住。
 
 ### GPU 网关与远程 worker
 
-[backend/services/gpu_gateway.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/services/gpu_gateway.py) 把“在哪块 GPU 上算”变成一个参数。原来大约 30 处调用点都写死了“提交到本机线程池”。现在统一为 `decide` / `prewarm` / `run` / `status` / `download` 几个调用，每个都同时支持本机和远程。文件头注释记录了几个关键取舍：
+[backend/services/gpu_gateway.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/services/gpu_gateway.py) 把“在哪块 GPU 上算”变成一个参数。原来大约 30 处调用点都写死了“提交到本机线程池”。现在统一为 `decide` / `prewarm` / `run` / `status` / `download` 几个调用，每个都同时支持本机和远程。文件头注释记录了几个关键取舍：
 
 - 没有把远程 worker 包装成一个 `TTSBackend`。`generate()` 是同步的，远程版本会占着 GPU 线程池的槽位等网络往返；在默认只有 1 个 worker 的机器上，这会直接死锁。
 - 准入控制只在本机分支检查，避免本机池满时把本该派给远程 4090 的任务拒绝成 429。
-- 回退规则分三种（[backend/worker/routing.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/worker/routing.py)）：
+- 回退规则分三种（`backend/worker/routing.py`）：
   1. 派发前 worker 不可用：静默改在本机执行，并说明原因。
   2. 单次交互任务在远程执行中途失败：直接报错，由用户决定是否在本机重跑。
   3. 有声书、批量这类多单元任务：连续失败 N 次后，剩余单元改在本机执行，只报告一次汇总提示。
@@ -129,11 +129,11 @@ worker 选择是用户手动指定“本机”或某一台机器，没有自动�
 
 任务状态保存在内存字典里，未命中时从 SQLite 的 `dub_history.job_data` 恢复。文件按内容哈希缓存，同一个源文件不会重复处理。逐段音频带有指纹，局部重新生成时只重算改过的段落。ffmpeg 和 demucs 子进程统一登记，`/dub/abort` 可以把它们一并结束。
 
-依据：[backend/services/dub_pipeline.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/services/dub_pipeline.py)、[backend/api/routers/dub_core.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/api/routers/dub_core.py)、[backend/api/routers/dub_generate.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/api/routers/dub_generate.py)。
+依据：[backend/services/dub_pipeline.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/services/dub_pipeline.py)、[backend/api/routers/dub_core.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/api/routers/dub_core.py)、[backend/api/routers/dub_generate.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/api/routers/dub_generate.py)。
 
 ### 水印入口
 
-[backend/services/watermark.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/services/watermark.py) 的 `mark_synthetic()` 是所有合成音频的唯一出口：HTTP 响应、WebSocket / SSE 帧、保存的文件，都要在离开应用前经过它。偏好项 `watermark.invisible` 默认开启，AudioSeal 可用时才实际嵌入。带缓存的生产者（例如有声书章节缓存）会把“当前是否会打水印”加进缓存键，避免把关闭水印时生成的音频提供给开启水印的请求。远程 worker 也按相同顺序在本地打好水印再返回。
+[backend/services/watermark.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/services/watermark.py) 的 `mark_synthetic()` 是所有合成音频的唯一出口：HTTP 响应、WebSocket / SSE 帧、保存的文件，都要在离开应用前经过它。偏好项 `watermark.invisible` 默认开启，AudioSeal 可用时才实际嵌入。带缓存的生产者（例如有声书章节缓存）会把“当前是否会打水印”加进缓存键，避免把关闭水印时生成的音频提供给开启水印的请求。远程 worker 也按相同顺序在本地打好水印再返回。
 
 ### 数据与状态
 
@@ -146,7 +146,7 @@ worker 选择是用户手动指定“本机”或某一台机器，没有自动�
 | 每个任务的 SSE 事件历史 | `core/tasks.py` 中的 `task_manager` |
 | 界面刷新信号 | `core/event_bus.py`，不持久化 |
 
-依据：[backend/core/config.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/core/config.py)、[backend/core/db.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/core/db.py)、[backend/core/job_queue.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/core/job_queue.py)。
+依据：[backend/core/config.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/core/config.py)、[backend/core/db.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/core/db.py)、[backend/core/job_queue.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/core/job_queue.py)。
 
 ## 可扩展点
 
@@ -157,16 +157,15 @@ worker 选择是用户手动指定“本机”或某一台机器，没有自动�
 | 对接外部程序 | 优先用 OpenAI 兼容 `/v1/audio/*`、流式转写 WebSocket，或 MCP；能力发现地址是 `/.well-known/voicestudio-speech` |
 | 增加 MCP 工具 | `backend/mcp_server.py` 中用 `@mcp.tool()` 注册 |
 | 增加 HTTP 路由 | 在 `backend/api/routers/` 新建模块，并加入 `main.py` 中 `_phase_a_build_inner` 的导入列表 |
-| 插件目录 | `backend/services/plugin_sdk.py` 提供 `TTSPlugin` 和 `@register_plugin`，会自动导入 `backend/plugins/*.py`，并通过 `GET /tools/plugins` 列出。它的注释说插件会出现在引擎选择器中，但这个 commit 里 `PLUGINS` 没有接入 `_REGISTRY`，生成路径用不到它，实际扩展应以上面第一行为准 |
+| 插件目录 | `backend/services/plugin_sdk.py` 提供 `TTSPlugin` 和 `@register_plugin`，会自动导入 `backend/plugins/*.py`，并通过 `GET /tools/plugins` 列出。它的注释说插件会出现在引擎选择器中，但写作时 `PLUGINS` 没有接入 `_REGISTRY`，生成路径用不到它，实际扩展应以上面第一行为准 |
 | 远程算力 | 用 docker-compose 的 `worker-gpu` / `worker-rocm` profile 启动纯 worker，在控制端批准后选为目标 |
 
 维护约定也会影响扩展方式：默认行为在 macOS、Windows、Linux 上必须一致，只在某个平台可用的功能要放到显式开关后面；界面文字要在全部 21 个语言文件里都有翻译；修 bug 要附带一个修复前失败、修复后通过的回归测试。仓库的 `tests/` 和 `backend/tests/` 下共有约 690 个 pytest 文件，Electron 侧另有约 280 个 `*.test.ts(x)`，多数测试文件名直接带有对应的 issue 编号。
 
-依据：[CLAUDE.md](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/CLAUDE.md)、[backend/services/plugin_sdk.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/services/plugin_sdk.py)、[backend/api/routers/tools.py](https://github.com/debpalash/VoiceStudio/blob/06c6e077f0fc35149efefc3561e9be5ae835d916/backend/api/routers/tools.py)。
+依据：[CLAUDE.md](https://github.com/debpalash/VoiceStudio/blob/main/CLAUDE.md)、[backend/services/plugin_sdk.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/services/plugin_sdk.py)、[backend/api/routers/tools.py](https://github.com/debpalash/VoiceStudio/blob/main/backend/api/routers/tools.py)。
 
-## 来源与版本
+## 来源
 
 - 仓库：[debpalash/VoiceStudio](https://github.com/debpalash/VoiceStudio)
-- commit：`06c6e077f0fc35149efefc3561e9be5ae835d916`（版本 `0.5.7`）
 - 阅读日期：2026-10-08
 - 本文依据后端源码、源码注释和 `docs/` 整理，没有运行后端或测试。设计取舍的理由大多来自源码注释里引用的 issue，属于项目方自己的说明。配音流水线只读了路由入口和服务模块的结构，没有逐行跟完 `dub_generate` 的混音循环；`plugin_sdk` 没有接入注册表，是通过全仓搜索引用得出的结论。

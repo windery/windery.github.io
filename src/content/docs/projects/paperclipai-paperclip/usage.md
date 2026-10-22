@@ -9,7 +9,7 @@ sidebar:
 
 TL;DR：装好 Node.js 24.11+，执行 `npx paperclipai@latest onboard --yes` 即可在 `http://localhost:3100` 起一个免登录的本地实例，数据存在 `~/.paperclip/instances/default/`。想直接有一家带 CEO Agent 的公司，用 `npx paperclipai test-drive` 并提供 Anthropic / OpenAI / OpenRouter 的 Key。Agent 只在被指派任务、收到评论、手动唤醒或定时心跳时运行，定时心跳默认关闭。
 
-本文覆盖前置依赖、三种启动方式、关键配置、一个可以不依赖大模型的最小示例，以及常见问题。下列命令依据该 commit 的 README、`doc/` 文档与 CLI 源码整理，未在写作过程中实际执行。
+本文覆盖前置依赖、三种启动方式、关键配置、一个可以不依赖大模型的最小示例，以及常见问题。下列命令依据 README、`doc/` 文档与 CLI 源码整理，未在写作过程中实际执行。
 
 ## 前置依赖
 
@@ -23,7 +23,7 @@ TL;DR：装好 Node.js 24.11+，执行 `npx paperclipai@latest onboard --yes` �
 | Rust 工具链 | 源码开发时需要 | README：源码开发会构建原生 Paperclip Runner；没有 Rust 时可设置 `PAPERCLIP_RUNNER_BINARY` 指向预编译的 Runner |
 | 模型 API Key 或订阅 | 至少一种 | Paperclip 不内置模型，费用由各 Agent 背后的服务产生 |
 
-依据：[package.json](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/package.json)、[README.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/README.md)、[server/src/config.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/config.ts)、[cli/src/index.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/cli/src/index.ts)。
+依据：[package.json](https://github.com/paperclipai/paperclip/blob/master/package.json)、[README.md](https://github.com/paperclipai/paperclip/blob/master/README.md)、[server/src/config.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/config.ts)、[cli/src/index.ts](https://github.com/paperclipai/paperclip/blob/master/cli/src/index.ts)。
 
 ## 安装与启动
 
@@ -81,7 +81,7 @@ PAPERCLIP_TOOL_ACTION_SIGNING_SECRET=$(openssl rand -hex 32) \
 
 这个 compose 文件以 `authenticated` + `private` 模式运行，端口 3100，数据挂载到 `./data/docker-paperclip`，并把 `OPENAI_API_KEY`、`ANTHROPIC_API_KEY` 传入容器供本地适配器使用。`docker/docker-compose.yml` 则额外启动一个 PostgreSQL 17。
 
-依据：[cli/src/commands/onboard.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/cli/src/commands/onboard.ts)、[cli/src/commands/test-drive.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/cli/src/commands/test-drive.ts)、[doc/DEPLOYMENT-MODES.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/doc/DEPLOYMENT-MODES.md)、[doc/DEVELOPING.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/doc/DEVELOPING.md)、[doc/DOCKER.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/doc/DOCKER.md)、[docker/docker-compose.quickstart.yml](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/docker/docker-compose.quickstart.yml)。
+依据：[cli/src/commands/onboard.ts](https://github.com/paperclipai/paperclip/blob/master/cli/src/commands/onboard.ts)、[cli/src/commands/test-drive.ts](https://github.com/paperclipai/paperclip/blob/master/cli/src/commands/test-drive.ts)、[doc/DEPLOYMENT-MODES.md](https://github.com/paperclipai/paperclip/blob/master/doc/DEPLOYMENT-MODES.md)、[doc/DEVELOPING.md](https://github.com/paperclipai/paperclip/blob/master/doc/DEVELOPING.md)、[doc/DOCKER.md](https://github.com/paperclipai/paperclip/blob/master/doc/DOCKER.md)、[docker/docker-compose.quickstart.yml](https://github.com/paperclipai/paperclip/blob/master/docker/docker-compose.quickstart.yml)。
 
 ## 配置要点
 
@@ -114,7 +114,7 @@ PAPERCLIP_TOOL_ACTION_SIGNING_SECRET=$(openssl rand -hex 32) \
 - 心跳策略（`runtimeConfig.heartbeat`）：`enabled` 默认 `false`、`intervalSec` 默认 0，即不开启定时唤醒；`maxConcurrentRuns` 默认 20，范围 1–50。另有每日运行次数、每日花费上限等可选字段。
 - 预算：公司、项目、Agent 三个范围都可以设预算策略，时间窗为 UTC 自然月或累计，硬上限触发时自动暂停对应范围。
 
-依据：[packages/shared/src/home-paths.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/shared/src/home-paths.ts)、[server/src/config.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/config.ts)、[server/src/adapters/process/index.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/adapters/process/index.ts)、[server/src/services/heartbeat.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/services/heartbeat.ts)、[server/src/services/budgets.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/services/budgets.ts)、[packages/shared/src/constants.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/shared/src/constants.ts)。
+依据：[packages/shared/src/home-paths.ts](https://github.com/paperclipai/paperclip/blob/master/packages/shared/src/home-paths.ts)、[server/src/config.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/config.ts)、[server/src/adapters/process/index.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/adapters/process/index.ts)、[server/src/services/heartbeat.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/services/heartbeat.ts)、[server/src/services/budgets.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/services/budgets.ts)、[packages/shared/src/constants.ts](https://github.com/paperclipai/paperclip/blob/master/packages/shared/src/constants.ts)。
 
 ## 最小可运行示例
 
@@ -149,7 +149,7 @@ curl -s -H "Authorization: Bearer $PAPERCLIP_API_KEY" \
 
 在 UI 里手动唤醒这个 Agent（来源为 `on_demand`），或给它指派一个任务。预期结果：运行记录中能看到脚本的标准输出和 `/api/agents/me` 返回的 JSON；脚本以退出码 0 结束时运行为成功，非 0 时为失败，超过 `timeoutSec` 则记为超时。也可以在命令行执行 `paperclipai heartbeat run --agent-id <Agent ID>` 触发一次心跳并跟随日志。
 
-依据：[README.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/README.md)、[skills/paperclip/SKILL.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/skills/paperclip/SKILL.md)、[server/src/adapters/process/execute.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/adapters/process/execute.ts)、[packages/adapter-utils/src/server-utils.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/adapter-utils/src/server-utils.ts)、[cli/src/index.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/cli/src/index.ts)。
+依据：[README.md](https://github.com/paperclipai/paperclip/blob/master/README.md)、[skills/paperclip/SKILL.md](https://github.com/paperclipai/paperclip/blob/master/skills/paperclip/SKILL.md)、[server/src/adapters/process/execute.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/adapters/process/execute.ts)、[packages/adapter-utils/src/server-utils.ts](https://github.com/paperclipai/paperclip/blob/master/packages/adapter-utils/src/server-utils.ts)、[cli/src/index.ts](https://github.com/paperclipai/paperclip/blob/master/cli/src/index.ts)。
 
 ## 常用 CLI 命令
 
@@ -167,7 +167,7 @@ curl -s -H "Authorization: Bearer $PAPERCLIP_API_KEY" \
 
 另有 `issue`、`agent`、`company`、`routine`、`plugin`、`skills` 等子命令，用于在命令行操作控制平面。Agent 的任务文本等不可信内容作为参数传入时，`skills/paperclip/SKILL.md` 要求使用 `npx paperclipai`，不要用 `pnpm paperclipai`：后者会经过 `/bin/sh`，参数里的 `$( )` 等内容可能被执行。
 
-依据：[cli/src/index.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/cli/src/index.ts)、[skills/paperclip/SKILL.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/skills/paperclip/SKILL.md)。
+依据：[cli/src/index.ts](https://github.com/paperclipai/paperclip/blob/master/cli/src/index.ts)、[skills/paperclip/SKILL.md](https://github.com/paperclipai/paperclip/blob/master/skills/paperclip/SKILL.md)。
 
 ## 常见问题
 
@@ -184,11 +184,10 @@ curl -s -H "Authorization: Bearer $PAPERCLIP_API_KEY" \
 | 想重置本地数据 | 用 `--data-dir` 指向新的目录最安全。`AGENTS.md` 中“删除 `data/pglite`”的说法与当前嵌入式 PostgreSQL 的实现不符，默认数据库目录是实例目录下的 `db/` |
 | 担心 Agent 权限过大 | `claude_local` 默认带 `--dangerously-skip-permissions`。可在适配器配置中把 `dangerouslySkipPermissions` 设为 `false`，或在沙箱环境中运行 |
 
-依据：[README.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/README.md)、[releases/v2026.1005.0.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/releases/v2026.1005.0.md)、[server/src/services/heartbeat.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/services/heartbeat.ts)、[doc/execution-semantics.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/doc/execution-semantics.md)、[server/src/services/budgets.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/services/budgets.ts)、[packages/adapters/claude-local/src/server/execute.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/adapters/claude-local/src/server/execute.ts)、[AGENTS.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/AGENTS.md)。
+依据：[README.md](https://github.com/paperclipai/paperclip/blob/master/README.md)、[releases/v2026.1005.0.md](https://github.com/paperclipai/paperclip/blob/master/releases/v2026.1005.0.md)、[server/src/services/heartbeat.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/services/heartbeat.ts)、[doc/execution-semantics.md](https://github.com/paperclipai/paperclip/blob/master/doc/execution-semantics.md)、[server/src/services/budgets.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/services/budgets.ts)、[packages/adapters/claude-local/src/server/execute.ts](https://github.com/paperclipai/paperclip/blob/master/packages/adapters/claude-local/src/server/execute.ts)、[AGENTS.md](https://github.com/paperclipai/paperclip/blob/master/AGENTS.md)。
 
-## 来源与版本
+## 来源
 
 - 仓库：[paperclipai/paperclip](https://github.com/paperclipai/paperclip)
-- commit：`317ed367d4e7ef3221cccab2079018534b5be560`（最新发布说明 `v2026.1005.0`）
 - 阅读日期：2026-10-08
 - 本文中的命令、参数和默认值依据 CLI 与服务端源码、README 和 `doc/` 文档整理，未实际执行安装、启动、test-drive、Docker 或示例脚本。UI 上的按钮文字没有逐一核对，以实际界面为准。`process` 示例中 `/api/agents/me` 对运行令牌可用，依据的是 `skills/paperclip/SKILL.md` 和路由定义，未实测。

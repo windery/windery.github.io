@@ -63,6 +63,6 @@ Pages 技能需要知道四件事：站点仓库、公开网址、本地 checkou
 
 最终应拿到文章链接和来源版本。若其中一个环节失败，草稿与已完成提交保留，结果明确指出失败位置。这个流程按调用执行，没有飞书后台监听器。
 
-## 来源与版本
+## 来源
 
-依据 `README.md`、`skills/project-to-feishu/SKILL.md`、`skills/project-to-pages/SKILL.md`、`skills/session-to-feishu/SKILL.md`；版本 `71c0bc48b30d4b4faf0e2a6994e38f06918910fe`，2026-09-29。飞书写入能力依据技能指令说明，本文未新建飞书文档。
+依据 `README.md`、`skills/project-to-feishu/SKILL.md`、`skills/project-to-pages/SKILL.md`、`skills/session-to-feishu/SKILL.md`；阅读日期 2026-09-29。飞书写入能力依据技能指令说明，本文未新建飞书文档。

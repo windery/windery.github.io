@@ -108,6 +108,6 @@ handoff 把当前对话压缩成另一个 Agent 能接手的文档。wait-what �
 
 调用写法因宿主而异：Claude Code 文档常用斜杠命令；其他支持技能的 Agent 可以直接点名技能。模型能否自动匹配，取决于当前安装与宿主支持。
 
-## 来源与版本
+## 来源
 
-依据 [README](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/README.md)、[setup-matt-pocock-skills](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/setup-matt-pocock-skills/SKILL.md)、[ask-matt](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/ask-matt/SKILL.md) 和 [tdd](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/tdd/SKILL.md)。版本 `d81f3a18`，2026-09-30 核对。本文只核对了文档命令，没有在本机重新安装。
+依据 [README](https://github.com/mattpocock/skills/blob/main/README.md)、[setup-matt-pocock-skills](https://github.com/mattpocock/skills/blob/main/skills/engineering/setup-matt-pocock-skills/SKILL.md)、[ask-matt](https://github.com/mattpocock/skills/blob/main/skills/engineering/ask-matt/SKILL.md) 和 [tdd](https://github.com/mattpocock/skills/blob/main/skills/engineering/tdd/SKILL.md)。2026-09-30 核对。本文只核对了文档命令，没有在本机重新安装。

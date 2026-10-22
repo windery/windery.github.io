@@ -44,6 +44,6 @@ project-to-pages 复用目标学习站已有的内容目录、样式、构建与
 
 继续阅读[使用指南](/projects/windery-agent-to-feishu/usage/)和[工作原理](/projects/windery-agent-to-feishu/internals/)。
 
-## 来源与版本
+## 来源
 
-依据 windery/agent-to-feishu 的 `README.md`、三个 `SKILL.md` 和插件清单重新编写。源仓库为私有，本文公开不改变其访问权限。阅读版本：`71c0bc48b30d4b4faf0e2a6994e38f06918910fe`，2026-09-29。
+依据 windery/agent-to-feishu 的 `README.md`、三个 `SKILL.md` 和插件清单重新编写。源仓库为私有，本文公开不改变其访问权限。阅读日期：2026-09-29。

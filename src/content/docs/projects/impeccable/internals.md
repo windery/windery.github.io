@@ -26,7 +26,7 @@ TL;DR：Impeccable 把设计决策流程写进技能，把可重复执行的工�
 
 `polish`、`critique` 等设计命令主要是技能层的工作指南；`detect`、`context`、`live-wrap` 等是二进制的运行时入口。两者不是一张命令表，所以不能把每个技能命令机械改写成 `npx impeccable 命令`。
 
-依据：[skill/SKILL.src.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/skill/SKILL.src.md)、[crates/cli/src/main.rs](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/crates/cli/src/main.rs)。
+依据：[skill/SKILL.src.md](https://github.com/pbakaus/impeccable/blob/main/skill/SKILL.src.md)、[crates/cli/src/main.rs](https://github.com/pbakaus/impeccable/blob/main/crates/cli/src/main.rs)。
 
 ## 技能为什么能适配多个编程助手
 
@@ -36,7 +36,7 @@ Impeccable 将主技能写在 `skill/SKILL.src.md`，把各命令的步骤放入
 
 与逐套维护相互独立的技能相比，统一源文件加配置化转换意味着共同流程可以在一处修改，再生成不同平台版本。这是从构建结构可直接观察到的效果。仓库也明确将根目录中的平台技能文件视为生成产物，要求普通开发优先改源文件。
 
-依据：[scripts/build.js](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/scripts/build.js)、[scripts/lib/transformers/factory.js](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/scripts/lib/transformers/factory.js)、[scripts/lib/transformers/providers.js](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/scripts/lib/transformers/providers.js)、[AGENTS.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/AGENTS.md)。
+依据：[scripts/build.js](https://github.com/pbakaus/impeccable/blob/main/scripts/build.js)、[scripts/lib/transformers/factory.js](https://github.com/pbakaus/impeccable/blob/main/scripts/lib/transformers/factory.js)、[scripts/lib/transformers/providers.js](https://github.com/pbakaus/impeccable/blob/main/scripts/lib/transformers/providers.js)、[AGENTS.md](https://github.com/pbakaus/impeccable/blob/main/AGENTS.md)。
 
 ## 上下文为什么分成三类
 
@@ -52,7 +52,7 @@ Impeccable 将主技能写在 `skill/SKILL.src.md`，把各命令的步骤放入
 
 因此，缺少 `DESIGN.md` 不等于没有已有设计：AI 还需要检查现有代码和界面。初始化只捕获产品事实，已有体系的整理由 `document` 负责，新视觉方向在新设计流程中建立。
 
-依据：[crates/context/src/context.rs](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/crates/context/src/context.rs)、[skill/SKILL.src.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/skill/SKILL.src.md)、[skill/reference/init.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/skill/reference/init.md)。
+依据：[crates/context/src/context.rs](https://github.com/pbakaus/impeccable/blob/main/crates/context/src/context.rs)、[skill/SKILL.src.md](https://github.com/pbakaus/impeccable/blob/main/skill/SKILL.src.md)、[skill/reference/init.md](https://github.com/pbakaus/impeccable/blob/main/skill/reference/init.md)。
 
 ## 确定性检测如何工作
 
@@ -67,7 +67,7 @@ Impeccable 将主技能写在 `skill/SKILL.src.md`，把各命令的步骤放入
 
 规则注册信息与共享类型位于 `foundation`，检查逻辑位于 `core`。当前内置规则目录为 61 条，技能另外还包含依赖 AI 的评审步骤。程序检测不需要调用模型，但它也无法替代基于产品语境的所有判断。
 
-依据：[crates/detect/src/engines.rs](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/crates/detect/src/engines.rs)、[crates/detect/src/cli.rs](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/crates/detect/src/cli.rs)、[docs/ENGINE.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/docs/ENGINE.md)、[crates/live/assets/antipatterns.json](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/crates/live/assets/antipatterns.json)。
+依据：[crates/detect/src/engines.rs](https://github.com/pbakaus/impeccable/blob/main/crates/detect/src/engines.rs)、[crates/detect/src/cli.rs](https://github.com/pbakaus/impeccable/blob/main/crates/detect/src/cli.rs)、[docs/ENGINE.md](https://github.com/pbakaus/impeccable/blob/main/docs/ENGINE.md)、[crates/live/assets/antipatterns.json](https://github.com/pbakaus/impeccable/blob/main/crates/live/assets/antipatterns.json)。
 
 ## 同一规则怎样进入浏览器
 
@@ -77,7 +77,7 @@ WebAssembly 可以承载编译后的计算逻辑；`wasm-bindgen` 提供 Rust �
 
 Live 使用的检测包被复制到 `crates/live/assets/` 并嵌入二进制，辅助服务器以 `/detect.js` 提供它。浏览器扩展则携带自己的 WASM 文件。共享规则实现有助于减少规则分别维护造成的差异，但不意味着不同宿主获得的页面信息和最终结果完全相同。
 
-依据：[crates/wasm/src/lib.rs](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/crates/wasm/src/lib.rs)、[docs/ENGINE.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/docs/ENGINE.md)。
+依据：[crates/wasm/src/lib.rs](https://github.com/pbakaus/impeccable/blob/main/crates/wasm/src/lib.rs)、[docs/ENGINE.md](https://github.com/pbakaus/impeccable/blob/main/docs/ENGINE.md)。
 
 ## Live 如何连接浏览器、AI 与源码
 
@@ -93,7 +93,7 @@ Live 同时涉及三个执行主体：浏览器负责选择和预览，辅助服
 
 中断恢复也有独立状态：会话日志保存持久状态，`live-status` 和 `live-resume` 用于查看或恢复；注入日志记录辅助代码改动，使之后可以清理遗留注入。这使“浏览器当前显示什么”和“源码已经完成什么”不必仅靠聊天记忆判断。
 
-依据：[skill/reference/live.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/skill/reference/live.md)、[crates/live/src/live_accept.rs](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/crates/live/src/live_accept.rs)、[crates/live/src/live_resume.rs](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/crates/live/src/live_resume.rs)、[crates/live/src/journal.rs](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/crates/live/src/journal.rs)。
+依据：[skill/reference/live.md](https://github.com/pbakaus/impeccable/blob/main/skill/reference/live.md)、[crates/live/src/live_accept.rs](https://github.com/pbakaus/impeccable/blob/main/crates/live/src/live_accept.rs)、[crates/live/src/live_resume.rs](https://github.com/pbakaus/impeccable/blob/main/crates/live/src/live_resume.rs)、[crates/live/src/journal.rs](https://github.com/pbakaus/impeccable/blob/main/crates/live/src/journal.rs)。
 
 ## 安装器为什么只是薄入口
 
@@ -103,7 +103,7 @@ npm 包的入口 `cli/bin/cli.js` 主要寻找并执行平台二进制。它依�
 
 该快照的 npm 包版本是 `4.1.0`，引擎固定版本是 `0.1.6`。源码检查与已发布二进制也应区分：阅读当前 `main` 的新实现，不能直接证明固定版本发行包已经包含每项改动。
 
-依据：[cli/bin/cli.js](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/cli/bin/cli.js)、[package.json](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/package.json)、[ENGINE_VERSION](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/ENGINE_VERSION)、[docs/ENGINE.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/docs/ENGINE.md)。
+依据：[cli/bin/cli.js](https://github.com/pbakaus/impeccable/blob/main/cli/bin/cli.js)、[package.json](https://github.com/pbakaus/impeccable/blob/main/package.json)、[ENGINE_VERSION](https://github.com/pbakaus/impeccable/blob/main/ENGINE_VERSION)、[docs/ENGINE.md](https://github.com/pbakaus/impeccable/blob/main/docs/ENGINE.md)。
 
 ---
-来源：[pbakaus/impeccable](https://github.com/pbakaus/impeccable)，分支 `main`，commit `114ea1d3838fca73b253af45f873b9c4f5f213c8`。阅读日期：2026-09-29。基于干净的仓库快照；本次未安装技能、运行完整引擎或启动 Live。仓库 npm 清单版本为 `4.1.0`，固定引擎版本为 `0.1.6`，两者独立编号。
+来源：[pbakaus/impeccable](https://github.com/pbakaus/impeccable)。阅读日期：2026-09-29。基于干净的仓库快照；本次未安装技能、运行完整引擎或启动 Live。

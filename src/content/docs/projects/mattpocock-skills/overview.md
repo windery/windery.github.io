@@ -108,6 +108,6 @@ pr → retro        写 PR 正文；回顾这次会话，改进 Agent 的工作�
 
 [使用指南](/projects/mattpocock-skills/usage/)说明两种安装方式、项目初始化和按问题选入口；[工作原理](/projects/mattpocock-skills/internals/)解释技能发现、上下文引用、任务图与反馈回路。
 
-## 来源与版本
+## 来源
 
-依据 [README](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/README.md)、[插件清单](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/.claude-plugin/plugin.json) 和 [ask-matt](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/ask-matt/SKILL.md) 重新编写。阅读 commit `d81f3a18`（v1.3 发布合并），2026-09-30 核对为当前默认分支最新提交。本文是中文解读，不是逐字翻译。
+依据 [README](https://github.com/mattpocock/skills/blob/main/README.md)、[插件清单](https://github.com/mattpocock/skills/blob/main/.claude-plugin/plugin.json) 和 [ask-matt](https://github.com/mattpocock/skills/blob/main/skills/engineering/ask-matt/SKILL.md) 重新编写。2026-09-30 核对。本文是中文解读，不是逐字翻译。

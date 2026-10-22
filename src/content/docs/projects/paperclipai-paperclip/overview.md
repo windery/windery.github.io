@@ -23,7 +23,7 @@ TL;DR：Paperclip 是一个自托管的 AI Agent 团队“控制平面”：用 
 
 项目在 `doc/PRODUCT.md` 中把自己定位为“控制平面，而不是执行平面”：Agent 在哪里跑都可以，只要能被调用，并通过 Paperclip 的 REST API 回报进度。
 
-依据：[README.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/README.md)、[doc/GOAL.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/doc/GOAL.md)、[doc/PRODUCT.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/doc/PRODUCT.md)。
+依据：[README.md](https://github.com/paperclipai/paperclip/blob/master/README.md)、[doc/GOAL.md](https://github.com/paperclipai/paperclip/blob/master/doc/GOAL.md)、[doc/PRODUCT.md](https://github.com/paperclipai/paperclip/blob/master/doc/PRODUCT.md)。
 
 ## 核心概念与对象
 
@@ -38,7 +38,7 @@ TL;DR：Paperclip 是一个自托管的 AI Agent 团队“控制平面”：用 
 | 预算策略 | 按范围和时间窗设定花费上限 | 范围 `company` / `agent` / `project`；时间窗 `calendar_month_utc` / `lifetime` |
 | 例行任务（routine） | 定期或被触发时自动创建任务并唤醒负责的 Agent | 触发方式 `schedule`（cron）、`webhook`、`api` |
 
-依据：[packages/shared/src/constants.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/shared/src/constants.ts)、[packages/db/src/schema/companies.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/db/src/schema/companies.ts)、[packages/db/src/schema/routines.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/db/src/schema/routines.ts)。
+依据：[packages/shared/src/constants.ts](https://github.com/paperclipai/paperclip/blob/master/packages/shared/src/constants.ts)、[packages/db/src/schema/companies.ts](https://github.com/paperclipai/paperclip/blob/master/packages/db/src/schema/companies.ts)、[packages/db/src/schema/routines.ts](https://github.com/paperclipai/paperclip/blob/master/packages/db/src/schema/routines.ts)。
 
 ## 功能边界
 
@@ -56,7 +56,7 @@ TL;DR：Paperclip 是一个自托管的 AI Agent 团队“控制平面”：用 
 
 此外还能以 npm 包的形式安装外部适配器（包需导出 `createServerAdapter()`），甚至覆盖同名的内置适配器。
 
-依据：[server/src/adapters/builtin-adapter-types.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/adapters/builtin-adapter-types.ts)、[server/src/adapters/registry.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/adapters/registry.ts)、[server/src/adapters/plugin-loader.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/adapters/plugin-loader.ts)。
+依据：[server/src/adapters/builtin-adapter-types.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/adapters/builtin-adapter-types.ts)、[server/src/adapters/registry.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/adapters/registry.ts)、[server/src/adapters/plugin-loader.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/adapters/plugin-loader.ts)。
 
 ### 控制平面保证的几条不变量
 
@@ -68,7 +68,7 @@ TL;DR：Paperclip 是一个自托管的 AI Agent 团队“控制平面”：用 
 - 预算硬停：花费达到硬上限时，自动暂停对应的公司、项目或 Agent。
 - 活动日志：所有变更类操作都写入审计记录。
 
-依据：[AGENTS.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/AGENTS.md)、[doc/execution-semantics.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/doc/execution-semantics.md)。
+依据：[AGENTS.md](https://github.com/paperclipai/paperclip/blob/master/AGENTS.md)、[doc/execution-semantics.md](https://github.com/paperclipai/paperclip/blob/master/doc/execution-semantics.md)。
 
 ### 部署形态
 
@@ -82,13 +82,13 @@ TL;DR：Paperclip 是一个自托管的 AI Agent 团队“控制平面”：用 
 
 默认数据库是嵌入式 PostgreSQL（`embedded-postgres` 包，默认端口 54329），也可以通过 `DATABASE_URL` 指向自己的 PostgreSQL。部分文档仍写着 PGlite 或 SQLite，与当前源码不一致，以 `server/src/config.ts` 为准。
 
-依据：[README.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/README.md)、[server/src/config.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/config.ts)、[packages/shared/src/home-paths.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/shared/src/home-paths.ts)、[doc/DEPLOYMENT-MODES.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/doc/DEPLOYMENT-MODES.md)、[doc/DOCKER.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/doc/DOCKER.md)。
+依据：[README.md](https://github.com/paperclipai/paperclip/blob/master/README.md)、[server/src/config.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/config.ts)、[packages/shared/src/home-paths.ts](https://github.com/paperclipai/paperclip/blob/master/packages/shared/src/home-paths.ts)、[doc/DEPLOYMENT-MODES.md](https://github.com/paperclipai/paperclip/blob/master/doc/DEPLOYMENT-MODES.md)、[doc/DOCKER.md](https://github.com/paperclipai/paperclip/blob/master/doc/DOCKER.md)。
 
 ### 不是什么
 
 README 明确划了几条线：它不是聊天机器人（对话挂在任务上）、不是 Agent 框架（不规定 Agent 怎么构建）、不是提示词管理器（提示词、模型、运行时由 Agent 自带）。所以 Agent 干得好不好，取决于你接入的 Agent 本身，Paperclip 只提供组织、调度和约束。
 
-依据：[README.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/README.md)。
+依据：[README.md](https://github.com/paperclipai/paperclip/blob/master/README.md)。
 
 ## 适合与不适合的场景
 
@@ -107,7 +107,7 @@ README 明确划了几条线：它不是聊天机器人（对话挂在任务上�
 - 不信任本机执行环境。`claude_local` 默认给 Claude CLI 加 `--dangerously-skip-permissions`（配置项 `dangerouslySkipPermissions` 默认 `true`），Agent 在工作目录内拥有很大的操作权限，应在受控机器或沙箱中运行。
 - 期望部署简单、依赖少。这是一个很大的 monorepo（数千个源文件、数百个数据库迁移），功能和实验特性多，升级说明中经常出现破坏性变更。
 
-依据：[server/src/services/heartbeat.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/services/heartbeat.ts)、[packages/adapters/claude-local/src/server/execute.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/packages/adapters/claude-local/src/server/execute.ts)、[releases/v2026.1005.0.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/releases/v2026.1005.0.md)。
+依据：[server/src/services/heartbeat.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/services/heartbeat.ts)、[packages/adapters/claude-local/src/server/execute.ts](https://github.com/paperclipai/paperclip/blob/master/packages/adapters/claude-local/src/server/execute.ts)、[releases/v2026.1005.0.md](https://github.com/paperclipai/paperclip/blob/master/releases/v2026.1005.0.md)。
 
 ## 许可、遥测与费用提醒
 
@@ -118,7 +118,7 @@ README 明确划了几条线：它不是聊天机器人（对话挂在任务上�
 - 费用：Paperclip 本身免费，真正的开销来自各 Agent 调用的模型服务（API Key 计费或订阅额度）。预算功能只能基于已记录的花费来拦截；README 也提醒，用量上报延迟和正在进行的工作可能让停止晚一步发生，不要把它当作精确的计费闸门。
 - 导出公司模板时，引用的密钥值会被省略，但 README 提醒普通环境变量值和本地路径可能仍留在包里，分享前要检查。
 
-依据：[LICENSE](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/LICENSE)、[README.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/README.md)、[doc/PRODUCT.md](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/doc/PRODUCT.md)、[server/src/config.ts](https://github.com/paperclipai/paperclip/blob/317ed367d4e7ef3221cccab2079018534b5be560/server/src/config.ts)。
+依据：[LICENSE](https://github.com/paperclipai/paperclip/blob/master/LICENSE)、[README.md](https://github.com/paperclipai/paperclip/blob/master/README.md)、[doc/PRODUCT.md](https://github.com/paperclipai/paperclip/blob/master/doc/PRODUCT.md)、[server/src/config.ts](https://github.com/paperclipai/paperclip/blob/master/server/src/config.ts)。
 
 ## 阅读入口
 
@@ -127,9 +127,8 @@ README 明确划了几条线：它不是聊天机器人（对话挂在任务上�
 - 仓库内的权威文档：`doc/GOAL.md`、`doc/PRODUCT.md`、`doc/SPEC-implementation.md`（V1 实现契约）、`doc/execution-semantics.md`（任务与执行语义）、`doc/DEPLOYMENT-MODES.md`。
 - Agent 侧的工作协议：`skills/paperclip/SKILL.md`，它告诉被唤醒的 Agent 每次心跳应该按什么步骤调用 API。
 
-## 来源与版本
+## 来源
 
 - 仓库：[paperclipai/paperclip](https://github.com/paperclipai/paperclip)
-- commit：`317ed367d4e7ef3221cccab2079018534b5be560`（提交时间 2026-10-08）。仓库中最新的发布说明为 `v2026.1005.0`（2026-10-05）；`cli` 与 `server` 的 `package.json` 版本字段为 `0.3.1`。
 - 阅读日期：2026-10-08
 - 本文依据已跟踪的源码、README 和 `doc/` 文档整理，三者不一致时按源码描述（数据库类型、提及是否唤醒等）。未实际安装或运行，适配器数量来自 `BUILTIN_ADAPTER_TYPES` 常量的静态计数。

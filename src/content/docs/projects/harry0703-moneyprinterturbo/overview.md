@@ -23,7 +23,7 @@ TL;DR：MoneyPrinterTurbo 是一个 Python 写的短视频自动生成工具：�
 
 三个入口最后都调用同一个任务函数 `app/services/task.py` 中的 `start()`，所以三者的流水线行为一致，只是参数来源和交互方式不同。
 
-依据：[README.md](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/README.md)、[app/services/task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/task.py)。
+依据：[README.md](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/README.md)、[app/services/task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/task.py)。
 
 ## 核心产出物
 
@@ -39,7 +39,7 @@ TL;DR：MoneyPrinterTurbo 是一个 Python 写的短视频自动生成工具：�
 
 输出画幅只有三种：竖屏 `9:16`（1080×1920）、横屏 `16:9`（1920×1080）、方形 `1:1`（1080×1080）。一次任务可以生成多条成片（`video_count`），它们共用同一份文案、配音和字幕，只是素材的选取和顺序不同。
 
-依据：[app/models/schema.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/models/schema.py)、[app/services/task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/task.py)、[app/services/material.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/material.py)。
+依据：[app/models/schema.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/models/schema.py)、[app/services/task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/task.py)、[app/services/material.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/material.py)。
 
 ## 功能边界
 
@@ -54,7 +54,7 @@ TL;DR：MoneyPrinterTurbo 是一个 Python 写的短视频自动生成工具：�
 | 本地运行 | Ollama | OpenAI 兼容接口，不需要 API Key |
 | 订阅制 CLI | Claude Code | 调用本机已登录的 `claude` CLI 的 headless 模式，不使用 API Key |
 
-依据：[app/models/llm_provider.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/models/llm_provider.py)、[app/services/llm.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/llm.py)、[config.example.toml](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/config.example.toml)。
+依据：[app/models/llm_provider.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/models/llm_provider.py)、[app/services/llm.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/llm.py)、[config.example.toml](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/config.example.toml)。
 
 ### 画面素材源
 
@@ -65,7 +65,7 @@ TL;DR：MoneyPrinterTurbo 是一个 Python 写的短视频自动生成工具：�
 | AI 文生图 | `openai_image` | 任意 OpenAI 兼容 `/images/generations` 接口，每个关键词生成一张图，再渲染成带缩放效果的片段 |
 | 本地文件 | `local` | 使用自己上传的图片或视频，不生成关键词 |
 
-依据：[config.example.toml](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/config.example.toml)、[cli.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/cli.py)、[app/services/material.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/material.py)。
+依据：[config.example.toml](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/config.example.toml)、[cli.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/cli.py)、[app/services/material.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/material.py)。
 
 ### TTS、字幕与背景音乐
 
@@ -73,7 +73,7 @@ TL;DR：MoneyPrinterTurbo 是一个 Python 写的短视频自动生成工具：�
 - 字幕：`subtitle_provider = "edge"`（默认）用 TTS 返回的时间轴生成字幕；`"whisper"` 用本地 `faster-whisper` 转写音频，首次使用需要下载模型；留空则不生成字幕。
 - 背景音乐：`random` 从 `resource/songs` 随机选曲，`custom` 指定文件，`none` 不加；`sonilo`、`elevenlabs` 按成片内容调用第三方 API 生成配乐。
 
-依据：[app/services/voice.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/voice.py)、[app/services/task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/task.py)、[app/services/subtitle.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/subtitle.py)、[README.md](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/README.md)。
+依据：[app/services/voice.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/voice.py)、[app/services/task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/task.py)、[app/services/subtitle.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/subtitle.py)、[README.md](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/README.md)。
 
 ### 部署形态
 
@@ -86,7 +86,7 @@ TL;DR：MoneyPrinterTurbo 是一个 Python 写的短视频自动生成工具：�
 
 另外，README 提供一份 AI Agent Skill（`docs/skill/SKILL.md`），由 Agent 自动完成安装、配置和生成，本质上仍是调用上述流水线；生成完成后还可以通过 Upload-Post 自动发布到 TikTok、Instagram、YouTube。
 
-依据：[webui.sh](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/webui.sh)、[main.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/main.py)、[app/services/webui_task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/webui_task.py)、[docker-compose.release.yml](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/docker-compose.release.yml)、[docs/skill/SKILL.md](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/docs/skill/SKILL.md)。
+依据：[webui.sh](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/webui.sh)、[main.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/main.py)、[app/services/webui_task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/webui_task.py)、[docker-compose.release.yml](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/docker-compose.release.yml)、[docs/skill/SKILL.md](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/docs/skill/SKILL.md)。
 
 ## 适合与不适合的场景
 
@@ -104,7 +104,7 @@ TL;DR：MoneyPrinterTurbo 是一个 Python 写的短视频自动生成工具：�
 - 多人并发的 WebUI 服务。WebUI 进程内同一时刻只执行一个任务，配置也是进程级共享的。
 - 无人值守的公网部署。API 默认不鉴权，Redis 状态后端要求只对本应用可写。
 
-依据：[app/services/webui_task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/webui_task.py)、[app/controllers/base.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/controllers/base.py)、[app/services/state.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/state.py)。
+依据：[app/services/webui_task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/webui_task.py)、[app/controllers/base.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/controllers/base.py)、[app/services/state.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/state.py)。
 
 ## 版权、许可与费用提醒
 
@@ -115,11 +115,10 @@ TL;DR：MoneyPrinterTurbo 是一个 Python 写的短视频自动生成工具：�
 - 费用：LLM、云端 TTS、AI 文生视频和文生图都按各平台价格计费。除 LoomLoom 外，AI 生成类素材源都是逐段按需生成，凑够配音时长就停止。CLI 对 WaveSpeed、Seedance、OFox、秘塔 MiniMax、MuAPI 要求加对应的 `--confirm-*-charge` 参数；配置注释说明 MuAPI、秘塔 MiniMax、LoomLoom 在 WebUI 中也需要确认收费。
 - README 有大量赞助商推广内容，选型时应按自己的需求判断，不必理会推荐顺序。
 
-依据：[LICENSE](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/LICENSE)、[README.md](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/README.md)、[app/services/material.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/material.py)、[cli.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/cli.py)。
+依据：[LICENSE](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/LICENSE)、[README.md](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/README.md)、[app/services/material.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/material.py)、[cli.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/cli.py)。
 
-## 来源与版本
+## 来源
 
 - 仓库：[harry0703/MoneyPrinterTurbo](https://github.com/harry0703/MoneyPrinterTurbo)
-- commit：`9887b459e754ee073c056d988499b91136af9662`（`pyproject.toml` 中的项目版本为 `1.3.8`）
 - 阅读日期：2026-10-08
 - 本文依据源码与 README 整理，两者不一致时以源码为准。LLM Provider 数量来自用解释器导入 `app/models/llm_provider.py` 后的计数；其余内容未实际运行验证，包括各 Provider 的可用性、计费、生成质量和 Docker 镜像。

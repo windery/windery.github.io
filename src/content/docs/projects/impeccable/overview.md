@@ -17,7 +17,7 @@ AI 可以写出能运行的界面，但仍可能反复采用相似的字体、�
 
 它包含两种互补的能力。技能指导 AI 理解产品与页面目标，做有语境的设计判断；检测引擎根据程序规则识别具体问题，例如某些重复视觉套路、过小的触控目标和标题层级跳跃。规则命中是供处理的证据，不能独自判定整个产品的设计质量。
 
-依据：[README.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/README.md)、[skill/SKILL.src.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/skill/SKILL.src.md)。
+依据：[README.md](https://github.com/pbakaus/impeccable/blob/main/README.md)、[skill/SKILL.src.md](https://github.com/pbakaus/impeccable/blob/main/skill/SKILL.src.md)。
 
 ## 项目由哪些部分组成
 
@@ -32,7 +32,7 @@ AI 可以写出能运行的界面，但仍可能反复采用相似的字体、�
 
 仓库本身是技能、引擎和分发工具的源码。项目官网与服务已经位于另一个私有仓库，不能把当前仓库当成完整官网源码。
 
-依据：[docs/ENGINE.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/docs/ENGINE.md)、[AGENTS.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/AGENTS.md)。
+依据：[docs/ENGINE.md](https://github.com/pbakaus/impeccable/blob/main/docs/ENGINE.md)、[AGENTS.md](https://github.com/pbakaus/impeccable/blob/main/AGENTS.md)。
 
 ## 命令如何选择
 
@@ -55,7 +55,7 @@ AI 可以写出能运行的界面，但仍可能反复采用相似的字体、�
 
 命令表仍包含 `craft`，但技能源码已明确将其标记为普通新设计请求的弃用别名。因此，24 是该快照的命令表入口数，不表示 24 种互不重叠的工作流。开始新页面也可以直接描述需要实现的内容。
 
-依据：[skill/SKILL.src.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/skill/SKILL.src.md)。
+依据：[skill/SKILL.src.md](https://github.com/pbakaus/impeccable/blob/main/skill/SKILL.src.md)。
 
 ## 一次典型使用过程
 
@@ -74,11 +74,11 @@ AI 可以写出能运行的界面，但仍可能反复采用相似的字体、�
 - Live 需要本地源码及开发服务器或本地静态 HTML。生产站点可用 URL 检测，但不支持直接将 Live 的本地辅助服务注入线上站点来回写源码。
 - 61 条规则是当前快照中的规则目录数量。本次读取并计数了 `crates/live/assets/antipatterns.json`，未把它当成 61 项运行测试都已通过。
 
-依据：[README.md](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/README.md)、[crates/live/assets/antipatterns.json](https://github.com/pbakaus/impeccable/blob/114ea1d3838fca73b253af45f873b9c4f5f213c8/crates/live/assets/antipatterns.json)。
+依据：[README.md](https://github.com/pbakaus/impeccable/blob/main/README.md)、[crates/live/assets/antipatterns.json](https://github.com/pbakaus/impeccable/blob/main/crates/live/assets/antipatterns.json)。
 
 ## 后续阅读
 
 建议接着阅读《使用指南》，在自己的项目中完成安装、初始化和一次有范围的设计任务。需要理解为什么它能跨编程工具运行、如何共用检测规则、Live 怎样回写源码时，再读《工作原理》。
 
 ---
-来源：[pbakaus/impeccable](https://github.com/pbakaus/impeccable)，分支 `main`，commit `114ea1d3838fca73b253af45f873b9c4f5f213c8`。阅读日期：2026-09-29。基于干净的仓库快照；本次未安装技能、运行完整引擎或启动 Live。仓库 npm 清单版本为 `4.1.0`，固定引擎版本为 `0.1.6`，两者独立编号。
+来源：[pbakaus/impeccable](https://github.com/pbakaus/impeccable)。阅读日期：2026-09-29。基于干净的仓库快照；本次未安装技能、运行完整引擎或启动 Live。

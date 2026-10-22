@@ -9,7 +9,7 @@ sidebar:
 
 TL;DR：准备 Python 3.11 和 FFmpeg，用 `uv sync --frozen` 安装依赖后运行 `sh webui.sh`。首次启动会自动生成 `config.toml`；最少只要配一个 LLM 和一个素材源的 API Key，配音用免费的 Edge TTS 即可出第一条视频。用 CLI 时注意：素材来源不读取配置文件，需要用 `--video-source` 显式指定。
 
-本文覆盖前置依赖、安装启动、关键配置、WebUI 和 CLI 的最小流程，以及 HTTP API 调用和常见问题。下列命令依据该 commit 的 README 与源码整理，未在本文写作过程中实际执行。
+本文覆盖前置依赖、安装启动、关键配置、WebUI 和 CLI 的最小流程，以及 HTTP API 调用和常见问题。下列命令依据 README 与源码整理，未在本文写作过程中实际执行。
 
 ## 前置依赖
 
@@ -24,7 +24,7 @@ TL;DR：准备 Python 3.11 和 FFmpeg，用 `uv sync --frozen` 安装依赖后�
 
 FFmpeg 的查找顺序，在源码中是：`config.toml` 的 `ffmpeg_path`（写入 `IMAGEIO_FFMPEG_EXE`）→ 系统 `PATH` 中的 `ffmpeg` → `imageio-ffmpeg` 自带的二进制。任务开始时会先执行一次 `ffmpeg -version`；探测失败时，除只生成文案或关键词的任务外，其他任务都会直接以 `preflight` 阶段失败。README 说“FFmpeg 通常会被自动下载”，但源码注释指出，项目锁定的 `imageio-ffmpeg` 不会在使用时补下载。所以最稳妥的做法是在系统里装好 FFmpeg，或者显式配置 `ffmpeg_path`。
 
-依据：[pyproject.toml](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/pyproject.toml)、[app/utils/utils.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/utils/utils.py)、[app/config/config.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/config/config.py)、[app/services/task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/task.py)、[README.md](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/README.md)。
+依据：[pyproject.toml](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/pyproject.toml)、[app/utils/utils.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/utils/utils.py)、[app/config/config.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/config/config.py)、[app/services/task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/task.py)、[README.md](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/README.md)。
 
 ## 安装与启动
 
@@ -69,7 +69,7 @@ docker compose -f docker-compose.release.yml up
 - `docker-compose.gpu.yml`：基于 CUDA 镜像的 GPU 版。
 - `docker-compose.claude.yml`：在镜像中安装 `claude` CLI，供 `claude_code` Provider 使用；容器内需要通过 `CLAUDE_CODE_OAUTH_TOKEN` 环境变量鉴权。
 
-依据：[README.md](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/README.md)、[webui.sh](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/webui.sh)、[main.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/main.py)、[Dockerfile](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/Dockerfile)、[docker-compose.release.yml](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/docker-compose.release.yml)、[docker-compose.claude.yml](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/docker-compose.claude.yml)。
+依据：[README.md](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/README.md)、[webui.sh](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/webui.sh)、[main.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/main.py)、[Dockerfile](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/Dockerfile)、[docker-compose.release.yml](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/docker-compose.release.yml)、[docker-compose.claude.yml](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/docker-compose.claude.yml)。
 
 ## 配置要点
 
@@ -91,7 +91,7 @@ docker compose -f docker-compose.release.yml up
 | `[proxy]` 段 `http` / `https` | 注释掉 | 库存素材搜索和下载使用的代理 |
 | `[ui]` 段 | 由 WebUI 自动写入 | 保存 WebUI 的偏好；CLI 只读取其中的字幕和配音相关项 |
 
-依据：[config.example.toml](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/config.example.toml)、[app/services/llm.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/llm.py)、[app/services/material.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/material.py)、[webui/Main.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/webui/Main.py)。
+依据：[config.example.toml](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/config.example.toml)、[app/services/llm.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/llm.py)、[app/services/material.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/material.py)、[webui/Main.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/webui/Main.py)。
 
 ## 用 WebUI 出第一条视频
 
@@ -106,7 +106,7 @@ docker compose -f docker-compose.release.yml up
 
 耗时主要花在素材下载和剪辑编码上，取决于成片时长、机器性能和网络。默认的下载与片段处理都是串行的，可以通过上文的两个并发参数和 `video_codec` 调整。
 
-依据：[webui/i18n/zh.json](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/webui/i18n/zh.json)、[webui/Main.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/webui/Main.py)、[app/services/llm.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/llm.py)。
+依据：[webui/i18n/zh.json](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/webui/i18n/zh.json)、[webui/Main.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/webui/Main.py)、[app/services/llm.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/llm.py)。
 
 ## CLI 与 HTTP API
 
@@ -158,7 +158,7 @@ curl http://127.0.0.1:8080/api/v1/tasks/<task_id>
 - 配置了 `api_key` 后，所有请求都要带 `x-api-key` 头，下载 `/tasks/...` 下的成片也一样。浏览器地址栏无法附带自定义请求头，需要用 HTTP 客户端下载。
 - 浏览器跨域访问默认关闭，需要时通过环境变量 `CORS_ALLOWED_ORIGINS` 设置白名单。curl 等服务端调用不受 CORS 限制。
 
-依据：[cli.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/cli.py)、[app/services/material.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/material.py)、[README.md](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/README.md)、[app/controllers/v1/video.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/controllers/v1/video.py)、[app/controllers/v1/llm.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/controllers/v1/llm.py)、[app/models/schema.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/models/schema.py)、[app/asgi.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/asgi.py)、[app/models/const.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/models/const.py)。
+依据：[cli.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/cli.py)、[app/services/material.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/material.py)、[README.md](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/README.md)、[app/controllers/v1/video.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/controllers/v1/video.py)、[app/controllers/v1/llm.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/controllers/v1/llm.py)、[app/models/schema.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/models/schema.py)、[app/asgi.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/asgi.py)、[app/models/const.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/models/const.py)。
 
 ## 常见问题
 
@@ -175,11 +175,10 @@ curl http://127.0.0.1:8080/api/v1/tasks/<task_id>
 | WebUI 打开是空白页 | README 建议换 Chrome 或 Edge |
 | 在不受信任的网络中暴露 API | 设置 `api_key`；`listen_host` 改为 `127.0.0.1`；Redis 只允许本应用访问 |
 
-依据：[README.md](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/README.md)、[app/services/task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/task.py)、[app/services/subtitle.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/app/services/subtitle.py)、[config.example.toml](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/config.example.toml)、[webui.sh](https://github.com/harry0703/MoneyPrinterTurbo/blob/9887b459e754ee073c056d988499b91136af9662/webui.sh)。
+依据：[README.md](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/README.md)、[app/services/task.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/task.py)、[app/services/subtitle.py](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/subtitle.py)、[config.example.toml](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/config.example.toml)、[webui.sh](https://github.com/harry0703/MoneyPrinterTurbo/blob/main/webui.sh)。
 
-## 来源与版本
+## 来源
 
 - 仓库：[harry0703/MoneyPrinterTurbo](https://github.com/harry0703/MoneyPrinterTurbo)
-- commit：`9887b459e754ee073c056d988499b91136af9662`（项目版本 `1.3.8`）
 - 阅读日期：2026-10-08
 - 本文中的命令、参数和界面文字都依据源码与 README 整理，未实际执行安装、WebUI、CLI、API 或 Docker。README 与源码不一致的地方（FFmpeg 是否自动下载、CLI 是否读取配置中的素材源）均按源码行为描述。各第三方平台的 Key 申请政策、价格和素材授权以平台当前说明为准。

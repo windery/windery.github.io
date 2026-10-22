@@ -30,7 +30,7 @@ TL;DR：Hindsight 的核心是 `MemoryEngine`。retain 先把文本切块，交�
 
 `main.py` 有意把 `MemoryEngine`、`create_app` 改成首次使用时才导入。源码注释给出的原因是：uvicorn 多 worker 模式下每个子进程都要重新导入入口模块，如果导入太慢，子进程会在 5 秒健康检查前被反复杀掉。按注释中的实测，延迟导入后这部分耗时从约 6.6 秒降到约 0.3 秒。
 
-依据：[CLAUDE.md](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/CLAUDE.md)、[hindsight-api-slim/hindsight_api/main.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/main.py)、[hindsight-api-slim/hindsight_api/engine/memory_engine.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/memory_engine.py)。
+依据：[CLAUDE.md](https://github.com/vectorize-io/hindsight/blob/main/CLAUDE.md)、[hindsight-api-slim/hindsight_api/main.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/main.py)、[hindsight-api-slim/hindsight_api/engine/memory_engine.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/memory_engine.py)。
 
 ## Retain：从文本到记忆单元
 
@@ -47,7 +47,7 @@ HTTP 层（`api_retain`）先把多模态内容规范化为纯文本，图片存
 
 生产者-消费者的结构是为了控制内存占用。源码注释提到，一个超过 17000 个块的文档如果一次性抽取会导致内存溢出，现在每个小批次单独提交，提交后释放内存。同样的设计也支持崩溃恢复：重试时如果发现文档内容哈希相同、部分块已经提交，就跳过这些块。
 
-依据：[hindsight-api-slim/hindsight_api/engine/retain/orchestrator.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/retain/orchestrator.py)、[hindsight-api-slim/hindsight_api/engine/retain/fact_extraction.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/retain/fact_extraction.py)、[hindsight-api-slim/hindsight_api/engine/retain/link_creation.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/retain/link_creation.py)、[hindsight-api-slim/hindsight_api/api/http.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/api/http.py)。
+依据：[hindsight-api-slim/hindsight_api/engine/retain/orchestrator.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/retain/orchestrator.py)、[hindsight-api-slim/hindsight_api/engine/retain/fact_extraction.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/retain/fact_extraction.py)、[hindsight-api-slim/hindsight_api/engine/retain/link_creation.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/retain/link_creation.py)、[hindsight-api-slim/hindsight_api/api/http.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/api/http.py)。
 
 ## Recall：四路检索与重排
 
@@ -72,7 +72,7 @@ HTTP 层（`api_retain`）先把多模态内容规范化为纯文本，图片存
 
 综合打分采用乘法而不是加法。源码注释给出的理由是：这样加权的影响始终与相关度成比例，不受不同 cross-encoder 分数标定的影响。对于重排器只是透传、不提供真实分数的精简部署，代码会改用 RRF 排名作为基数，避免最终排序退化成单纯按时间排序。
 
-依据：[hindsight-api-slim/hindsight_api/engine/search/retrieval.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/search/retrieval.py)、[hindsight-api-slim/hindsight_api/engine/search/fusion.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/search/fusion.py)、[hindsight-api-slim/hindsight_api/engine/search/reranking.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/search/reranking.py)、[hindsight-api-slim/hindsight_api/engine/memories/postgres.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/memories/postgres.py)、[hindsight-api-slim/hindsight_api/engine/memories/pg/link_expansion.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/memories/pg/link_expansion.py)。
+依据：[hindsight-api-slim/hindsight_api/engine/search/retrieval.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/search/retrieval.py)、[hindsight-api-slim/hindsight_api/engine/search/fusion.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/search/fusion.py)、[hindsight-api-slim/hindsight_api/engine/search/reranking.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/search/reranking.py)、[hindsight-api-slim/hindsight_api/engine/memories/postgres.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/memories/postgres.py)、[hindsight-api-slim/hindsight_api/engine/memories/pg/link_expansion.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/memories/pg/link_expansion.py)。
 
 ## Reflect：带工具的推理循环
 
@@ -88,7 +88,7 @@ reflect 不是“先 recall 再总结”的单次调用，而是 `engine/reflect
 
 模块注释把这种顺序称为分层检索：先查心智模型，再查观察，最后用原始事实兜底。几项循环上限的默认值分别是：最多 10 轮迭代、累计上下文 100,000 token、整次操作墙钟超时 300 秒。最后一轮会强制要求模型给出答案。bank 的 mission、disposition 和 directives（行为规则）都写进系统提示；directives 还会被编进 `done` 工具的参数约束中。调用方传入 `response_schema` 时，答案会再经过一次结构化输出生成。对于支持增量提示缓存的 provider，每一步的上下文都会缓存，结束后在后台清理。
 
-依据：[hindsight-api-slim/hindsight_api/engine/reflect/agent.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/reflect/agent.py)、[hindsight-api-slim/hindsight_api/engine/reflect/tools_schema.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/reflect/tools_schema.py)、[hindsight-api-slim/hindsight_api/config.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/config.py)。
+依据：[hindsight-api-slim/hindsight_api/engine/reflect/agent.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/reflect/agent.py)、[hindsight-api-slim/hindsight_api/engine/reflect/tools_schema.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/reflect/tools_schema.py)、[hindsight-api-slim/hindsight_api/config.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/config.py)。
 
 ## 后台整合：观察与心智模型
 
@@ -103,7 +103,7 @@ reflect 不是“先 recall 再总结”的单次调用，而是 `engine/reflect
 
 这里体现的设计取舍是“演进而不是覆盖”：新证据只会更新或删除具体某条观察，每次变更都保留历史和证据，从而让 bank 的认知能被追溯。
 
-依据：[hindsight-api-slim/hindsight_api/engine/consolidation/consolidator.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/consolidation/consolidator.py)、[hindsight-api-slim/hindsight_api/engine/mental_model_refresh.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/mental_model_refresh.py)、[hindsight-api-slim/hindsight_api/engine/memory_engine.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/memory_engine.py)。
+依据：[hindsight-api-slim/hindsight_api/engine/consolidation/consolidator.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/consolidation/consolidator.py)、[hindsight-api-slim/hindsight_api/engine/mental_model_refresh.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/mental_model_refresh.py)、[hindsight-api-slim/hindsight_api/engine/memory_engine.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/memory_engine.py)。
 
 ## 异步任务与配置分层
 
@@ -123,7 +123,7 @@ reflect 不是“先 recall 再总结”的单次调用，而是 `engine/reflect
 
 `config_resolver.py` 在每次请求时按“全局环境变量 → 租户配置（由扩展提供）→ bank 配置（数据库）”的顺序解析配置。多台 API 服务器共用数据库时，它们看到的 bank 配置是一致的。数据库迁移同时支持 PostgreSQL 和 Oracle：每个 Alembic 迁移文件都通过 `run_for_dialect` 分派到对应方言，CI 中有测试检查迁移文件是否遗漏了分派。
 
-依据：[hindsight-api-slim/hindsight_api/engine/task_backend.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/task_backend.py)、[hindsight-api-slim/hindsight_api/worker/poller.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/worker/poller.py)、[hindsight-api-slim/hindsight_api/config_resolver.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/config_resolver.py)、[CLAUDE.md](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/CLAUDE.md)。
+依据：[hindsight-api-slim/hindsight_api/engine/task_backend.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/task_backend.py)、[hindsight-api-slim/hindsight_api/worker/poller.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/worker/poller.py)、[hindsight-api-slim/hindsight_api/config_resolver.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/config_resolver.py)、[CLAUDE.md](https://github.com/vectorize-io/hindsight/blob/main/CLAUDE.md)。
 
 ## 可扩展点
 
@@ -144,11 +144,10 @@ reflect 不是“先 recall 再总结”的单次调用，而是 `engine/reflect
 
 测试分为两层：`hindsight-api-slim/tests/`（619 个 `test_*.py` 文件，大多用 MockLLM 测试单个机制），以及 `hindsight-system-tests/`（黑盒测试，用一个模拟 OpenAI 和 Cohere 接口的 stub 服务驱动真实的 API 进程，专门检查多个步骤组合在一起时的问题）。依赖 LLM 判断的测试使用真实 LLM 加 LLM-as-judge 断言。
 
-依据：[hindsight-api-slim/hindsight_api/extensions/__init__.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/extensions/__init__.py)、[hindsight-api-slim/hindsight_api/extensions/builtin/tenant.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/extensions/builtin/tenant.py)、[hindsight-api-slim/hindsight_api/engine/memories/base.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/engine/memories/base.py)、[hindsight-api-slim/hindsight_api/config.py](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-api-slim/hindsight_api/config.py)、[hindsight-system-tests/README.md](https://github.com/vectorize-io/hindsight/blob/6d8b096786df335fc2cc1e5d6662092f0e1b8694/hindsight-system-tests/README.md)。
+依据：[hindsight-api-slim/hindsight_api/extensions/__init__.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/extensions/__init__.py)、[hindsight-api-slim/hindsight_api/extensions/builtin/tenant.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/extensions/builtin/tenant.py)、[hindsight-api-slim/hindsight_api/engine/memories/base.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/engine/memories/base.py)、[hindsight-api-slim/hindsight_api/config.py](https://github.com/vectorize-io/hindsight/blob/main/hindsight-api-slim/hindsight_api/config.py)、[hindsight-system-tests/README.md](https://github.com/vectorize-io/hindsight/blob/main/hindsight-system-tests/README.md)。
 
-## 来源与版本
+## 来源
 
 - 仓库：[vectorize-io/hindsight](https://github.com/vectorize-io/hindsight)
-- commit：`6d8b096786df335fc2cc1e5d6662092f0e1b8694`（服务端版本 `0.10.3`）
 - 阅读日期：2026-10-08
 - 本文中的调用关系、默认值和设计理由都来自静态阅读源码及其注释，没有实际运行服务或测试。`memory_engine.py` 超过 2.3 万行，本文只追踪了 retain、recall、reflect、整合的主路径；delta retain、文档追加、导入导出、知识页、Oracle 方言等分支只做了概括，没有逐行核对。延迟导入的耗时数字和超大文档内存溢出的描述来自源码注释，不是本文的实测结果。
