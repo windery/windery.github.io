@@ -22,14 +22,9 @@ npm run preview   # 看搜索和完整效果：先 build 再 preview
 - 栏目切换：每个栏目的侧栏由 `starlight-sidebar-topics` 生成，在 `astro.config.mjs` 里配置；栏目入口是顶栏标签，写在 `src/components/SiteTitle.astro`（覆盖 Starlight 的 SiteTitle）。宽度 ≥ 72rem 时显示顶栏标签并隐藏侧栏里的栏目列表，更窄时反过来。增删栏目要同时改这两处。首页 `index.mdx` 用 splash 模板，不属于任何栏目。
 - **项目深读**：`projects/<项目>/<overview|usage|internals>.md`。frontmatter 必须有 `source`（仓库地址）和 `date`，缺了构建失败；标题下的来源行（仓库 · 日期）也由同一处渲染。逻辑在 `src/components/PageTitle.astro`（覆盖了 Starlight 的 PageTitle）。新增项目要在 `astro.config.mjs` 的 `projects` 列表和 `projects/index.md` 里各加一行。
 - **系统课程**：`courses/<课>/<章>/<节>.md`，最多三级，侧栏按目录自动生成；章节导读写成该目录的 `index.md`。风格参考廖雪峰的 Python 教程。
+- 评论用 Giscus，存在本仓库 Discussions 的 Announcements 分类，配置在 `astro.config.mjs`。
 - 额外的 frontmatter 字段定义在 `src/content.config.ts`。`giscus: false` 关闭本页评论，首页和「即将上线」页都关了。
-- **AI 快讯**：每期放在 `news/YYYY-MM-DD.md`，frontmatter 必填 `title`、`description`、`date`；`PageTitle.astro` 校验日期与文件名一致，并在标题下显示日期。`astro.config.mjs` 读取期文件，按月分组、日期倒序生成侧栏，最新月份展开；栏目首页 `news/index.mdx` 通过 `NewsList.astro` 从内容集合列出最近 30 期。
-
-## 现状（2026-10-24）
-
-- main 就是 Starlight 新站，已上线。
-- AI 快讯每天由内容仓库的 `工具/快讯/发布.mjs` 发布一期（只提交当期文件，推送 main 后等 Pages 部署）。工具箱、实践和系统课程只有「即将上线」页。新 Rust 课程另外做。
-- Giscus 评论存在本仓库 Discussions 的 Announcements 分类，配置在 `astro.config.mjs`。
+- **AI 快讯**：每天由内容仓库的 `工具/快讯/发布.mjs` 发布一期（只提交当期文件，推送 main 后等 Pages 部署）。每期放在 `news/YYYY-MM-DD.md`，frontmatter 必填 `title`、`description`、`date`；`PageTitle.astro` 校验日期与文件名一致，并在标题下显示日期。`astro.config.mjs` 读取期文件，按月分组、日期倒序生成侧栏，最新月份展开；栏目首页 `news/index.mdx` 通过 `NewsList.astro` 从内容集合列出最近 30 期。
 
 ## 规则
 
