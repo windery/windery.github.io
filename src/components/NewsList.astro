@@ -1,0 +1,59 @@
+---
+import { getCollection } from 'astro:content';
+
+const issues = (await getCollection('docs', ({ id }) => /^news\/\d{4}-\d{2}-\d{2}$/.test(id)))
+	.sort((a, b) => b.id.localeCompare(a.id))
+	.slice(0, 30);
+---
+
+{
+	issues.length ? (
+		<ul class="news-list">
+			{issues.map(({ id, data }) => {
+				const [, month, day] = id.slice(5).split('-').map(Number);
+				return (
+					<li>
+						<div class="issue-title">
+							<time datetime={id.slice(5)}>{month} 月 {day} 日</time>
+							<a href={`/${id}/`}>{data.title}</a>
+						</div>
+						<p>{data.description}</p>
+					</li>
+				);
+			})}
+		</ul>
+	) : (
+		<p>还没有发布的期。</p>
+	)
+}
+
+<style>
+	.news-list {
+		list-style: none;
+		padding: 0;
+	}
+
+	.news-list li + li {
+		margin-top: 1.5rem;
+	}
+
+	.issue-title {
+		display: flex;
+		align-items: baseline;
+		gap: 1rem;
+	}
+
+	time {
+		flex-shrink: 0;
+	}
+
+	time,
+	.news-list p {
+		font-size: var(--sl-text-sm);
+		color: var(--sl-color-gray-3);
+	}
+
+	.news-list p {
+		margin-top: 0.5rem;
+	}
+</style>

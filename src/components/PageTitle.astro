@@ -9,9 +9,19 @@ if (isProjectArticle && (!data.source || !data.date)) {
 }
 const repo = data.source?.replace(/^https:\/\/github\.com\//, '');
 const date = data.date?.toISOString().slice(0, 10);
+const newsDate = /^news\/(\d{4}-\d{2}-\d{2})$/.exec(id)?.[1];
+if (newsDate && (!date || date !== newsDate)) {
+	throw new Error(`AI 快讯 ${id} 缺少 date 或 date 与文件名日期不一致`);
+}
+const displayDate = newsDate?.split('-').map(Number);
 ---
 
 <Default />
+{
+	displayDate && (
+		<p class="source-line">{displayDate[0]} 年 {displayDate[1]} 月 {displayDate[2]} 日</p>
+	)
+}
 {
 	isProjectArticle && (
 		<p class="source-line">

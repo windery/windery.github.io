@@ -1,3 +1,4 @@
+import { readdirSync } from 'node:fs';
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import starlightSidebarTopics from 'starlight-sidebar-topics';
@@ -15,6 +16,29 @@ const projects = [
 	['vectorize-io-hindsight', 'vectorize-io/hindsight'],
 	['paperclipai-paperclip', 'paperclipai/paperclip'],
 ];
+
+const newsMonths = new Map();
+const newsFiles = readdirSync(new URL('./src/content/docs/news/', import.meta.url), { withFileTypes: true })
+	.filter((entry) => entry.isFile() && /^\d{4}-\d{2}-\d{2}\.md$/.test(entry.name))
+	.map((entry) => entry.name.slice(0, -3))
+	.sort()
+	.reverse();
+for (const date of newsFiles) {
+	const [year, month, day] = date.split('-');
+	const key = `${year}-${month}`;
+	if (!newsMonths.has(key)) {
+		newsMonths.set(key, {
+			label: `${year} 年 ${Number(month)} 月`,
+			collapsed: newsMonths.size > 0,
+			items: [],
+		});
+	}
+	newsMonths.get(key).items.push({
+		label: `${Number(month)} 月 ${Number(day)} 日`,
+		link: `/news/${date}/`,
+	});
+}
+const newsItems = [{ label: '最近 30 期', link: '/news/' }, ...newsMonths.values()];
 
 export default defineConfig({
 	site: 'https://windery.github.io',
@@ -34,7 +58,7 @@ export default defineConfig({
 			plugins: [
 				starlightSidebarTopics(
 					[
-						{ label: 'AI 快讯', link: '/news/', icon: 'rocket', items: ['news'] },
+						{ label: 'AI 快讯', link: '/news/', icon: 'rocket', items: newsItems },
 						{ label: 'AI 工具箱', link: '/tools/', icon: 'puzzle', items: ['tools'] },
 						{ label: 'AI 实践', link: '/practice/', icon: 'pencil', items: ['practice'] },
 						{
