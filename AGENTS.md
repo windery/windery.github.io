@@ -24,7 +24,7 @@ npm run preview   # 看搜索和完整效果：先 build 再 preview
 - **系统课程**：`courses/<课>/<章>/<节>.md`，最多三级，侧栏按目录自动生成；章节导读写成该目录的 `index.md`。风格参考廖雪峰的 Python 教程。
 - 评论用 Giscus，存在本仓库 Discussions 的 Announcements 分类，配置在 `astro.config.mjs`。
 - 额外的 frontmatter 字段定义在 `src/content.config.ts`。`giscus: false` 关闭本页评论，首页和「即将上线」页都关了。
-- **AI 快讯**：每天由内容仓库的 `工具/快讯/发布.mjs` 发布一期（只提交当期文件，推送 main 后等 Pages 部署）。每期放在 `news/YYYY-MM-DD.md`，frontmatter 必填 `title`、`description`、`date`；`PageTitle.astro` 校验日期与文件名一致，并在标题下显示日期。`astro.config.mjs` 读取期文件，按月分组、日期倒序生成侧栏，最新月份展开；栏目首页 `news/index.mdx` 通过 `NewsList.astro` 从内容集合列出最近 30 期。
+- **AI 快讯（/news/）**：内容仓库的自动发布已停。现在由 `watch-push` 的推送任务「AI 日报」每天存档一篇，只提交当期文件。每期放在 `news/YYYY-MM-DD.md`，frontmatter 必填 `title`、`description`、`date`；`PageTitle.astro` 校验日期与文件名一致，并在标题下显示日期。`astro.config.mjs` 读取期文件，按月分组、日期倒序生成侧栏，最新月份展开；栏目首页 `news/index.mdx` 通过 `NewsList.astro` 从内容集合列出最近 30 期。
 
 ## 规则
 
